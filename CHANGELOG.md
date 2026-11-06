@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.15]
+- Fix: Tab capturado antes do CheerpJ; paleta aberta no mouse fecha corretamente (hidden vs .at).
+
 ## [0.6.0-alpha.14]
 - Fix: bridge lia o retorno de runMacroSilent com Array.from (proxy Java nao iteravel) -> "Cannot convert a Symbol value to a number".
 - Barra de titulo das janelas Java com 20px (CheerpJ posiciona o menu em y=20; titulo ficava cortado), botoes 18px com traco fino.

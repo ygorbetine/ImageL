@@ -287,13 +287,18 @@ export function mountShell() {
   pal.addEventListener('mousedown', e => { if (e.target === pal) closePalette(); });
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); pal.hidden ? openPalette() : closePalette(); }
-    else if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && (pal.hidden ? onBlank() && !e.target.closest?.('input, select, [contenteditable]') : e.target === palIn)) {
-      e.preventDefault(); e.stopPropagation();
-      pal.hidden ? openPalette({ x: mouse.x, y: mouse.y }) : closePalette();
-    }
     else if (e.key === 'Escape') closeMenus();
     else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'b' && isDesktop) { e.preventDefault(); setOverlay(!document.body.classList.contains('ov')); }
   });
+
+  // Captura (antes do CheerpJ): o textarea dele engole o Tab no bubbling.
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Tab' || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
+    const open = !pal.hidden;
+    if (open ? e.target !== palIn : !(onBlank() && !e.target.closest?.('input, select, [contenteditable]'))) return;
+    e.preventDefault(); e.stopPropagation();
+    open ? closePalette() : openPalette({ x: mouse.x, y: mouse.y });
+  }, true);
 
   // ---- modo "Sem fundo" (desktop) --------------------------------------------------------------------------------
   function setOverlay(on) {
