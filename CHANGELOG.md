@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.10]
+- Visual volta ao do mockup: toolbar vertical por padrao (horizontal so em telas baixas), barra de status em faixa, fundo de pontos, seletor Com/Sem fundo sempre visivel.
+
 ## [0.6.0-alpha.9]
 - Fix: voltar de "Sem fundo" para "Com fundo" mantinha posicoes arrastadas das barras (toolbar deslocada); agora reseta.
 - Fundo "Com fundo" com grade leve em dois niveis; barras de rolagem discretas.

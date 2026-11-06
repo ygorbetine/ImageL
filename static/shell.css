@@ -7,7 +7,7 @@ body.il-shell button { font: inherit; color: inherit; background: none; border: 
 body.il-shell kbd { font: 11px ui-monospace,Consolas,monospace; color: var(--s-muted); margin-left: auto; padding-left: 18px; }
 
 /* A area do CheerpJ ocupa o espaco entre as barras */
-body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bottom: 0; width: auto; height: auto; }
+body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bottom: 26px; width: auto; height: auto; }
 
 .il-top { position: fixed; z-index: 5000; top: 0; left: 0; right: 0; height: 46px; display: flex; align-items: center; gap: 4px; padding: 0 10px; background: var(--s-surface); border-bottom: 1px solid var(--s-border); white-space: nowrap; }
 .il-logo { display: flex; align-items: center; gap: 7px; font-weight: 700; margin-right: 8px; user-select: none; }
@@ -43,7 +43,7 @@ body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bot
 .il-tool.active { background: var(--s-accent); color: #fff; }
 .il-grip { display: none; width: 42px; height: 22px; place-items: center; color: var(--s-muted); cursor: grab; touch-action: none; }
 
-.il-status { position: fixed; z-index: 5000; left: 10px; bottom: 10px; height: 28px; display: flex; align-items: center; gap: 14px; padding: 0 14px; background: var(--s-surface); border: 1px solid var(--s-border); border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,.28); color: var(--s-muted); font-size: 12px; }
+.il-status { position: fixed; z-index: 5000; left: 0; right: 0; bottom: 0; height: 26px; display: flex; align-items: center; gap: 16px; padding: 0 12px; background: var(--s-surface); border-top: 1px solid var(--s-border); color: var(--s-muted); font-size: 12px; }
 .il-ready::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--s-ok); margin-right: 6px; }
 
 .il-pal { position: fixed; inset: 0; z-index: 20000; display: flex; justify-content: center; align-items: flex-start; padding-top: 14vh; background: rgba(0,0,0,.45); }
@@ -150,14 +150,10 @@ body.il-shell[data-orient="v"] .il-tools, body.ov[data-orient="v"] .il-tools { o
 body.ov[data-orient="v"] .il-tools { padding: 6px 4px; gap: 2px; width: 60px; }
 body.ov[data-orient="v"] .il-tool { width: 46px; height: 46px; }
 
-/* Fundo "Com fundo": grade leve em dois niveis (32px e 160px), discreta no escuro e no claro */
+/* Fundo "Com fundo": pontos discretos (igual ao mockup) */
 body.il-shell:not(.ov) {
   background-color: var(--s-bg);
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--s-text) 7%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--s-text) 7%, transparent) 1px, transparent 1px),
-    linear-gradient(color-mix(in srgb, var(--s-text) 3.5%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--s-text) 3.5%, transparent) 1px, transparent 1px);
-  background-size: 160px 160px, 160px 160px, 32px 32px, 32px 32px;
-  background-position: -1px -1px;
+  background-image: radial-gradient(color-mix(in srgb, var(--s-border) 80%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
 }
+body.il-shell:not(.ov) .il-status { border-radius: 0; box-shadow: none; }

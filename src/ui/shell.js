@@ -128,7 +128,6 @@ export function mountShell() {
   const mBg = el('button', { class: 'on', onclick: () => setOverlay(false) }, `${SVG(ICON.bg, 18)}<span data-m="bg"></span>`);
   const mOv = el('button', { onclick: () => setOverlay(true) }, `${SVG(ICON.ov, 18)}<span data-m="ov"></span>`);
   seg.append(mBg, mOv);
-  if (!isDesktop) seg.hidden = true; // "Sem fundo" exige o shell desktop (janela transparente)
   const liteBtn = el('button', { class: 'il-ico', onclick: () => { setLite(!isLite()); refresh(); } }, SVG(ICON.bolt, 20));
   const langBtn = el('button', { class: 'il-lang', onclick: () => setLocale(getLocale() === 'pt' ? 'en' : 'pt') }, `${SVG(ICON.globe, 18)}<b></b>`);
   const themeBtn = el('button', { class: 'il-ico', onclick: () => {
@@ -213,7 +212,7 @@ export function mountShell() {
   // ---- orientacao da toolbar: horizontal por padrao; auto-vertical em tela estreita e alta; botao alterna -----------
   const ORIENT_KEY = 'imagel.orient';
   const store = { get: () => { try { return localStorage.getItem(ORIENT_KEY); } catch (_) { return null; } }, set: v => { try { localStorage.setItem(ORIENT_KEY, v); } catch (_) {} } };
-  const autoOrient = () => (innerWidth < 900 && innerHeight >= 700 ? 'v' : 'h');
+  const autoOrient = () => (innerHeight < 640 && innerWidth >= 900 ? 'h' : 'v'); // vertical (como o mockup); horizontal so em telas baixas
   const applyOrient = () => { document.body.dataset.orient = store.get() || autoOrient(); placeTools(); };
   // Horizontal (fora do "Sem fundo"): a toolbar entra na mesma linha da barra superior (uma barra so, mais area util).
   function placeTools() {
