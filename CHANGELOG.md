@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.35]
+- Corrigido: ao trocar de modo a barra/aba saltava pela posição padrão antes de ir à salva (parecia recriada); a posição salva agora é aplicada no mesmo quadro.
+
 ## [0.6.0-alpha.34]
 ### Added
 - "No background" / "With background" now remember where bars and floating windows were left, per mode (also across sessions); positions are clamped to the visible area on restore.

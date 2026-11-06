@@ -333,6 +333,7 @@ export function mountShell() {
     window.dispatchEvent(new CustomEvent('imagel:overlay', { detail: on })); // o shell Tauri liga click-through/transparencia
     // a janela nativa muda de tamanho de forma assincrona: restaura depois do novo layout (e de novo, por seguranca)
     const back = () => restore(readStore(localStorage)[now], bars, display, innerWidth, innerHeight);
+    back(); // ja no mesmo quadro: sem o salto pela posicao padrao (parecia a aba recriada)
     setTimeout(back, 150); setTimeout(back, 700);
   }
   window.addEventListener('pagehide', () => {
