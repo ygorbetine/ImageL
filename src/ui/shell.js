@@ -8,6 +8,7 @@ import { isLite, setLite } from '../lite.js';
 import { reportError } from '../error-handler.js';
 import { initDesktop } from '../desktop.js';
 import { createAiPanel } from './ai-panel.js';
+import { loadLiveMenus, EXT_HANDLERS } from './ij-menus.js';
 
 const SVG = (d, s = 22, w = 2.4) =>
   `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -44,12 +45,17 @@ export function shellEnabled() {
 
 export function mountShell() {
   const bridge = createBridge();
-  const commands = flattenCommands();
+  let menus = MENUS;
+  let commands = flattenCommands(menus);
   const isDesktop = typeof window !== 'undefined' && !!window.__TAURI__;
   document.documentElement.dataset.theme = (() => { try { return localStorage.getItem('imagel.theme') || 'dark'; } catch (_) { return 'dark'; } })();
   document.body.classList.add('il-shell');
 
-  const run = (cmd) => bridge.run(cmd).catch(e => reportError(e, 'menu'));
+  const run = (cmd, ext) => {
+    const h = ext && window.__menuHandlers && window.__menuHandlers[EXT_HANDLERS[cmd]];
+    if (h) { try { return Promise.resolve(h()).catch(e => reportError(e, 'ext')); } catch (e) { reportError(e, 'ext'); return null; } }
+    return bridge.run(cmd).catch(e => reportError(e, 'menu'));
+  };
 
   // ---- menus ----------------------------------------------------------------------------------------------------
   const menubar = el('nav', { class: 'il-menu', role: 'menubar' });
@@ -65,7 +71,7 @@ export function mountShell() {
         ul.appendChild(li);
       } else {
         const li = el('li', { role: 'none' }, `<button role="menuitem" tabindex="-1">${esc(lab(it))}${it.key ? `<kbd>${esc(it.key)}</kbd>` : ''}</button>`);
-        li.firstChild.addEventListener('click', () => { closeMenus(); run(it.cmd); });
+        li.firstChild.addEventListener('click', () => { closeMenus(); run(it.cmd, it.ext); });
         ul.appendChild(li);
       }
     }
@@ -73,7 +79,7 @@ export function mountShell() {
   };
   const buildMenus = () => {
     menubar.textContent = '';
-    for (const m of MENUS) {
+    for (const m of menus) {
       const wrap = el('div', { class: 'il-mwrap' });
       const btn = el('button', { class: 'il-mbtn', 'aria-haspopup': 'true', 'aria-expanded': 'false' }, esc(lab(m)));
       const open = () => { if (openMenu !== wrap) { closeMenus(); wrap.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); openMenu = wrap; } };
@@ -145,7 +151,7 @@ export function mountShell() {
       palList.appendChild(li);
     });
   };
-  const execPal = i => { const c = palRes[i]; closePalette(); if (c) run(c.cmd); };
+  const execPal = i => { const c = palRes[i]; closePalette(); if (c) run(c.cmd, c.ext); };
   function openPalette() { pal.hidden = false; palIn.value = ''; palSel = 0; renderPal(); palIn.focus(); }
   function closePalette() { pal.hidden = true; }
   palIn.addEventListener('input', () => { palSel = 0; renderPal(); });
@@ -188,6 +194,11 @@ export function mountShell() {
     renderPal();
   }
   onLocaleChange(refresh);
+  // Menus reais do ImageJ (completos, com plugins e Extensions) quando ele estiver pronto; falha -> lista padrao.
+  window.addEventListener('imagel:ready', async () => {
+    try { menus = await loadLiveMenus(window.IJClass); commands = flattenCommands(menus); refresh(); }
+    catch (e) { reportError('Menus do ImageJ indisponiveis, usando lista padrao: ' + (e.message || e), 'menus'); }
+  });
 
   const memTick = () => {
     const m = performance.memory;

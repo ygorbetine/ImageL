@@ -89,18 +89,23 @@ export const MENUS = [
 
 /** Ferramentas da toolbar: id = nome aceito por setTool(), icone = path SVG (traco grosso). */
 export const TOOLS = [
-  { id: 'rectangle', en: 'Rectangle', pt: 'Retângulo', key: 'R', icon: '<rect x="4" y="5" width="16" height="14" rx="1.5"/>' },
-  { id: 'oval', en: 'Ellipse', pt: 'Elipse', icon: '<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>' },
-  { id: 'polygon', en: 'Polygon', pt: 'Polígono', icon: '<path d="M12 3.5l8 6-3 10H7l-3-10z"/>' },
-  { id: 'freehand', en: 'Freehand', pt: 'Mão livre', icon: '<path d="M3 17c3-9 5-9 7-4s4 4 6-3l5 3"/>' },
-  { id: 'line', en: 'Line', pt: 'Linha', icon: '<path d="M5 19L19 5"/><circle cx="5" cy="19" r="1.2"/><circle cx="19" cy="5" r="1.2"/>' },
-  { id: 'point', en: 'Point', pt: 'Ponto', icon: '<circle cx="12" cy="12" r="3.5" fill="currentColor"/>' },
-  { id: 'wand', en: 'Wand', pt: 'Varinha', icon: '<path d="M5 19l9-9"/><path d="M15 3v4M13 5h4M20 10v3M18.5 11.5h3"/>' },
-  '-',
-  { id: 'text', en: 'Text', pt: 'Texto', icon: '<path d="M5 6V4.5h14V6M12 4.5v15M9 19.5h6"/>' },
-  { id: 'zoom', en: 'Zoom', pt: 'Lupa', icon: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/>' },
+  { id: 'rectangle', en: 'Rectangle', pt: 'Retângulo', key: 'R', icon: '<rect x="4" y="6" width="16" height="12" rx="1.5"/>' },
+  { id: 'oval', en: 'Oval', pt: 'Oval', icon: '<ellipse cx="12" cy="12" rx="8.5" ry="6"/>' },
+  { id: 'polygon', en: 'Polygon', pt: 'Polígono', icon: '<path d="M4 17l3-10 9-2 4 8-4 6z"/>' },
+  { id: 'freehand', en: 'Freehand', pt: 'Mão livre', icon: '<path d="M6 9c2-4 8-5 11-2 3 3 1 7-3 8-3 1-4 3-7 2-3-1-4-5-1-8z"/>' },
+  { id: 'line', en: 'Straight line', pt: 'Linha reta', icon: '<path d="M5 19L19 5"/><path d="M4 21l2-2M18 7l2-2" opacity=".0"/>' },
+  { id: 'angle', en: 'Angle', pt: 'Ângulo', icon: '<path d="M5 19h14M5 19L16 6"/><path d="M11 19a6 6 0 00-1.6-4"/>' },
+  { id: 'point', en: 'Point', pt: 'Ponto', icon: '<circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/>' },
+  { id: 'wand', en: 'Wand', pt: 'Varinha', icon: '<path d="M5 19L15 9"/><path d="M17 3v4M15 5h4M20 11v3M18.5 12.5h3"/>' },
+  { id: 'text', en: 'Text', pt: 'Texto', icon: '<path d="M6 19L12 5l6 14M8.5 14h7"/>' },
+  { id: 'zoom', en: 'Magnifier', pt: 'Lupa', icon: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/>' },
   { id: 'hand', en: 'Hand', pt: 'Mão', icon: '<path d="M8 12V5.5a1.5 1.5 0 013 0V11M11 11V4.5a1.5 1.5 0 013 0V11M14 11V6a1.5 1.5 0 013 0v7c0 4-2.5 7-6 7-3 0-4.5-2-6-4.5l-1.3-2.3a1.5 1.5 0 012.6-1.4L8 14"/>' },
   { id: 'dropper', en: 'Color picker', pt: 'Conta-gotas', icon: '<path d="M14 7l3-3a2.1 2.1 0 013 3l-3 3M14 7l3 3M14 7L5 16l-1 4 4-1 9-9"/>' },
+  '-',
+  { id: 'polyline', en: 'Segmented line', pt: 'Linha segmentada', icon: '<path d="M4 18l5-8 5 5 6-10"/>' },
+  { id: 'multipoint', en: 'Multi-point', pt: 'Multiponto', icon: '<circle cx="6" cy="7" r="2" fill="currentColor"/><circle cx="17" cy="9" r="2" fill="currentColor"/><circle cx="10" cy="17" r="2" fill="currentColor"/>' },
+  { id: 'brush', en: 'Paintbrush', pt: 'Pincel', icon: '<path d="M20 4l-9 9M9 13c-3 0-4 2-4 4 0 1-1 2-2 2 3 1 8 1 8-4z"/>' },
+  { id: 'arrow', en: 'Arrow', pt: 'Seta', icon: '<path d="M5 19L19 5M10 5h9v9"/>' },
 ];
 
 const walk = (items, path, out) => {

@@ -256,7 +256,9 @@
   var mem = navigator.deviceMemory || 0; // GB (so Chromium); 0 = desconhecido
   var saveData = !!(navigator.connection && navigator.connection.saveData);
   var LITE = cores <= 4 || (mem > 0 && mem <= 4) || saveData;
-  var DEFAULT_POOL = LITE ? 0 : Math.max(2, Math.min(4, cores - 2));
+  // Medido (ij.jar real): cada worker recarrega ij.jar + plugins (bioformats ~41 MB); com pool>0 o boot passou de 90 s,
+  // com pool=0 abre em ~23 s. Por isso o padrao e 0 em TODAS as maquinas; paralelismo e opt-in (?pool=N).
+  var DEFAULT_POOL = 0;
   try {
     var qp = new URLSearchParams(location.search).get('pool');
     if (qp !== null && /^\d+$/.test(qp)) DEFAULT_POOL = Math.min(8, parseInt(qp, 10));

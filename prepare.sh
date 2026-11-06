@@ -82,7 +82,7 @@ if [ -f plugins_manifest.txt ]; then
         [[ -z "$filename" || "$filename" =~ ^#.*$ ]] && continue
         echo "  Downloading $filename from $url"
         curl -L "$url" -o "lib/ImageJ/plugins/$filename"
-    done < plugins_manifest.txt
+    done < <(tr -d '\r' < plugins_manifest.txt)
 fi
 
 # Create index.list files for subdirectories

@@ -562,9 +562,11 @@ try {
             ["mcp",                     "-", "roi-test",          "-", "cellpose"]
         );
         log.debug('Installed "Extensions" menu');
+        window.dispatchEvent(new Event('imagel:ready'));
         splash.done();
     } catch (e) {
         log.warn('Failed to install Extensions menu:', e);
+        window.dispatchEvent(new Event('imagel:ready'));
         splash.done();
     }
 } catch (err) {

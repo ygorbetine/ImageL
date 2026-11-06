@@ -27,7 +27,7 @@ for j in "$LIBS"/*.jar; do CP="$CP:$j"; done
 
 echo "[threadhack/java] compiling sources (cp=$CP)"
 SOURCES=$(find "$SRC" -name "*.java")
-javac -source 1.8 -target 1.8 -d "$OUT" -cp "$CP" $SOURCES
+javac -encoding UTF-8 -source 1.8 -target 1.8 -d "$OUT" -cp "$CP" $SOURCES
 
 # Extract ASM classes into the same output tree (so the final jar is self-contained)
 echo "[threadhack/java] expanding ASM jars into $OUT"

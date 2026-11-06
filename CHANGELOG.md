@@ -4,6 +4,23 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.3] - 2026-11-06
+
+### Added
+- `src/ui/ij-menus.js`: a casca le o menu REAL do ImageJ (todos os menus, submenus, plugins instalados e **Extensions**), com PT quando ha traducao; falha -> lista padrao.
+- Ferramentas na mesma ordem e forma da barra original (retangulo, oval, poligono, mao livre, linha, angulo, ponto, varinha, texto, lupa, mao, conta-gotas + segmentada, multiponto, pincel, seta), icones atualizados com traco grosso.
+- `tools/run-prepare.sh`: gera `ij.jar` no Windows com JDK do sistema + Ant portatil (`.tools/`).
+
+### Fixed
+- Abas do menu superior empilhavam e vazavam da barra: agora em linha horizontal.
+- `prepare.sh`: ignora CRLF no `plugins_manifest.txt`; `threadhack/java/build.sh`: `javac -encoding UTF-8`.
+
+### Changed
+- **Pool de workers padrao = 0** em todas as maquinas (medido: boot ~23 s contra >90 s com workers). Paralelismo so com `?pool=N`.
+
+### Verified (ImageJ real, ij.jar gerado localmente)
+- ImageJ 1.54s6 abre com a casca nova (533 comandos), menu real com Extensions e macro `run("Gaussian Blur...")` executada pela ponte.
+
 ## [0.6.0-alpha.2] - 2026-11-06
 
 ### Added
