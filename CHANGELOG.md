@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.7]
+- Janela Java original do ImageJ oculta no shell novo (continua viva); botao na barra para mostrar o ImageJ classico.
+
 ## [0.6.0-alpha.6]
 - Layout compacto: toolbar na mesma linha da barra superior (>=1180px), ferramentas agrupadas com flyout (clique de novo ou botao direito), tooltips com nome+atalho, status em pilula flutuante.
 - Fix: `refresh()` quebrava com os botoes de grupo e deixava o menu vazio ao alternar lite/idioma.

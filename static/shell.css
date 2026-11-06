@@ -137,3 +137,6 @@ body.il-shell.il-inline #container, body.il-shell[data-orient="h"].il-inline #co
 .il-fly button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 10px; border-radius: 5px; color: var(--s-text); text-align: left; }
 .il-fly button:hover { background: color-mix(in srgb, var(--s-accent) 22%, transparent); }
 html[data-lite] .il-status, html[data-lite] .il-fly { box-shadow: none; }
+
+/* Janela Java original oculta (viva, sem cliques) */
+body.il-hide-classic [data-il-classic] { opacity: 0 !important; pointer-events: none !important; z-index: -1 !important; }

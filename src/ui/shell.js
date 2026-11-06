@@ -134,10 +134,31 @@ export function mountShell() {
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem('imagel.theme', next); } catch (_) { /* ok */ }
   } }, SVG(ICON.theme, 20));
+  // Janela Java original do ImageJ ("ImageJ"): fica viva (menus, status, dialogos dependem dela), mas oculta por padrao.
+  const CLASSIC_KEY = 'imagel.classic';
+  const classicShown = () => { try { return localStorage.getItem(CLASSIC_KEY) === '1'; } catch (_) { return false; } };
+  const markClassic = () => {
+    const disp = document.getElementById('cheerpjDisplay');
+    if (!disp) return false;
+    for (const w of disp.querySelectorAll(':scope > .cjWindow')) {
+      if (w.dataset.ilClassic) return true;
+      const tb = w.querySelector('.cjTitleBar');
+      if (tb && tb.textContent.trim() === 'ImageJ') { w.dataset.ilClassic = '1'; return true; }
+    }
+    return false;
+  };
+  const applyClassic = () => { document.body.classList.toggle('il-hide-classic', !classicShown()); };
+  applyClassic();
+  new MutationObserver((_, obs) => { if (markClassic()) obs.disconnect(); }).observe(document.getElementById('cheerpjDisplay') || document.body, { childList: true, subtree: true });
+  const classicBtn = el('button', { class: 'il-ico', 'aria-label': 'Classic ImageJ window', title: 'ImageJ classic', onclick: () => {
+    try { localStorage.setItem(CLASSIC_KEY, classicShown() ? '0' : '1'); } catch (_) {}
+    applyClassic(); classicBtn.classList.toggle('on', classicShown());
+  } }, SVG('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/>', 20));
+  classicBtn.classList.toggle('on', classicShown());
   const ai = createAiPanel();
   const aiBtn = el('button', { class: 'il-lang', onclick: () => ai.toggle() }, '<b>IA</b>');
   const spacer = el('div', { class: 'il-spacer' });
-  top.append(logo, menubar, spacer, searchBtn, seg, aiBtn, liteBtn, langBtn, themeBtn);
+  top.append(logo, menubar, spacer, searchBtn, seg, aiBtn, classicBtn, liteBtn, langBtn, themeBtn);
 
   // ---- toolbar --------------------------------------------------------------------------------------------------
   const tools = el('aside', { class: 'il-tools', 'data-drag': '', 'aria-label': 'Tools' });
