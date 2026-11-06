@@ -45,3 +45,11 @@ test('bridge le arrays estilo proxy Java (nao iteraveis, indice assincrono)', as
   const b2 = createBridge(() => ({}), async () => ({ runMacroSilent: async () => err }));
   await assert.rejects(() => b2.run('x'), /boom/);
 });
+
+test('setTool aceita indice numerico (Dev/Balde) e rejeita fora da faixa', async () => {
+  const calls = [];
+  const b = createBridge(() => ({}), async () => ({ runMacroSilent: async c => { calls.push(c); return ['success', '']; } }));
+  await b.setTool(17);
+  assert.equal(calls[0], 'setTool(17);');
+  await assert.rejects(() => b.setTool(99));
+});

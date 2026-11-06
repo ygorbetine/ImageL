@@ -24,7 +24,6 @@ getPixelSize(unit, pw, ph);
 if (unit == "pixels" || unit == "pixel") unit = "px";
 step = pw; if (vert) step = ph;
 run("Duplicate...", "title=ImageL-gap");
-work = getImageID();
 run("8-bit");
 run("Variance...", "radius=" + rad);
 setAutoThreshold("Otsu dark");
@@ -51,7 +50,7 @@ for (i = 0; i < n; i++) {
   }
   pos0[i] = pos; d[i] = best; a1[i] = bs;
 }
-selectImage(work); close();
+selectImage("ImageL-gap"); close();
 selectImage(orig);
 tbl = "Gap distances";
 Table.create(tbl);

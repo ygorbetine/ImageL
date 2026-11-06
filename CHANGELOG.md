@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.16]
+- Fix: Balde e Dev ("Unrecognized tool name") agora usam o indice numerico do setTool (17 e 15). Teste no ImageJ real: todas as 18 ferramentas selecionam.
+- Gap distance roda em modo normal do ImageJ (o modo silencioso/batch quebrava a selecao de imagens).
+
 ## [0.6.0-alpha.15]
 - Fix: Tab capturado antes do CheerpJ; paleta aberta no mouse fecha corretamente (hidden vs .at).
 

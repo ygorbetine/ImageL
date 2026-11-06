@@ -43,7 +43,9 @@ export function createBridge(
     },
     /** Nomes aceitos: rectangle, oval, brush, arrow... ou nome de ferramenta de macro ("Flood Filler Built-in Tool"). */
     async setTool(id) {
-      if (!TOOL_RE.test(id)) throw new Error('ferramenta invalida: ' + id);
+      // Ferramentas embutidas sem nome aceito pelo setTool (Dev=15, Balde=17, Pincel=16, Seta=18) usam o indice numerico.
+      if (typeof id === 'number' && Number.isInteger(id) && id >= 0 && id < 40) return macro(`setTool(${id});`);
+      if (typeof id !== 'string' || !TOOL_RE.test(id)) throw new Error('ferramenta invalida: ' + id);
       log.debug('setTool', id);
       return macro(`setTool("${id}");`);
     },

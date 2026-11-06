@@ -50,7 +50,7 @@ export function shellEnabled() {
 export function mountShell() {
   const bridge = createBridge();
   let menus = withImageL(MENUS);
-  window.__menuHandlers = { ...window.__menuHandlers, gap: () => bridge.macro(GAP_MACRO) };
+  window.__menuHandlers = { ...window.__menuHandlers, gap: () => window.IJClass.runMacro(GAP_MACRO) /* macro com Dialog e IDs de imagem: modo normal, nao o batch/silencioso */ };
   let commands = flattenCommands(menus);
   const isDesktop = typeof window !== 'undefined' && !!window.__TAURI__;
   document.documentElement.dataset.theme = (() => { try { return localStorage.getItem('imagel.theme') || 'dark'; } catch (_) { return 'dark'; } })();
@@ -169,7 +169,7 @@ export function mountShell() {
   const toolById = new Map(TOOLS.filter(x => x !== '-').map(x => [x.id, x]));
   const tip = createTooltip();
   const fly = createFlyout();
-  const select = (id, btn) => bridge.setTool(id).then(() => {
+  const select = (id, btn) => bridge.setTool(toolById.get(id)?.ij ?? id).then(() => {
     toolBtns.forEach(x => x.classList.remove('active')); btn.classList.add('active');
   }).catch(e => reportError(e, 'tool'));
   const tipText = tl => `${lab(tl)}${tl.key ? '  [' + tl.key + ']' : ''}`;

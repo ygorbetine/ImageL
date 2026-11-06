@@ -104,8 +104,8 @@ export const TOOLS = [
   '-',
   { id: 'polyline', en: 'Segmented line', pt: 'Linha segmentada', icon: '<path d="M4 18l5-8 5 5 6-10"/>' },
   { id: 'multipoint', en: 'Multi-point', pt: 'Multiponto', icon: '<circle cx="6" cy="7" r="2" fill="currentColor"/><circle cx="17" cy="9" r="2" fill="currentColor"/><circle cx="10" cy="17" r="2" fill="currentColor"/>' },
-  { id: 'Flood Filler Built-in Tool', en: 'Flood fill', pt: 'Balde', icon: '<path d="M5 13l7-8 7 8-7 7z"/><path d="M19 15c1.5 2 2 3 2 4a2 2 0 01-4 0c0-1 .5-2 2-4z"/>' },
-  { id: 'Developer Menu Built-in Tool', en: 'Developer menu', pt: 'Dev', icon: '<text x="12" y="16.5" text-anchor="middle" font-size="10" font-weight="800" fill="currentColor" stroke="none">Dev</text>' },
+  { id: 'Flood Filler Built-in Tool', ij: 17, en: 'Flood fill', pt: 'Balde', icon: '<path d="M5 13l7-8 7 8-7 7z"/><path d="M19 15c1.5 2 2 3 2 4a2 2 0 01-4 0c0-1 .5-2 2-4z"/>' },
+  { id: 'Developer Menu Built-in Tool', ij: 15, en: 'Developer menu', pt: 'Dev', icon: '<text x="12" y="16.5" text-anchor="middle" font-size="10" font-weight="800" fill="currentColor" stroke="none">Dev</text>' },
   { id: 'brush', en: 'Paintbrush', pt: 'Pincel', icon: '<path d="M20 4l-9 9M9 13c-3 0-4 2-4 4 0 1-1 2-2 2 3 1 8 1 8-4z"/>' },
   { id: 'arrow', en: 'Arrow', pt: 'Seta', icon: '<path d="M5 19L19 5M10 5h9v9"/>' },
 ];
