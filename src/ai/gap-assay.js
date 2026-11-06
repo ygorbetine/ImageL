@@ -11,11 +11,12 @@ Dialog.addNumber("Texture radius (px):", 4);
 Dialog.addNumber("Edge margin (%):", 5);
 Dialog.addNumber("Curve smoothing (0 = hug every cell, 10 = very smooth):", 5);
 Dialog.addChoice("Measure along:", newArray("Horizontal (gap is a vertical band)", "Vertical (gap is a horizontal band)"));
+Dialog.addCheckbox("Also add each line to the Results table (like Ctrl+M)", true);
 Dialog.addNumber("Previous mean distance (0 = none):", 0);
 Dialog.addNumber("Movement threshold (%):", 10);
 Dialog.show();
 n = round(Dialog.getNumber()); rad = Dialog.getNumber(); mg = Dialog.getNumber(); sm = Dialog.getNumber();
-mode = Dialog.getChoice(); prev = Dialog.getNumber(); thr = Dialog.getNumber();
+mode = Dialog.getChoice(); toRes = Dialog.getCheckbox(); prev = Dialog.getNumber(); thr = Dialog.getNumber();
 if (n < 1) n = 1;
 if (mg < 0 || mg > 40) mg = 5;
 if (sm < 0) sm = 0;
@@ -175,6 +176,14 @@ for (i = 0; i < n; i++) {
   }
 }
 Table.update(tbl);
+if (toRes) {
+  for (i = 0; i < n; i++) {
+    if (d[i] <= 0) continue;
+    if (vert) makeLine(pos0[i], a1[i], pos0[i], a1[i] + d[i]); else makeLine(a1[i], pos0[i], a1[i] + d[i], pos0[i]);
+    run("Measure");
+  }
+  run("Select None");
+}
 Overlay.show;
 mean = sum / n; ss = 0;
 for (i = 0; i < n; i++) ss += (d[i] - mean) * (d[i] - mean);

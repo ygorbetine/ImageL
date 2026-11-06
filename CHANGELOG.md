@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.29]
+### Added
+- Gap distance: option to add each measurement line to the Results table (like Ctrl+M).
+
 ## [0.6.0-alpha.28]
 ### Added
 - Desktop: pin button in the topbar toggles always-on-top in "No background" mode (default on, persisted); turned off in "With background".
