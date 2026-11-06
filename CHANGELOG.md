@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.42]
+- Corrigido: dropdown (Choice) dos diálogos Java fechava na hora (CheerpJ devolvia o foco ao textarea oculto).
+- Desktop: arrastar arquivos para a janela volta a abrir a imagem (dragDropEnabled=false no Tauri).
+
 ## [0.6.0-alpha.41]
 - Corrigido: dropdown (Choice) dos diálogos Java fechava na hora; o tema não consulta mais o Java quando só abre um popup.
 

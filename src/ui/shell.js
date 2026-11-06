@@ -1,5 +1,6 @@
 // Casca HTML do ImageL (opt-in: ?ui=new ou localStorage imagel.ui=new): topbar com menus, toolbar vertical,
 // statusbar e paleta de comandos. Executa tudo via ImageJBridge. Sem framework; DOM direto.
+import { initSelectFix } from './select-fix.js';
 import { buildGapMacro, buildGapBatchMacro } from '../ai/gap-assay.js';
 import { MENUS, TOOLS, TOOLBAR, withImageL, flattenCommands, searchCommands } from './menus.js';
 import { createBridge } from './bridge.js';
@@ -52,6 +53,7 @@ export function shellEnabled() {
 }
 
 export function mountShell() {
+  initSelectFix();
   const bridge = createBridge();
   let menus = withImageL(MENUS);
   window.__menuHandlers = { ...window.__menuHandlers, gap: () => window.IJClass.runMacro(buildGapMacro(getLocale())), 'gap-batch': () => window.IJClass.runMacro(buildGapBatchMacro(getLocale())) /* macro com Dialog e IDs de imagem: modo normal, nao o batch/silencioso */ };
