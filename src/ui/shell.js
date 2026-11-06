@@ -218,7 +218,7 @@ export function mountShell() {
 
   // ---- more tools (equivale ao » da barra Java) ------------------------------------------------------------------
   const base = location.pathname.replace(/[^/]*$/, '');
-  const more = createMoreTools({ bridge, base, extras: [{ label: t('dev.menu'), run: () => select('Developer Menu Built-in Tool', moreBtn) }] });
+  const more = createMoreTools({ anchor: () => moreBtn, bridge, base, extras: [{ label: t('dev.menu'), run: () => select('Developer Menu Built-in Tool', moreBtn) }] });
   const moreBtn = el('button', { class: 'il-tool il-moretools', 'aria-label': t('tools.more'), onclick: ev => { ev.stopPropagation(); more.toggle(); } },
     SVG('<path d="M6 6l6 6-6 6M13 6l6 6-6 6"/>', 30, 1.8));
   tip.attach(moreBtn, () => 'More tools');

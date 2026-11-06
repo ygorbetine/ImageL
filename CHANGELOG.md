@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.38]
+- Menu de "mais ferramentas" abre ao lado do botão » (antes ficava num canto fixo).
+
 ## [0.6.0-alpha.37]
 - Sem fundo: a barra de status agora fica dentro do painel de topo (some o problema de voltar à posição inicial).
 

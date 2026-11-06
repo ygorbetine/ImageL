@@ -15,7 +15,7 @@ export function toolLabel(file) {
   return file.replace(/\.(txt|ijm)$/i, '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
 
-export function createMoreTools({ bridge, base = '/', fetchText = u => fetch(u).then(r => (r.ok ? r.text() : '')), extras = [] }) {
+export function createMoreTools({ anchor = () => null, bridge, base = '/', fetchText = u => fetch(u).then(r => (r.ok ? r.text() : '')), extras = [] }) {
   const box = document.createElement('div');
   box.className = 'il-more';
   box.hidden = true;
@@ -50,11 +50,22 @@ export function createMoreTools({ bridge, base = '/', fetchText = u => fetch(u).
     }
   }
 
+  // ao lado do botao "»" (nao num canto fixo): alinhado ao topo dele e sempre dentro da tela
+  function place() {
+    const a = anchor(); if (!a) return;
+    const r = a.getBoundingClientRect();
+    const h = box.offsetHeight, vh = innerHeight, vw = innerWidth;
+    const left = Math.min(r.right + 6, Math.max(0, vw - box.offsetWidth - 6));
+    const top = Math.max(6, Math.min(r.top, vh - h - 6));
+    box.style.left = left + 'px'; box.style.top = top + 'px'; box.style.bottom = 'auto';
+  }
+
   return {
     el: box,
     async toggle() {
       box.hidden = !box.hidden;
       if (!box.hidden && !loaded) { loaded = true; await fill(); }
+      if (!box.hidden) place();
     },
     close() { box.hidden = true; },
   };
