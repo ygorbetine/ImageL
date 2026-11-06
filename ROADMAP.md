@@ -181,6 +181,26 @@ Objetivo: a IA analisa imagens **sozinha**, a partir de um pedido em linguagem n
 - Base de conhecimento de receitas validadas (já existe no Hypha) como contexto do agente.
 - Painel **IA** (aba existente) mostra plano, passos, imagens intermediárias e relatório.
 
+
+### 6.1 Algoritmos que a IA analista pode usar (ordenados por custo)
+
+Princípio: **o mais barato que resolve vence**. O agente tenta primeiro o que roda local e leve, e só escala quando a verificação falha.
+
+| Camada | Algoritmos | Custo | Quando |
+|---|---|---|---|
+| **1. Clássicos (offline, ImageJ nativo)** | Rolling-ball, Gaussian/Median, limiar automático (Otsu, Triangle, Li, Huang…), Watershed, Analyze Particles, Fiji "Auto Threshold" | ~zero, qualquer PC | núcleos/células em fluorescência, área, contagem, intensidade |
+| **2. Morfologia e filtros avançados** | MorphoLibJ (já suportado), top-hat, Laplaciano/LoG e DoG para detecção de blobs, Frangi/Hessiano (vasos/fibras), CLAHE | baixo | estruturas finas, fundo irregular, contraste baixo |
+| **3. Seleção automática de método** | escolher o limiar testando todos e pontuando (circularidade, tamanho esperado, nº de objetos estável); estimar σ/raio de fundo pelo tamanho típico do objeto | baixo | quando a receita padrão falha |
+| **4. Rastreamento e série temporal** | TrackMate (LAP / Kalman), correlação de fase para registro, fluxo óptico simples | médio | vídeos, migração celular |
+| **5. Deep learning local sob demanda** | Cellpose (já há integração), StarDist, modelos ONNX/WebGPU pequenos (cyto/nuclei) | médio–alto, **só opt-in e só se a máquina aguenta** | células tocando/irregulares onde clássicos falham |
+| **6. Pós-processamento e estatística** | filtros por forma (circularidade, solidez), agrupamento (k-means/DBSCAN) de fenótipos, testes (t, Mann-Whitney) e tamanho de efeito, detecção de outliers | baixo | comparar grupos, relatório |
+| **7. LLM (planejamento/verificação)** | só para escolher a receita, ajustar parâmetros e **olhar o resultado**; não processa pixels | por chamada (remoto) | casos fora das receitas |
+
+Regras:
+- O provider offline de receitas (`src/ai/recipes.js`) cobre a camada 1 sem custo e sem rede.
+- Camadas 5 e 7 são **opt-in**, e 5 só é oferecida se a máquina passar na detecção do modo leve (seção 2.1).
+- Toda decisão de método é registrada no log de auditoria, e o protocolo final é reproduzível sem IA (`toProtocol`).
+
 ### Pré-requisitos (vêm das versões anteriores)
 Ponte Java↔JS estável (0.2.0), exportação GeoJSON (existente), pool de workers para lotes (0.4.0), i18n (o agente responde no idioma da UI).
 

@@ -24,3 +24,6 @@ npm-debug.log*
 lib/ImageJ
 # ImageJ build directory
 ImageJ-build/
+dist/
+desktop/src-tauri/target/
+desktop/src-tauri/gen/

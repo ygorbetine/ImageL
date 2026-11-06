@@ -6,6 +6,7 @@ import { initDraggable } from './draggable.js';
 import { getLocale, setLocale, onLocaleChange, t } from '../i18n.js';
 import { isLite, setLite } from '../lite.js';
 import { reportError } from '../error-handler.js';
+import { initDesktop } from '../desktop.js';
 
 const SVG = (d, s = 22, w = 2.4) =>
   `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -194,5 +195,6 @@ export function mountShell() {
   initDraggable({ enabled: () => document.body.classList.contains('ov') });
   refresh();
   memTick();
+  initDesktop(); // no-op na web; no Tauri liga overlay/click-through
   return { bridge, setOverlay, openPalette };
 }

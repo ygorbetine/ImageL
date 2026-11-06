@@ -4,6 +4,24 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.1] - 2026-11-06
+
+### Added
+- `src/ai/agent.js`: nucleo da IA analista autonoma (planejar -> executar -> verificar -> iterar) com validador de macros (bloqueia `File.delete`, `exec`, `eval`, `call`, `Quit`; marca como arriscado salvar/fechar/reverter), modos `suggest`/`semi`/`auto`, orcamento de passos e tempo, cancelamento, log de auditoria e `toProtocol()` (protocolo reproduzivel).
+- `src/ai/recipes.js`: provider offline de receitas classicas (contar objetos brilhantes, medir intensidade, fracao de area por limiar); sempre trabalha em uma copia da imagem.
+- `ROADMAP.md` 6.1: camadas de algoritmos da IA, do mais barato (classicos) ao mais caro (deep learning/LLM), todas opt-in alem da primeira.
+- Testes do agente e das receitas (31 no total).
+
+### Notes
+- Ainda sem provider de LLM remoto nem painel "IA" na UI; so o nucleo e as receitas offline.
+
+## [0.3.0] - 2026-11-06
+
+### Added
+- `desktop/` (Tauri v2): shell desktop leve com janela transparente, modo "Sem fundo", sempre no topo e click-through por regioes ativas (`set_overlay`, `set_hit_regions`, `set_always_on_top`; thread de ~30 ms consulta o cursor).
+- `src/desktop.js`: ponte JS<->Tauri (reporta retangulos interativos; Ctrl+Shift+P fixa no topo).
+- `tools/build-site.mjs` e scripts `desktop:dev`/`desktop:build`.
+
 ## [0.2.0] - 2026-11-06
 
 ### Added

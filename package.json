@@ -1,12 +1,15 @@
 {
   "name": "imagel",
-  "version": "0.2.0",
+  "version": "0.6.0-alpha.1",
   "description": "ImageL - ImageJ in the browser and desktop (fork of aicell-lab/imagej.js)",
   "scripts": {
     "dev": "http-server -p 8000 --cors -c-1",
     "start": "npm run dev",
     "test": "node --test tests/*.test.mjs",
-    "build:css": "tailwindcss -i src/tailwind.input.css -o static/tailwind.css --minify"
+    "build:css": "tailwindcss -i src/tailwind.input.css -o static/tailwind.css --minify",
+    "build:site": "node tools/build-site.mjs",
+    "desktop:dev": "npm run build:site && cargo run --manifest-path desktop/src-tauri/Cargo.toml",
+    "desktop:build": "npm run build:css && npm run build:site && cargo build --release --manifest-path desktop/src-tauri/Cargo.toml"
   },
   "devDependencies": {
     "http-server": "^14.1.1",
