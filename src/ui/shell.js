@@ -26,7 +26,7 @@ const ICON = {
 };
 
 const lab = o => (getLocale() === 'pt' ? o.pt : o.en);
-const LOGO = '<svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#5b92ff"/><g fill="#fff" fill-opacity=".16" stroke="#fff" stroke-width="3"><circle cx="24" cy="25" r="13"/><circle cx="42" cy="38" r="12"/><circle cx="21" cy="46" r="7"/></g><g fill="#fff"><circle cx="26" cy="23" r="5"/><circle cx="43" cy="37" r="4.5"/><circle cx="21" cy="46" r="2.6"/></g></svg>';
+const LOGO = '<svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><defs><radialGradient id="ilg" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity=".22"/></radialGradient></defs><rect width="64" height="64" rx="14" fill="#5b92ff"/><g fill="url(#ilg)" stroke="#fff" stroke-width="2.4"><circle cx="20" cy="21" r="10"/><circle cx="44" cy="25" r="9"/><circle cx="31" cy="45" r="11"/></g><g fill="#2f56b8" fill-opacity=".85"><circle cx="22" cy="19" r="3.6"/><circle cx="45" cy="24" r="3.2"/><circle cx="32" cy="44" r="4"/></g></svg>';
 const el = (tag, attrs = {}, html = '') => {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {

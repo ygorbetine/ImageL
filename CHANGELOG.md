@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.12]
+- Fix: fundo de pontos agora aparece (contêiner do CheerpJ era opaco) e some a linha branca no rodape (cantos arredondados do tema).
+- Logo: celulas separadas com gradiente interno. docs/COMPARISON.md.
+
 ## [0.6.0-alpha.11]
 - Logo/icone do ImageL: celulas com nucleos vistas ao microscopio (static/logo.svg), usado no favicon, splash e barra superior.
 
