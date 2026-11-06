@@ -116,6 +116,23 @@ function gapAnalyze(n, rad, mg, sm, orient, draw, toRes, tbl) {
       for (j = maxOf(0, k - 3); j <= minOf(ne - 1, k + 3); j++) if (ss_[j] >= 0) { sa += ss_[j]; sb += se_[j]; c++; }
       if (c > 0) { es[k] = sa / c; ee[k] = sb / c; } else { es[k] = -1; ee[k] = -1; }
     }
+    // Remove espigoes: saliencias estreitas (celula solta/detrito ligado a borda) com largura < ~7% do comprimento.
+    // ee: fecho (max depois min) tira vales estreitos; es: abertura (min depois max) tira picos estreitos.
+    ws = maxOf(3, round(ne * 0.035));
+    t1 = newArray(ne); t2 = newArray(ne); u1 = newArray(ne); u2 = newArray(ne);
+    for (k = 0; k < ne; k++) {
+      t1[k] = -1; u1[k] = -1; if (ee[k] < 0) continue;
+      mx = -1; mn = 1e9;
+      for (j = maxOf(0, k - ws); j <= minOf(ne - 1, k + ws); j++) if (ee[j] >= 0) { mx = maxOf(mx, ee[j]); mn = minOf(mn, es[j]); }
+      t1[k] = mx; u1[k] = mn;
+    }
+    for (k = 0; k < ne; k++) {
+      t2[k] = -1; u2[k] = -1; if (t1[k] < 0) continue;
+      mx = 1e9; mn = -1;
+      for (j = maxOf(0, k - ws); j <= minOf(ne - 1, k + ws); j++) if (t1[j] >= 0) { mx = minOf(mx, t1[j]); mn = maxOf(mn, u1[j]); }
+      t2[k] = mx; u2[k] = mn;
+    }
+    for (k = 0; k < ne; k++) if (t2[k] >= 0) { ee[k] = t2[k]; es[k] = u2[k]; }
     for (k = 0; k < n; k++) {
       bj = -1; bd = 1e9;
       for (j = 0; j < ne; j++) if (ee[j] >= 0 && abs(ep[j] - pos0[k]) < bd) { bd = abs(ep[j] - pos0[k]); bj = j; }

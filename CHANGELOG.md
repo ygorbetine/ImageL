@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.44]
+- Gap: remove espigões estreitos (célula solta/detrito) dos contornos.
+- Desktop: versão no título da janela e no nome do arquivo (ImageL-<versão>.exe).
+
 ## [0.6.0-alpha.43]
 - Gap: filtro passa-alta (FFT Bandpass, padrão 40 px; 0 = desligado) antes da detecção, para pegar células fracas.
 

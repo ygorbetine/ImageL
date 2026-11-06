@@ -164,6 +164,7 @@ fn main() {
         .setup(|app| {
             let overlay = app.state::<Arc<Overlay>>().inner().clone();
             let win = app.get_webview_window("main").expect("janela main");
+            let _ = win.set_title(&format!("ImageL {}", env!("IMAGEL_VERSION")));
             let port = serve_assets(app.handle().clone())?;
             let url: tauri::Url = format!("http://127.0.0.1:{}/index.html?ui=new&nosw=1", port).parse().map_err(err)?;
             eprintln!("ImageL assets em {}", url);
