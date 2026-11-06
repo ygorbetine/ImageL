@@ -90,10 +90,15 @@ export const MENUS = [
 /** Ferramentas da toolbar: id = nome aceito por setTool(), icone = path SVG (traco grosso). */
 export const TOOLS = [
   { id: 'rectangle', en: 'Rectangle', pt: 'Retângulo', key: 'R', icon: '<rect x="4" y="6" width="16" height="12" rx="1.5"/>' },
+  { id: 'roundrect', en: 'Rounded rectangle', pt: 'Retângulo arredondado', icon: '<rect x="4" y="6" width="16" height="12" rx="5"/>' },
+  { id: 'rotrect', en: 'Rotated rectangle', pt: 'Retângulo rotacionado', icon: '<rect x="4" y="8" width="16" height="9" rx="1.5" transform="rotate(-22 12 12)"/>' },
   { id: 'oval', en: 'Oval', pt: 'Oval', icon: '<ellipse cx="12" cy="12" rx="8.5" ry="6"/>' },
+  { id: 'ellipse', en: 'Elliptical', pt: 'Elíptica', icon: '<ellipse cx="12" cy="12" rx="9" ry="5" transform="rotate(-28 12 12)"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/>' },
+  { id: 'brush', en: 'Selection brush', pt: 'Pincel de seleção', icon: '<circle cx="12" cy="12" r="7" stroke-dasharray="3.2 2.6"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>' },
   { id: 'polygon', en: 'Polygon', pt: 'Polígono', icon: '<path d="M4 17l3-10 9-2 4 8-4 6z"/>' },
   { id: 'freehand', en: 'Freehand', pt: 'Mão livre', icon: '<path d="M6 9c2-4 8-5 11-2 3 3 1 7-3 8-3 1-4 3-7 2-3-1-4-5-1-8z"/>' },
   { id: 'line', en: 'Straight line', pt: 'Linha reta', icon: '<path d="M5 19L19 5"/><path d="M4 21l2-2M18 7l2-2" opacity=".0"/>' },
+  { id: 'freeline', en: 'Freehand line', pt: 'Linha à mão livre', icon: '<path d="M4 16c2.5-9 4.5 5 7.5-2.5s5.5-5.5 8.5-4"/>' },
   { id: 'angle', en: 'Angle', pt: 'Ângulo', icon: '<path d="M4 19H20M4 19L14 4"/><path d="M13 19A9 9 0 0 0 9.5 11.6"/><circle cx="4" cy="19" r="1.2" fill="currentColor"/>' },
   { id: 'point', en: 'Point', pt: 'Ponto', icon: '<circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/>' },
   { id: 'wand', en: 'Wand', pt: 'Varinha', icon: '<path d="M5 19L15 9"/><path d="M17 3v4M15 5h4M20 11v3M18.5 12.5h3"/>' },
@@ -106,18 +111,21 @@ export const TOOLS = [
   { id: 'multipoint', en: 'Multi-point', pt: 'Multiponto', icon: '<circle cx="6" cy="7" r="2" fill="currentColor"/><circle cx="17" cy="9" r="2" fill="currentColor"/><circle cx="10" cy="17" r="2" fill="currentColor"/>' },
   { id: 'Flood Filler Built-in Tool', ij: 17, en: 'Flood fill', pt: 'Balde', icon: '<path d="M5 13l7-8 7 8-7 7z"/><path d="M19 15c1.5 2 2 3 2 4a2 2 0 01-4 0c0-1 .5-2 2-4z"/>' },
   { id: 'Developer Menu Built-in Tool', ij: 15, en: 'Developer menu', pt: 'Dev', icon: '<text x="12" y="16.5" text-anchor="middle" font-size="10" font-weight="800" fill="currentColor" stroke="none">Dev</text>' },
-  { id: 'brush', en: 'Paintbrush', pt: 'Pincel', icon: '<path d="M20 4l-9 9M9 13c-3 0-4 2-4 4 0 1-1 2-2 2 3 1 8 1 8-4z"/>' },
+  { id: 'Paintbrush Built-in Tool', ij: 16, en: 'Paintbrush', pt: 'Pincel', icon: '<path d="M20 4l-9 9M9 13c-3 0-4 2-4 4 0 1-1 2-2 2 3 1 8 1 8-4z"/>' },
   { id: 'arrow', en: 'Arrow', pt: 'Seta', icon: '<path d="M5 19L19 5M10 5h9v9"/>' },
 ];
 
 /** Layout compacto da toolbar: grupos (um botao + flyout), ferramentas soltas e separadores. Dev fica no flyout "More tools". */
 export const TOOLBAR = [
-  { group: ['rectangle', 'oval', 'polygon', 'freehand'] },
-  { group: ['line', 'polyline', 'angle', 'arrow'] },
+  { group: ['rectangle', 'roundrect', 'rotrect'] },
+  { group: ['oval', 'ellipse', 'brush'] },
+  { group: ['polygon', 'freehand'] },
+  { group: ['line', 'polyline', 'freeline', 'arrow'] },
+  'angle',
   { group: ['point', 'multipoint'] },
   'wand', 'text', 'zoom', 'hand', 'dropper',
   '-',
-  { group: ['brush', 'Flood Filler Built-in Tool'] },
+  { group: ['Paintbrush Built-in Tool', 'Flood Filler Built-in Tool'] },
 ];
 
 /** Menu proprio do ImageL (alem dos menus do ImageJ). Itens com ext:true sao tratados por handlers JS. */

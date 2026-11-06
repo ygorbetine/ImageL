@@ -4,6 +4,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.23]
+### Added
+- Toolbar: Freehand line, Rounded rectangle, Rotated rectangle, Elliptical and Selection brush (variants in the group flyouts).
+### Fixed
+- "Paintbrush" button now selects the real Paintbrush tool (was the selection brush).
+
 ## [0.6.0-alpha.22]
 - Janelas Java: conteudo pintado pelo Java (Results, Log, dialogos, molduras) passa por filtro SVG com a paleta do tema (branco->superficie, preto->texto, cinzas->superficie2) em vez de inversao simples; botoes estreitos sem borda que corta texto; borda azul sutil na janela sob o mouse.
 
