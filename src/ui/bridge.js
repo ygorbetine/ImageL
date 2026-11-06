@@ -24,8 +24,9 @@ export function createBridge(
     if (!IJ) throw new Error('ImageJ ainda nao carregou');
     const silent = await getSilent();
     if (silent && typeof silent.runMacroSilent === 'function') {
-      const res = await silent.runMacroSilent(code); // [status, message]
-      const [status, message] = Array.from(res || []).map(String);
+      const res = await silent.runMacroSilent(code); // String[]{status, message}: proxy Java (CheerpJ) nao e iteravel
+      const at = async i => { try { const v = await res[i]; return v == null ? '' : String(v); } catch (_) { return ''; } };
+      const [status, message] = res == null ? ['', ''] : [await at(0), await at(1)];
       if (status === 'error') throw new Error(message || 'erro na macro');
       return message;
     }

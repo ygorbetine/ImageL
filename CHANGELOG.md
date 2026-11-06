@@ -4,6 +4,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.14]
+- Fix: bridge lia o retorno de runMacroSilent com Array.from (proxy Java nao iteravel) -> "Cannot convert a Symbol value to a number".
+- Barra de titulo das janelas Java com 20px (CheerpJ posiciona o menu em y=20; titulo ficava cortado), botoes 18px com traco fino.
+- Removida a barra branca do rodape (::before do CheerpJ).
+- Tab abre a busca de comandos onde o mouse esta (sobre area vazia).
+
 ## [0.6.0-alpha.13]
 - CSS do shell/tema com ?v=versao (cache antigo mantinha a barra branca). Pontos mais suaves. docs/compare.html: comparacao ao vivo original x ImageL.
 

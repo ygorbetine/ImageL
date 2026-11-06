@@ -260,7 +260,22 @@ export function mountShell() {
     });
   };
   const execPal = i => { const c = palRes[i]; closePalette(); if (c) run(c.cmd, c.ext); };
-  function openPalette() { pal.hidden = false; palIn.value = ''; palSel = 0; renderPal(); palIn.focus(); }
+  // Tab abre a paleta onde o mouse esta (so sobre area vazia/shell: sobre janelas Java o Tab continua sendo do ImageJ).
+  const mouse = { x: innerWidth / 2, y: innerHeight / 3 };
+  addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+  function placePalette(at) {
+    pal.classList.toggle('at', !!at);
+    palBox.style.left = palBox.style.top = '';
+    if (!at) return;
+    const w = palBox.offsetWidth, h = palBox.offsetHeight;
+    palBox.style.left = Math.max(8, Math.min(at.x - w / 2, innerWidth - w - 8)) + 'px';
+    palBox.style.top = Math.max(8, Math.min(at.y - 24, innerHeight - h - 8)) + 'px';
+  }
+  function openPalette(at) { pal.hidden = false; palIn.value = ''; palSel = 0; renderPal(); placePalette(at); palIn.focus(); }
+  const onBlank = () => {
+    const t = document.elementFromPoint(mouse.x, mouse.y);
+    return !t || !t.closest('.cjWindow, .il-menu, .il-pal, input, textarea, select, [contenteditable]') || t.id === 'cheerpjDisplay';
+  };
   function closePalette() { pal.hidden = true; }
   palIn.addEventListener('input', () => { palSel = 0; renderPal(); });
   palIn.addEventListener('keydown', e => {
@@ -272,6 +287,10 @@ export function mountShell() {
   pal.addEventListener('mousedown', e => { if (e.target === pal) closePalette(); });
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); pal.hidden ? openPalette() : closePalette(); }
+    else if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && (pal.hidden ? onBlank() && !e.target.closest?.('input, select, [contenteditable]') : e.target === palIn)) {
+      e.preventDefault(); e.stopPropagation();
+      pal.hidden ? openPalette({ x: mouse.x, y: mouse.y }) : closePalette();
+    }
     else if (e.key === 'Escape') closeMenus();
     else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'b' && isDesktop) { e.preventDefault(); setOverlay(!document.body.classList.contains('ov')); }
   });

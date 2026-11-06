@@ -17,12 +17,12 @@ html[data-lite] div.cjBordered { box-shadow: none !important; }
 /* A janela principal do ImageJ fica acima ao passar o mouse */
 #cheerpjDisplay > .cjWindow.cjBordered:first-of-type:hover { z-index: 999 !important; }
 
-/* Barra de titulo flat, 28px, sem gradiente */
+/* Barra de titulo flat, 20px (altura que o CheerpJ espera), sem gradiente */
 .cjTitleBar {
   background: var(--il-surface) !important;
   border-bottom: 1px solid var(--il-border) !important;
-  padding: 0 6px 0 10px !important;
-  height: 28px !important;
+  padding: 0 4px 0 10px !important;
+  height: 20px !important; /* o CheerpJ posiciona a barra de menu em y=20: nao pode passar disso */
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -30,7 +30,7 @@ html[data-lite] div.cjBordered { box-shadow: none !important; }
 }
 .cjTitleBarText {
   color: var(--il-text) !important;
-  font: 600 12px/28px system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  font: 600 11px/20px system-ui, -apple-system, "Segoe UI", sans-serif !important;
   text-shadow: none !important;
   letter-spacing: 0 !important;
   flex: 1 !important;
@@ -39,9 +39,9 @@ html[data-lite] div.cjBordered { box-shadow: none !important; }
 }
 .cjTitleBarText:active { cursor: grabbing !important; }
 
-/* Botoes de janela: 24px, icones grossos (traco 2.2) */
+/* Botoes de janela: 18px, icone 10px com traco fino (1.5) */
 .cjControls {
-  width: 24px !important; height: 24px !important;
+  width: 18px !important; height: 18px !important;
   padding: 4px !important; margin-left: 2px !important;
   box-sizing: border-box;
   cursor: pointer !important;
@@ -53,7 +53,7 @@ html[data-lite] div.cjBordered { box-shadow: none !important; }
 .cjControls:active { background: var(--il-border) !important; }
 .cjControls line, .cjControls rect {
   stroke: var(--il-muted) !important;
-  stroke-width: 2.2 !important;
+  stroke-width: 1.5 !important;
   fill: none !important;
   stroke-linecap: round;
 }

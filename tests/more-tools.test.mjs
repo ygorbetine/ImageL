@@ -36,3 +36,12 @@ test('placeNear mantem o popover dentro da tela', () => {
   assert.equal(p.y, 86);
   assert.deepEqual(placeNear({ left: 0, right: 50, top: 10, bottom: 50 }, { w: 100, h: 100 }, 1000, 600, true), { x: 56, y: 10 });
 });
+
+test('bridge le arrays estilo proxy Java (nao iteraveis, indice assincrono)', async () => {
+  const fake = { 0: Promise.resolve('success'), 1: Promise.resolve('ok'), [Symbol.iterator]: undefined };
+  const b = createBridge(() => ({}), async () => ({ runMacroSilent: async () => fake }));
+  assert.equal(await b.run('Smooth'), 'ok');
+  const err = { 0: 'error', 1: Promise.resolve('boom') };
+  const b2 = createBridge(() => ({}), async () => ({ runMacroSilent: async () => err }));
+  await assert.rejects(() => b2.run('x'), /boom/);
+});

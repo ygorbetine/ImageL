@@ -161,3 +161,8 @@ body.il-shell:not(.ov) .il-status { border-radius: 0; box-shadow: none; }
 /* O contêiner do CheerpJ nao pode cobrir o fundo (pontos) nem desenhar borda/linha branca */
 body.il-shell #cheerpjDisplay { background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; outline: 0 !important; }
 body.il-shell:not(.ov) { background-image: radial-gradient(color-mix(in srgb, var(--s-muted) 16%, transparent) 1px, transparent 1.2px); }
+
+/* Barra branca de 4px no rodape: e o ::before do CheerpJ (.cheerpjNC) que o app original ja deixava sem texto */
+body.il-shell #cheerpjDisplay::before { display: none !important; }
+.il-pal.at { display: block; padding: 0; background: rgba(0,0,0,.18); }
+.il-pal.at .il-palbox { position: absolute; }
