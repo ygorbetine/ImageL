@@ -111,3 +111,34 @@ html[data-theme="light"] .cjSubMenu { box-shadow: 0 8px 20px rgba(20, 30, 45, .1
 .cjWindow input[type="checkbox"], .cjWindow input[type="radio"] { accent-color: var(--il-accent); }
 html[data-theme="dark"] .cjWindow { color-scheme: dark; }
 html[data-theme="light"] .cjWindow { color-scheme: light; }
+
+/* ---- Acabamento visual das janelas (polish) --------------------------------------------------------------------- */
+div.cjBordered {
+  border-radius: 10px !important;
+  border: 1px solid color-mix(in srgb, var(--il-border) 85%, var(--il-text)) !important;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .40), 0 2px 8px rgba(0, 0, 0, .22) !important;
+}
+html[data-theme="light"] div.cjBordered { box-shadow: 0 12px 30px rgba(20, 30, 45, .18), 0 2px 6px rgba(20, 30, 45, .10) !important; }
+html[data-lite] div.cjBordered { box-shadow: 0 0 0 1px var(--il-border) !important; }
+.cjTitleBar { background: var(--il-surface2) !important; border-bottom: 1px solid var(--il-border) !important; }
+.cjTitleBarText { font: 600 11.5px/20px system-ui, -apple-system, "Segoe UI", sans-serif !important; letter-spacing: .15px !important; padding-left: 2px; }
+.cjWindow:hover > .cjTitleBar .cjTitleBarText { color: var(--il-text) !important; }
+.cjWindow:not(:hover) > .cjTitleBar .cjTitleBarText { color: var(--il-muted) !important; }
+.cjControls { border-radius: 50% !important; transition: background .12s; }
+.cjMenuBar { height: 20px !important; }
+.cjMenuItem > label, .cjMenuItem > a { border-radius: 5px !important; }
+.cjScrollBar { border-radius: 8px !important; background: color-mix(in srgb, var(--il-surface2) 70%, transparent) !important; }
+.cjScrollBar > div { background: color-mix(in srgb, var(--il-muted) 55%, transparent) !important; border-radius: 8px !important; transition: background .12s; }
+.cjScrollBar > div:hover { background: var(--il-accent) !important; }
+.cjScrollbarButton { border-radius: 5px !important; }
+.cjScrollbarButton:hover { background: var(--il-surface2) !important; color: var(--il-text) !important; }
+.cjWindow input[type="button"], .cjWindow input[type="submit"], .cjWindow button { transition: background .12s, border-color .12s; font-weight: 500; }
+.cjWindow input[type="button"][value="OK"], .cjWindow input[type="button"][value="Apply"], .cjWindow input[type="button"][value="Run"] {
+  background: var(--il-accent) !important; border-color: var(--il-accent) !important; color: #fff !important;
+}
+.cjWindow input[type="button"][value="OK"]:hover { filter: brightness(1.1); }
+.cjWindow input:focus-visible, .cjWindow textarea:focus-visible { outline: 2px solid var(--il-accent) !important; outline-offset: 1px; }
+.cjWindow ::selection { background: color-mix(in srgb, var(--il-accent) 55%, transparent); }
+.cjResizer { opacity: .35; }
+.cjResizer:hover { opacity: .9; }
+.cjWindow input[type="button"] { font-size: 11px !important; letter-spacing: -.1px; }

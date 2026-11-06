@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.21]
+- Acabamento das janelas Java: cantos 10px, sombra em camadas, titulo que esmaece quando a janela nao esta em foco, controles circulares, rolagem em pilula com hover azul, botao OK/Apply/Run em azul, foco visivel e selecao de texto no tema.
+
 ## [0.6.0-alpha.20]
 - Janelas Java: componentes AWT (DIV/INPUT com estilo inline) agora seguem os tokens do tema: paineis, rotulos, botoes, campos, checkbox (B&C, Histograma, dialogos). Sem lista de imagens (Java ocupado) usa heuristica de forma, reavalia depois e nunca empilha consultas.
 
