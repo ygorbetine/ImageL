@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.19]
+- Tema claro das janelas Java (titulo, menus, rolagem usam os mesmos tokens do shell); janelas so escurecem depois de conhecer os titulos de imagem (nunca inverte uma imagem).
+
 ## [0.6.0-alpha.18]
 - Tema escuro completo nas janelas Java: janelas de imagem escurecem so a moldura/linha de info (a imagem nunca e alterada); Results, Log, dialogos e editores escurecem por inteiro. Funciona mesmo com dialogo modal aberto; display do CheerpJ e esperado ate existir.
 

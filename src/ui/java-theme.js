@@ -22,11 +22,13 @@ export function initJavaTheme(bridge, rootArg = null) {
   }
   let timer = 0;
   let busy = false;
+  let known = false; // so escurece depois de conhecer os titulos de imagem: nunca inverter uma imagem por engano
   let imgs = []; // ultimo conjunto conhecido de titulos de imagem (a macro nao responde enquanto ha dialogo modal)
   const fetchTitles = async () => {
     if (!bridge.ready()) return;
     const r = await bridge.macro('t = getList("image.titles"); s = ""; for (i = 0; i < t.length; i++) s = s + t[i] + "\\n"; return s;');
     imgs = String(r || '').split('\n').filter(Boolean);
+    known = true;
   };
   const apply = async () => {
     if (busy) return;
@@ -34,6 +36,7 @@ export function initJavaTheme(bridge, rootArg = null) {
     try {
       // espera os titulos por no maximo 400 ms; se o Java estiver preso num dialogo, usa o cache (dialogo novo = escuro)
       await Promise.race([fetchTitles().catch(() => {}), new Promise(r => setTimeout(r, 400))]);
+      if (!known) return;
       const wins = [...root.querySelectorAll(':scope > .cjWindow')];
       const titles = wins.map(w => (w.querySelector('.cjTitleBarText')?.textContent || '').trim());
       const dark = darkTargets(titles, imgs);

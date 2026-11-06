@@ -88,3 +88,11 @@ html[data-theme="dark"] .cjWindow[data-il-dark] { background: var(--il-surface) 
 html[data-theme="dark"] .cjWindow[data-il-dark] canvas { filter: invert(.92) hue-rotate(180deg) !important; }
 html[data-theme="dark"] .cjWindow:not([data-il-dark]) canvas[data-il-frame] { filter: invert(.92) hue-rotate(180deg) !important; }
 html[data-theme="dark"] .cjWindow:not([data-il-dark]) { background: var(--il-surface) !important; }
+
+/* Tema claro das janelas Java: mesmos tokens do shell (html[data-theme=light]) */
+html[data-theme="light"] {
+  --il-bg: #f6f7f9; --il-surface: #ffffff; --il-surface2: #eef0f3; --il-border: #dde1e6;
+  --il-text: #1c2126; --il-muted: #6a7380; --il-accent: #2f6fed; --il-danger: #d93a49;
+}
+html[data-theme="light"] div.cjBordered { box-shadow: 0 6px 18px rgba(20, 30, 45, .16) !important; }
+html[data-theme="light"] .cjSubMenu { box-shadow: 0 8px 20px rgba(20, 30, 45, .18) !important; }
