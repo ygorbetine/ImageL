@@ -14,6 +14,7 @@ export const messages = {
     'status.memory': 'Memory', 'status.ready': 'CheerpJ ready', 'status.mounted': '/local mounted',
     'error.copy': 'Copy diagnostics', 'error.copied': 'Copied', 'error.dismiss': 'Dismiss',
     'load.runtime': 'Loading runtime…', 'load.ij': 'Loading ImageJ…', 'load.plugins': 'Loading plugins…', 'load.ready': 'Ready',
+    'load.slow': 'Taking longer than expected… check your connection and reload.',
   },
   pt: {
     'app.name': 'ImageL',
@@ -29,5 +30,6 @@ export const messages = {
     'status.memory': 'Memória', 'status.ready': 'CheerpJ pronto', 'status.mounted': '/local montado',
     'error.copy': 'Copiar diagnóstico', 'error.copied': 'Copiado', 'error.dismiss': 'Fechar',
     'load.runtime': 'Carregando runtime…', 'load.ij': 'Carregando ImageJ…', 'load.plugins': 'Carregando plugins…', 'load.ready': 'Pronto',
+    'load.slow': 'Demorando mais que o esperado… verifique a conexão e recarregue.',
   },
 };

@@ -249,7 +249,19 @@
     return;
   }
   var realInit = cheerpjInit;
-  var DEFAULT_POOL = Math.max(2, Math.min(10, (navigator.hardwareConcurrency || 4)));
+  // ImageL: tamanho do pool ADAPTATIVO. Cada worker e uma JVM inteira (RAM e tempo de boot), entao em maquinas
+  // modestas (<=4 nucleos, <=4 GB, economia de dados) nao criamos workers: execucao em thread unica, mais leve.
+  // Override: ?pool=N (0..8) ou cheerpjInit({threadhackPool: N}).
+  var cores = navigator.hardwareConcurrency || 2;
+  var mem = navigator.deviceMemory || 0; // GB (so Chromium); 0 = desconhecido
+  var saveData = !!(navigator.connection && navigator.connection.saveData);
+  var LITE = cores <= 4 || (mem > 0 && mem <= 4) || saveData;
+  var DEFAULT_POOL = LITE ? 0 : Math.max(2, Math.min(4, cores - 2));
+  try {
+    var qp = new URLSearchParams(location.search).get('pool');
+    if (qp !== null && /^\d+$/.test(qp)) DEFAULT_POOL = Math.min(8, parseInt(qp, 10));
+  } catch (e) { /* sem location */ }
+  self.__imagelLite = LITE;
 
   self.cheerpjInit = async function (opts) {
     opts = Object.assign({}, opts || {});

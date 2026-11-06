@@ -26,6 +26,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y ant
 
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install, test and build CSS
+      run: |
+        npm install
+        npm test
+        npm run build:css
+
     - name: Build ImageJ from source with patches
       run: bash prepare.sh
 
@@ -36,6 +47,9 @@ jobs:
         cp hypha-imagej-service.js dist/
         cp utils.js dist/
         cp file-browser.js dist/
+        cp sw.js dist/
+        cp -r src dist/
+        mkdir -p dist/static && cp static/tailwind.css dist/static/
         cp CNAME dist/
         cp -r lib dist/
         # threadhack drop-in runtime — loader.js is referenced from index.html

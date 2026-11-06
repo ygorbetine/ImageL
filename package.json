@@ -1,14 +1,16 @@
 {
   "name": "imagel",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "ImageL - ImageJ in the browser and desktop (fork of aicell-lab/imagej.js)",
   "scripts": {
     "dev": "http-server -p 8000 --cors -c-1",
     "start": "npm run dev",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "build:css": "tailwindcss -i src/tailwind.input.css -o static/tailwind.css --minify"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "tailwindcss": "^3.4.17"
   },
   "keywords": [
     "imagej",
