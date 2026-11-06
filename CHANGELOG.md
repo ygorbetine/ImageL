@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.41]
+- Corrigido: dropdown (Choice) dos diálogos Java fechava na hora; o tema não consulta mais o Java quando só abre um popup.
+
 ## [0.6.0-alpha.40]
 - Campos de texto dos diálogos Java agora escuros (a regra de borda do index.html forçava fundo branco).
 

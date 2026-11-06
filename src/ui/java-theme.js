@@ -32,6 +32,7 @@ export function initJavaTheme(bridge, rootArg = null) {
   let timer = 0;
   let busy = false;
   let known = false; // so escurece depois de conhecer os titulos de imagem: nunca inverter uma imagem por engano
+  let lastSig = null;
   let imgs = []; // ultimo conjunto conhecido de titulos de imagem (a macro nao responde enquanto ha dialogo modal)
   const fetchTitles = async () => {
     if (!bridge.ready()) return;
@@ -47,6 +48,11 @@ export function initJavaTheme(bridge, rootArg = null) {
     try {
       // Titulos frescos (Java livre) mandam. Se o Java estiver preso (macro/dialogo), a lista pode estar velha:
       // janelas desconhecidas so escurecem se NAO tiverem forma de imagem, e reavaliamos logo depois.
+      // Sem janela nova/retitulada (ex.: popup de um Choice abrindo) nao consultamos o Java: rodar macro com um popup
+      // aberto tira o foco dele e o fecha na hora (o dropdown "piscava").
+      const sig = [...root.querySelectorAll(':scope > .cjWindow')].map(w => (w.querySelector('.cjTitleBarText')?.textContent || '').trim()).filter(Boolean).join('|');
+      if (known && sig === lastSig) return;
+      lastSig = sig;
       const fresh = await Promise.race([fetchOnce().then(() => true, () => false), new Promise(r => setTimeout(() => r(false), 400))]);
       const wins = [...root.querySelectorAll(':scope > .cjWindow')];
       const titles = wins.map(w => (w.querySelector('.cjTitleBarText')?.textContent || '').trim());
