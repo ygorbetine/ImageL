@@ -21,7 +21,7 @@ test('menus tem ids unicos e rotulos nos dois idiomas', () => {
 test('ferramentas: ids validos para setTool e icones', () => {
   for (const t of TOOLS) {
     if (t === '-') continue;
-    assert.match(t.id, /^[a-z]+$/);
+    assert.match(t.id, /^[A-Za-z][A-Za-z -]*$/);
     assert.ok(t.icon && t.en && t.pt);
   }
 });

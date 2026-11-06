@@ -1,5 +1,6 @@
-// Ponte JS -> ImageJ (Java via CheerpJ). Tudo passa por IJ.runMacro, a API ja usada pelo servico Hypha,
-// entao nao depende de resolucao de sobrecargas Java. getIJ() e injetavel para testes.
+// Ponte JS -> ImageJ (Java via CheerpJ). Tudo passa por macros. Preferimos Interpreter.runMacroSilent (patch do
+// projeto): erros voltam como dados em vez de abrir um dialogo modal que trava o ImageJ. Sem ele, cai em IJ.runMacro.
+// getIJ()/getSilent() sao injetaveis para testes.
 import { createLogger } from '../logger.js';
 
 const log = createLogger('bridge');
@@ -9,11 +10,25 @@ export function macroString(s) {
   return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r?\n/g, ' ');
 }
 
-export function createBridge(getIJ = () => (typeof window !== 'undefined' ? window.IJClass : null)) {
+const TOOL_RE = /^[A-Za-z0-9][A-Za-z0-9 \-]*$/;
+
+export function createBridge(
+  getIJ = () => (typeof window !== 'undefined' ? window.IJClass : null),
+  getSilent = async () => {
+    try { return typeof window !== 'undefined' && window.lib ? await window.lib.ij.macro.Interpreter : null; } catch (_) { return null; }
+  },
+) {
   const ready = () => !!getIJ();
   async function macro(code) {
     const IJ = getIJ();
     if (!IJ) throw new Error('ImageJ ainda nao carregou');
+    const silent = await getSilent();
+    if (silent && typeof silent.runMacroSilent === 'function') {
+      const res = await silent.runMacroSilent(code); // [status, message]
+      const [status, message] = Array.from(res || []).map(String);
+      if (status === 'error') throw new Error(message || 'erro na macro');
+      return message;
+    }
     return IJ.runMacro(code);
   }
   return {
@@ -25,8 +40,9 @@ export function createBridge(getIJ = () => (typeof window !== 'undefined' ? wind
       log.debug('run', cmd, options || '');
       return macro(code);
     },
+    /** Nomes aceitos: rectangle, oval, brush, arrow... ou nome de ferramenta de macro ("Flood Filler Built-in Tool"). */
     async setTool(id) {
-      if (!/^[a-z]+$/.test(id)) throw new Error('ferramenta invalida: ' + id);
+      if (!TOOL_RE.test(id)) throw new Error('ferramenta invalida: ' + id);
       log.debug('setTool', id);
       return macro(`setTool("${id}");`);
     },

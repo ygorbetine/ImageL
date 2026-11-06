@@ -9,6 +9,7 @@ import { reportError } from '../error-handler.js';
 import { initDesktop } from '../desktop.js';
 import { createAiPanel } from './ai-panel.js';
 import { loadLiveMenus, EXT_HANDLERS } from './ij-menus.js';
+import { createMoreTools } from './more-tools.js';
 
 const SVG = (d, s = 22, w = 2.4) =>
   `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -117,13 +118,21 @@ export function mountShell() {
   const toolBtns = new Map();
   for (const tl of TOOLS) {
     if (tl === '-') { tools.appendChild(el('hr')); continue; }
-    const b = el('button', { class: 'il-tool', 'data-tool': tl.id, title: lab(tl), 'aria-label': lab(tl) }, SVG(tl.icon));
+    const b = el('button', { class: 'il-tool', 'data-tool': tl.id, title: lab(tl), 'aria-label': lab(tl) }, SVG(tl.icon, 30, 1.8)); // maior (30px) mantendo a espessura renderizada (~2.2px)
     b.addEventListener('click', () => {
       bridge.setTool(tl.id).then(() => { toolBtns.forEach(x => x.classList.remove('active')); b.classList.add('active'); }).catch(e => reportError(e, 'tool'));
     });
     toolBtns.set(tl.id, b);
     tools.appendChild(b);
   }
+
+  // ---- more tools (equivale ao » da barra Java) ------------------------------------------------------------------
+  const base = location.pathname.replace(/[^/]*$/, '');
+  const more = createMoreTools({ bridge, base });
+  const moreBtn = el('button', { class: 'il-tool il-moretools', title: 'More tools', 'aria-label': 'More tools', onclick: ev => { ev.stopPropagation(); more.toggle(); } },
+    SVG('<path d="M6 6l6 6-6 6M13 6l6 6-6 6"/>', 30, 1.8));
+  tools.appendChild(moreBtn);
+  document.addEventListener('click', e => { if (!e.target.closest('.il-more')) more.close(); });
 
   // ---- statusbar ------------------------------------------------------------------------------------------------
   const status = el('footer', { class: 'il-status', 'data-drag': '' });
@@ -207,7 +216,7 @@ export function mountShell() {
   };
   setInterval(memTick, isLite() ? 10000 : 4000);
 
-  document.body.append(top, tools, status, pal);
+  document.body.append(top, tools, more.el, status, pal);
   initDraggable({ enabled: () => document.body.classList.contains('ov') });
   refresh();
   memTick();

@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.4]
+- Toolbar maior (icones 30px, mesma espessura), novo icone de angulo, botoes Balde e Dev, flyout "More tools" (>>) com as ferramentas de macro.
+- Bridge usa Interpreter.runMacroSilent quando disponivel (sem dialogos modais).
+
 ## [0.6.0-alpha.3] - 2026-11-06
 
 ### Added

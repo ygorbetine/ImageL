@@ -1,6 +1,6 @@
 // ImageL Service Worker: cache stale-while-revalidate APENAS dos arquivos estaticos da casca (html/js/css/imagens).
 // Nao toca em: requisicoes com Range (CheerpJ le os JARs por faixas), jars/wasm, cross-origin, nao-GET.
-const VERSION = '0.6.0-alpha.3';
+const VERSION = '0.6.0-alpha.4';
 const CACHE = 'imagel-shell-' + VERSION;
 
 self.addEventListener('install', () => self.skipWaiting());
