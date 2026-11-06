@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.32]
+### Fixed
+- Desktop "No background": IPC commands now permitted for the local asset origin (always-on-top and click-through work), no window frame/shadow, and the transparent window spans all monitors so bars and windows move anywhere; size/position restored on exit.
+
 ## [0.6.0-alpha.31]
 ### Fixed
 - Desktop: opens the new shell (`?ui=new`) by default; local asset server is multi-threaded and streams slices without copying (ImageJ now loads in the Tauri window).

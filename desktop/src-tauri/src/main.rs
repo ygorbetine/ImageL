@@ -23,6 +23,8 @@ pub struct Rect {
 struct Overlay {
     on: AtomicBool,
     rects: Mutex<Vec<Rect>>,
+    /// posicao/tamanho/maximizada da janela antes do "Sem fundo", para restaurar ao sair
+    saved: Mutex<Option<(tauri::PhysicalPosition<i32>, tauri::PhysicalSize<u32>, bool)>>,
 }
 
 /// `(x, y)` em px CSS relativos a area cliente da janela. Borda inclusiva no lado esquerdo/topo.
@@ -36,11 +38,42 @@ fn err<E: ToString>(e: E) -> String {
 
 #[tauri::command]
 fn set_overlay(window: WebviewWindow, state: State<'_, Arc<Overlay>>, on: bool) -> Result<(), String> {
-    state.on.store(on, Ordering::SeqCst);
+    let was_on = state.on.swap(on, Ordering::SeqCst);
+    if on && !was_on {
+        // "Sem fundo": a janela transparente cobre o monitor inteiro, para barras e janelas irem a qualquer ponto da tela
+        let max = window.is_maximized().unwrap_or(false);
+        if max { let _ = window.unmaximize(); }
+        if let (Ok(p), Ok(s)) = (window.outer_position(), window.outer_size()) {
+            if let Ok(mut g) = state.saved.lock() { *g = Some((p, s, max)); }
+        }
+    }
     window.set_decorations(!on).map_err(err)?;
+    // sem sombra = sem a borda fina que o Windows 11 desenha em volta da janela sem moldura
+    let _ = window.set_shadow(!on);
     window.set_always_on_top(on).map_err(err)?;
+    if on && !was_on {
+        // cobre a area de TODOS os monitores (caixa envolvente): janelas internas podem passar de um monitor ao outro
+        if let Ok(mons) = window.available_monitors() {
+            if !mons.is_empty() {
+                let x0 = mons.iter().map(|m| m.position().x).min().unwrap_or(0);
+                let y0 = mons.iter().map(|m| m.position().y).min().unwrap_or(0);
+                let x1 = mons.iter().map(|m| m.position().x + m.size().width as i32).max().unwrap_or(0);
+                let y1 = mons.iter().map(|m| m.position().y + m.size().height as i32).max().unwrap_or(0);
+                let _ = window.set_position(tauri::PhysicalPosition::new(x0, y0));
+                let _ = window.set_size(tauri::PhysicalSize::new((x1 - x0) as u32, (y1 - y0) as u32));
+            }
+        }
+    }
     if !on {
         window.set_ignore_cursor_events(false).map_err(err)?;
+        if was_on {
+            let saved = state.saved.lock().ok().and_then(|mut g| g.take());
+            if let Some((p, s, max)) = saved {
+                let _ = window.set_size(s);
+                let _ = window.set_position(p);
+                if max { let _ = window.maximize(); }
+            }
+        }
     }
     Ok(())
 }

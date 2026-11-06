@@ -3,7 +3,18 @@
   "identifier": "default",
   "description": "ImageL: janela principal (assets servidos por http://127.0.0.1 local)",
   "local": true,
-  "windows": ["main"],
-  "remote": { "urls": ["http://127.0.0.1:*"] },
-  "permissions": ["core:default"]
+  "windows": [
+    "main"
+  ],
+  "remote": {
+    "urls": [
+      "http://127.0.0.1:*"
+    ]
+  },
+  "permissions": [
+    "core:default",
+    "allow-set-overlay",
+    "allow-set-hit-regions",
+    "allow-set-always-on-top"
+  ]
 }
