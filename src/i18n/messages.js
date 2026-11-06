@@ -1,0 +1,33 @@
+// Dicionarios PT/EN. Toda chave precisa existir nos dois idiomas (verificado em tests/i18n.test.mjs).
+export const messages = {
+  en: {
+    'app.name': 'ImageL',
+    'menu.file': 'File', 'menu.edit': 'Edit', 'menu.image': 'Image', 'menu.process': 'Process',
+    'menu.analyze': 'Analyze', 'menu.plugins': 'Plugins', 'menu.window': 'Window', 'menu.help': 'Help',
+    'mode.bg': 'With background', 'mode.overlay': 'No background',
+    'mode.bg.title': 'Floating windows inside the app', 'mode.overlay.title': 'Floating windows over other apps (desktop)',
+    'search.placeholder': 'Search command…',
+    'ai.connected': 'AI connected', 'ai.disconnected': 'AI disconnected',
+    'theme.toggle': 'Toggle theme', 'lang.toggle': 'Language',
+    'drag.hint': 'Drag to move',
+    'panel.title': 'Panel', 'panel.properties': 'Properties', 'panel.rois': 'ROIs', 'panel.results': 'Results', 'panel.ai': 'AI',
+    'status.memory': 'Memory', 'status.ready': 'CheerpJ ready', 'status.mounted': '/local mounted',
+    'error.copy': 'Copy diagnostics', 'error.copied': 'Copied', 'error.dismiss': 'Dismiss',
+    'load.runtime': 'Loading runtime…', 'load.ij': 'Loading ImageJ…', 'load.plugins': 'Loading plugins…', 'load.ready': 'Ready',
+  },
+  pt: {
+    'app.name': 'ImageL',
+    'menu.file': 'Arquivo', 'menu.edit': 'Editar', 'menu.image': 'Imagem', 'menu.process': 'Processar',
+    'menu.analyze': 'Analisar', 'menu.plugins': 'Plugins', 'menu.window': 'Janela', 'menu.help': 'Ajuda',
+    'mode.bg': 'Com fundo', 'mode.overlay': 'Sem fundo',
+    'mode.bg.title': 'Janelas flutuantes dentro do app', 'mode.overlay.title': 'Janelas flutuantes sobre outros apps (desktop)',
+    'search.placeholder': 'Buscar comando…',
+    'ai.connected': 'IA conectada', 'ai.disconnected': 'IA desconectada',
+    'theme.toggle': 'Alternar tema', 'lang.toggle': 'Idioma',
+    'drag.hint': 'Arraste para mover',
+    'panel.title': 'Painel', 'panel.properties': 'Propriedades', 'panel.rois': 'ROIs', 'panel.results': 'Resultados', 'panel.ai': 'IA',
+    'status.memory': 'Memória', 'status.ready': 'CheerpJ pronto', 'status.mounted': '/local montado',
+    'error.copy': 'Copiar diagnóstico', 'error.copied': 'Copiado', 'error.dismiss': 'Fechar',
+    'load.runtime': 'Carregando runtime…', 'load.ij': 'Carregando ImageJ…', 'load.plugins': 'Carregando plugins…', 'load.ready': 'Pronto',
+  },
+};
