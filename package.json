@@ -1,6 +1,6 @@
 {
   "name": "imagel",
-  "version": "0.6.0-alpha.30",
+  "version": "0.6.0-alpha.31",
   "description": "ImageL - ImageJ in the browser and desktop (fork of aicell-lab/imagej.js)",
   "scripts": {
     "dev": "http-server -p 8000 --cors -c-1",

@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.31]
+### Fixed
+- Desktop: opens the new shell (`?ui=new`) by default; local asset server is multi-threaded and streams slices without copying (ImageJ now loads in the Tauri window).
+
 ## [0.6.0-alpha.30]
 ### Fixed
 - Desktop: ImageJ did not load inside the Tauri window (CheerpJ needs HTTP Range requests, which the asset protocol lacks). The app now serves its embedded files from a local 127.0.0.1 server with Range support; still a single .exe.

@@ -28,3 +28,4 @@ dist/
 desktop/src-tauri/target/
 desktop/src-tauri/gen/
 .tools/
+vendor/
