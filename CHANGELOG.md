@@ -4,6 +4,21 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-06
+
+### Added
+- **Nova casca de UI (opt-in `?ui=new`, volta com `?ui=classic`)**: `src/ui/shell.js` + `static/shell.css` — topbar com menus do ImageJ (PT/EN, submenus, atalhos), toolbar vertical com icones SVG grossos, statusbar, paleta de comandos (`Ctrl/Cmd+K`), alternar tema/idioma/modo leve.
+- `src/ui/menus.js`: arvore de menus padrao do ImageJ com rotulos PT/EN (o `cmd` continua em ingles) e busca sem acento nos dois idiomas.
+- `src/ui/bridge.js`: ponte JS->ImageJ via `IJ.runMacro` (`run(...)`, `setTool(...)`) com escape de macro.
+- `src/ui/draggable.js` ligado: barras arrastaveis no modo "Sem fundo".
+- Testes de menus, busca, bridge e splash (20 no total).
+
+### Fixed
+- `splash.fail()` lancava `TypeError` ao receber objetos sem prototipo (ex.: erro do CheerpJ); agora mostra mensagem segura e traduzida.
+
+### Notes
+- A casca e opt-in porque ainda nao foi validada com o ImageJ real (sem `ij.jar` na maquina de desenvolvimento). "Sem fundo" so aparece no shell desktop.
+
 ## [0.1.0] - 2026-11-06
 
 ### Added

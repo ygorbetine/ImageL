@@ -28,3 +28,20 @@ try {
 
 // Recursos opcionais (sob demanda): rodam depois do primeiro paint para nao competir com o boot.
 (window.requestIdleCallback || (f => setTimeout(f, 500)))(() => loadOptionalFeatures(location.pathname.replace(/[^/]*$/, '')));
+
+// Nova casca de UI (opt-in: ?ui=new). Carregada sob demanda; boot.js aguarda __shellReady antes de criar o display.
+try {
+  const q = new URLSearchParams(location.search).get('ui');
+  const on = q ? q === 'new' : localStorage.getItem('imagel.ui') === 'new';
+  if (q === 'new' || q === 'classic') localStorage.setItem('imagel.ui', q);
+  if (on) {
+    const base = location.pathname.replace(/[^/]*$/, '');
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = base + 'static/shell.css';
+    document.head.appendChild(css);
+    window.__shellReady = import('./ui/shell.js').then(m => m.mountShell()).catch(e => log.error('shell:', e));
+  }
+} catch (e) {
+  log.warn('shell indisponivel:', e);
+}

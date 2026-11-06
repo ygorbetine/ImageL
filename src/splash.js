@@ -21,6 +21,17 @@ function render() {
 
 onLocaleChange(render);
 
+/** Texto seguro para qualquer valor lancado (objetos sem prototipo, CJ3Library etc. nao viram string). */
+export function describe(err) {
+  try {
+    if (err && typeof err.message === 'string' && err.message) return err.message;
+    if (typeof err === 'string' && err) return err;
+    const s = String(err);
+    if (s && s !== '[object Object]') return s;
+  } catch (_) { /* objeto sem toString */ }
+  return t('load.failed');
+}
+
 export const splash = {
   step(labelKey, percent) {
     if (hidden) return;
@@ -48,6 +59,6 @@ export const splash = {
     if (!root) return;
     root.classList.add('failed');
     const label = el('imagel-splash-label');
-    if (label) label.textContent = String(err && err.message ? err.message : err);
+    if (label) label.textContent = describe(err);
   },
 };

@@ -14,6 +14,7 @@ export const messages = {
     'status.memory': 'Memory', 'status.ready': 'CheerpJ ready', 'status.mounted': '/local mounted',
     'error.copy': 'Copy diagnostics', 'error.copied': 'Copied', 'error.dismiss': 'Dismiss',
     'load.runtime': 'Loading runtime…', 'load.ij': 'Loading ImageJ…', 'load.plugins': 'Loading plugins…', 'load.ready': 'Ready',
+    'load.failed': 'Failed to load ImageJ. Check that lib/ImageJ/ij.jar exists (run prepare.sh) and reload.',
     'load.slow': 'Taking longer than expected… check your connection and reload.',
   },
   pt: {
@@ -30,6 +31,7 @@ export const messages = {
     'status.memory': 'Memória', 'status.ready': 'CheerpJ pronto', 'status.mounted': '/local montado',
     'error.copy': 'Copiar diagnóstico', 'error.copied': 'Copiado', 'error.dismiss': 'Fechar',
     'load.runtime': 'Carregando runtime…', 'load.ij': 'Carregando ImageJ…', 'load.plugins': 'Carregando plugins…', 'load.ready': 'Pronto',
+    'load.failed': 'Falha ao carregar o ImageJ. Verifique se lib/ImageJ/ij.jar existe (rode prepare.sh) e recarregue.',
     'load.slow': 'Demorando mais que o esperado… verifique a conexão e recarregue.',
   },
 };

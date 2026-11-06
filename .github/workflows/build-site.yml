@@ -49,7 +49,7 @@ jobs:
         cp file-browser.js dist/
         cp sw.js dist/
         cp -r src dist/
-        mkdir -p dist/static && cp static/tailwind.css static/theme.css dist/static/
+        mkdir -p dist/static && cp static/tailwind.css static/theme.css static/shell.css dist/static/
         cp CNAME dist/
         cp -r lib dist/
         # threadhack drop-in runtime — loader.js is referenced from index.html

@@ -427,6 +427,7 @@ await applyPatches();
 // Parse and mount GitHub repos from URL parameters
 await parseAndMountGitHub();
 
+if (window.__shellReady) await window.__shellReady; // nova UI: monta as barras antes de medir o container
 cheerpjCreateDisplay(-1, -1, document.getElementById("container"));
 splash.step('load.ij', 50);
 
