@@ -4,6 +4,10 @@ version = "0.3.0"
 description = "ImageL desktop shell (Tauri): janela transparente, click-through e sempre no topo"
 edition = "2021"
 
+[[bin]]
+name = "ImageL"
+path = "src/main.rs"
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
@@ -11,6 +15,7 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tiny_http = "0.12"
 
 # binario pequeno: o objetivo do shell desktop e ser leve
 [profile.release]

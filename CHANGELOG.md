@@ -4,6 +4,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.30]
+### Fixed
+- Desktop: ImageJ did not load inside the Tauri window (CheerpJ needs HTTP Range requests, which the asset protocol lacks). The app now serves its embedded files from a local 127.0.0.1 server with Range support; still a single .exe.
+- Desktop: executable is now `ImageL.exe`; icons regenerated from the cell logo (`node tools/make-icons.mjs`).
+
 ## [0.6.0-alpha.29]
 ### Added
 - Gap distance: option to add each measurement line to the Results table (like Ctrl+M).

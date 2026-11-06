@@ -57,6 +57,59 @@ fn set_always_on_top(window: WebviewWindow, on: bool) -> Result<(), String> {
     window.set_always_on_top(on).map_err(err)
 }
 
+
+/// Servidor HTTP local (127.0.0.1, porta aleatoria) que serve os assets embutidos COM suporte a Range: o CheerpJ le
+/// os JARs por requisicoes parciais, o que o protocolo de assets do Tauri nao atende. Continua sendo um arquivo so.
+fn parse_range(h: &str, len: usize) -> Option<(usize, usize)> {
+    let r = h.trim().strip_prefix("bytes=")?;
+    let (a, b) = r.split_once('-')?;
+    if a.is_empty() {
+        let n: usize = b.parse().ok()?;
+        return Some((len.saturating_sub(n), len.saturating_sub(1)));
+    }
+    let start: usize = a.parse().ok()?;
+    let end: usize = if b.is_empty() { len.saturating_sub(1) } else { b.parse::<usize>().ok()?.min(len.saturating_sub(1)) };
+    if start > end || start >= len { None } else { Some((start, end)) }
+}
+
+fn serve_assets(app: tauri::AppHandle) -> Result<u16, String> {
+    let server = tiny_http::Server::http("127.0.0.1:0").map_err(err)?;
+    let port = server.server_addr().to_ip().map(|a| a.port()).ok_or("sem porta")?;
+    std::thread::spawn(move || {
+        let cache: Mutex<std::collections::HashMap<String, (Arc<Vec<u8>>, String)>> = Mutex::new(Default::default());
+        for req in server.incoming_requests() {
+            let raw = req.url().split(['?', '#']).next().unwrap_or("/").to_string();
+            let mut path = raw.trim_start_matches('/').to_string();
+            if path.is_empty() || path.ends_with('/') { path.push_str("index.html"); }
+            let hit = cache.lock().ok().and_then(|c| c.get(&path).cloned());
+            let found = hit.or_else(|| {
+                let a = app.asset_resolver().get(path.clone())?;
+                let v = (Arc::new(a.bytes), a.mime_type);
+                if let Ok(mut c) = cache.lock() { c.insert(path.clone(), v.clone()); }
+                Some(v)
+            });
+            let hdr = |k: &str, v: &str| tiny_http::Header::from_bytes(k.as_bytes(), v.as_bytes()).unwrap();
+            let Some((bytes, mime)) = found else {
+                let _ = req.respond(tiny_http::Response::from_string("404").with_status_code(404));
+                continue;
+            };
+            let range = req.headers().iter().find(|h| h.field.equiv("Range")).and_then(|h| parse_range(h.value.as_str(), bytes.len()));
+            let resp = match range {
+                Some((s, e)) => tiny_http::Response::from_data(bytes[s..=e].to_vec())
+                    .with_status_code(206)
+                    .with_header(hdr("Content-Range", &format!("bytes {}-{}/{}", s, e, bytes.len()))),
+                None => tiny_http::Response::from_data(bytes.as_ref().clone()),
+            };
+            let _ = req.respond(
+                resp.with_header(hdr("Content-Type", &mime))
+                    .with_header(hdr("Accept-Ranges", "bytes"))
+                    .with_header(hdr("Cache-Control", "no-cache")),
+            );
+        }
+    });
+    Ok(port)
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(Arc::new(Overlay::default()))
@@ -64,6 +117,10 @@ fn main() {
         .setup(|app| {
             let overlay = app.state::<Arc<Overlay>>().inner().clone();
             let win = app.get_webview_window("main").expect("janela main");
+            let port = serve_assets(app.handle().clone())?;
+            let url: tauri::Url = format!("http://127.0.0.1:{}/index.html", port).parse().map_err(err)?;
+            eprintln!("ImageL assets em {}", url);
+            win.navigate(url).map_err(err)?;
             std::thread::spawn(move || {
                 let mut last_ignore: Option<bool> = None;
                 loop {
