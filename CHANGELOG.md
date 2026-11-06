@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.40]
+- Campos de texto dos diálogos Java agora escuros (a regra de borda do index.html forçava fundo branco).
+
 ## [0.6.0-alpha.39]
 - Adicionado docs/MANUAL.md.
 

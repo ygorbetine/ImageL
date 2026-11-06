@@ -179,3 +179,9 @@ html .cjWindow input[type="text"][style], html .cjWindow input:not([type])[style
   -webkit-text-fill-color: var(--il-text) !important; caret-color: var(--il-text); border: 1px solid var(--il-border) !important;
 }
 html .cjWindow input::selection, html .cjWindow textarea::selection { background: color-mix(in srgb, var(--il-accent) 55%, transparent); color: var(--il-text); }
+
+/* Vence a regra do index.html (fundo branco, especificidade alta) nos campos dos dialogos Java */
+html body .cjWindow input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]) {
+  background: var(--il-bg) !important; background-color: var(--il-bg) !important; color: var(--il-text) !important;
+  -webkit-text-fill-color: var(--il-text) !important; border-color: var(--il-border) !important;
+}
