@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.36]
+- A posição salva é aplicada antes de trocar a classe do modo: a barra não passa mais pela posição padrão ao alternar.
+
 ## [0.6.0-alpha.35]
 - Corrigido: ao trocar de modo a barra/aba saltava pela posição padrão antes de ir à salva (parecia recriada); a posição salva agora é aplicada no mesmo quadro.
 

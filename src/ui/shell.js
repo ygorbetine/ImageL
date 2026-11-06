@@ -326,14 +326,15 @@ export function mountShell() {
       const st = readStore(localStorage); st[was] = snapshot(bars, display); writeStore(localStorage, st);
     }
     for (const n of [top, tools, status]) for (const k of ['left', 'top', 'right', 'bottom', 'transform']) n.style[k] = '';
+    const back = () => restore(readStore(localStorage)[now], bars, display, innerWidth, innerHeight);
+    back(); // posicao salva ANTES de trocar a classe: nunca aparece na posicao padrao
     document.body.classList.toggle('ov', on);
     mOv.classList.toggle('on', on);
     pinBtn.disabled = !on;
     mBg.classList.toggle('on', !on);
     window.dispatchEvent(new CustomEvent('imagel:overlay', { detail: on })); // o shell Tauri liga click-through/transparencia
     // a janela nativa muda de tamanho de forma assincrona: restaura depois do novo layout (e de novo, por seguranca)
-    const back = () => restore(readStore(localStorage)[now], bars, display, innerWidth, innerHeight);
-    back(); // ja no mesmo quadro: sem o salto pela posicao padrao (parecia a aba recriada)
+    // ja no mesmo quadro: sem o salto pela posicao padrao (parecia a aba recriada)
     setTimeout(back, 150); setTimeout(back, 700);
   }
   window.addEventListener('pagehide', () => {
