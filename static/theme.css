@@ -72,3 +72,17 @@ html[data-lite] div.cjBordered { box-shadow: none !important; }
   color: var(--il-text); font: 600 20px system-ui, sans-serif; text-align: center;
   padding: 2rem 3rem; border: 2px dashed var(--il-accent); border-radius: 12px;
 }
+
+/* ---- Conteudo das janelas Java (menus, rolagem, tabelas/texto) -------------------------------------------------- */
+/* Menus e barras de rolagem sao DOM: tematizaveis direto. O conteudo (CANVAS) e pintado pelo Java: nas janelas que NAO
+   sao de imagem (Results, Log, dialogos, editores), a casca JS marca data-il-dark e invertemos o canvas. */
+.cjMenuBar { background: var(--il-surface) !important; border-bottom: 1px solid var(--il-border) !important; }
+.cjMenuBar a, .cjMenuBar label, .cjMenuItem > a, .cjMenuItem > label { color: var(--il-text) !important; font-family: system-ui, "Segoe UI", sans-serif !important; }
+.cjMenuItem:hover > a, .cjMenuItem:hover > label { background: color-mix(in srgb, var(--il-accent) 28%, transparent) !important; }
+.cjSubMenu { background: var(--il-surface) !important; border: 1px solid var(--il-border) !important; border-radius: 8px !important; padding: 4px !important; box-shadow: 0 8px 24px rgba(0,0,0,.35) !important; }
+.cjArrow { color: var(--il-muted) !important; }
+.cjScrollBar { background: var(--il-surface2) !important; }
+.cjScrollbarButton { background: var(--il-surface) !important; color: var(--il-muted) !important; border-radius: 3px !important; }
+.cjResizer { opacity: .5; }
+html[data-theme="dark"] .cjWindow[data-il-dark] { background: var(--il-surface) !important; }
+html[data-theme="dark"] .cjWindow[data-il-dark] canvas { filter: invert(.92) hue-rotate(180deg) !important; }

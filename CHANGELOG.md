@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.17]
+- Tema escuro nas janelas Java: menus/rolagem/submenus via CSS; Results, Log, dialogos e editores (nao imagens) escurecem por inversao do canvas, marcados por src/ui/java-theme.js.
+
 ## [0.6.0-alpha.16]
 - Fix: Balde e Dev ("Unrecognized tool name") agora usam o indice numerico do setTool (17 e 15). Teste no ImageJ real: todas as 18 ferramentas selecionam.
 - Gap distance roda em modo normal do ImageJ (o modo silencioso/batch quebrava a selecao de imagens).

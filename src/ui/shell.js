@@ -10,6 +10,7 @@ import { reportError } from '../error-handler.js';
 import { initDesktop } from '../desktop.js';
 import { createAiPanel } from './ai-panel.js';
 import { loadLiveMenus, EXT_HANDLERS } from './ij-menus.js';
+import { initJavaTheme } from './java-theme.js';
 import { createMoreTools } from './more-tools.js';
 import { createFlyout, createTooltip } from './toolbar-ui.js';
 
@@ -346,6 +347,7 @@ export function mountShell() {
   initDraggable({ enabled: () => document.body.classList.contains('ov') });
   refresh();
   memTick();
+  initJavaTheme(bridge);
   initDesktop(); // no-op na web; no Tauri liga overlay/click-through
   return { bridge, setOverlay, openPalette };
 }
