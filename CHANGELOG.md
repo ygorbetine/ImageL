@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.34]
+### Added
+- "No background" / "With background" now remember where bars and floating windows were left, per mode (also across sessions); positions are clamped to the visible area on restore.
+
 ## [0.6.0-alpha.33]
 ### Added
 - Gap distance: **auto orientation** (detects horizontal/vertical band; new default), **batch folder** mode (menu ImageL; Shift+click on the new quick-access button in the top bar) with summary table "Gap batch" and optional annotated PNGs, PT/EN dialog and messages.

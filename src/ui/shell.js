@@ -12,6 +12,7 @@ import { createAiPanel } from './ai-panel.js';
 import { loadLiveMenus, EXT_HANDLERS } from './ij-menus.js';
 import { initJavaTheme } from './java-theme.js';
 import { initFitWindow } from './fit-window.js';
+import { snapshot, restore, readStore, writeStore } from './positions.js';
 import { createMoreTools } from './more-tools.js';
 import { createFlyout, createTooltip } from './toolbar-ui.js';
 
@@ -316,14 +317,27 @@ export function mountShell() {
 
   // ---- modo "Sem fundo" (desktop) --------------------------------------------------------------------------------
   function setOverlay(on) {
-    // Posicoes arrastadas (inline) valem so no "Sem fundo": ao trocar de modo, volta ao layout padrao.
+    // Cada modo lembra onde as barras e janelas foram deixadas: guarda as posicoes do modo que sai e restaura as do que entra.
+    const bars = { top, tools, status };
+    const display = document.getElementById('cheerpjDisplay');
+    const was = document.body.classList.contains('ov') ? 'ov' : 'bg';
+    const now = on ? 'ov' : 'bg';
+    if (was !== now) {
+      const st = readStore(localStorage); st[was] = snapshot(bars, display); writeStore(localStorage, st);
+    }
     for (const n of [top, tools, status]) for (const k of ['left', 'top', 'right', 'bottom', 'transform']) n.style[k] = '';
     document.body.classList.toggle('ov', on);
     mOv.classList.toggle('on', on);
     pinBtn.disabled = !on;
     mBg.classList.toggle('on', !on);
     window.dispatchEvent(new CustomEvent('imagel:overlay', { detail: on })); // o shell Tauri liga click-through/transparencia
+    // a janela nativa muda de tamanho de forma assincrona: restaura depois do novo layout (e de novo, por seguranca)
+    const back = () => restore(readStore(localStorage)[now], bars, display, innerWidth, innerHeight);
+    setTimeout(back, 150); setTimeout(back, 700);
   }
+  window.addEventListener('pagehide', () => {
+    const st = readStore(localStorage); st[document.body.classList.contains('ov') ? 'ov' : 'bg'] = snapshot({ top, tools, status }, document.getElementById('cheerpjDisplay')); writeStore(localStorage, st);
+  });
 
   // ---- textos dependentes de idioma/estado ----------------------------------------------------------------------
   function refresh() {

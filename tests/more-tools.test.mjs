@@ -61,3 +61,19 @@ test('fitZoomPct cabe na area e respeita limites', () => {
   assert.equal(fitZoomPct(0, 100, 10, 10), 0);
   assert.equal(fitZoomPct(1, 1, 1000, 1000), 3.1);
 });
+
+import { titleKey, snapshot, restore } from '../src/ui/positions.js';
+test('titleKey ignora sufixo de zoom', () => {
+  assert.equal(titleKey('cells.tif (50%)'), 'cells.tif');
+  assert.equal(titleKey('Results'), 'Results');
+});
+test('snapshot/restore de barras com clamp', () => {
+  const mk = (l, t) => ({ style: { left: l, top: t }, offsetWidth: 100 });
+  const bars = { top: mk('300px', '40px'), tools: mk('', '') };
+  const snap = snapshot(bars, null);
+  assert.deepEqual(Object.keys(snap.bars), ['top']);
+  const b2 = { top: mk('', ''), tools: mk('', '') };
+  restore({ bars: { top: { left: '5000px', top: '900px' } } }, b2, null, 1000, 600);
+  assert.equal(b2.top.style.left, '940px'); // 1000 - 60 visiveis
+  assert.equal(b2.top.style.top, '570px'); // 600 - 30
+});
