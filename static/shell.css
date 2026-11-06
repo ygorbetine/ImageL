@@ -140,3 +140,12 @@ html[data-lite] .il-status, html[data-lite] .il-fly { box-shadow: none; }
 
 /* Janela Java original oculta (viva, sem cliques) */
 body.il-hide-classic [data-il-classic] { opacity: 0 !important; pointer-events: none !important; z-index: -1 !important; }
+
+/* Barras de rolagem discretas (sem o branco padrao) e sem rolagem horizontal na toolbar vertical */
+.il-tools, .il-more, .il-fly, .il-menu ul, .il-palbox ul { scrollbar-width: thin; scrollbar-color: var(--s-border) transparent; }
+.il-tools::-webkit-scrollbar, .il-more::-webkit-scrollbar, .il-fly::-webkit-scrollbar, .il-palbox ul::-webkit-scrollbar { width: 6px; height: 6px; }
+.il-tools::-webkit-scrollbar-thumb, .il-more::-webkit-scrollbar-thumb, .il-palbox ul::-webkit-scrollbar-thumb { background: var(--s-border); border-radius: 3px; }
+.il-tools::-webkit-scrollbar-track, .il-tools::-webkit-scrollbar-corner { background: transparent; }
+body.il-shell[data-orient="v"] .il-tools, body.ov[data-orient="v"] .il-tools { overflow-x: hidden; }
+body.ov[data-orient="v"] .il-tools { padding: 6px 4px; gap: 2px; width: 60px; }
+body.ov[data-orient="v"] .il-tool { width: 46px; height: 46px; }
