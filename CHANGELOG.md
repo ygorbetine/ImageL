@@ -4,6 +4,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-06
+
+### Added
+- `src/lazy.js`: ome-loader (so com `?load=`), touch-controller (so em dispositivos com toque) e Cellpose (no clique do menu) carregam sob demanda; acaba o 404 de `cellpose-integration.js` no boot.
+- `src/lite.js`: modo leve automatico (<=4 nucleos, <=4 GB, economia de dados, reduced-motion) com override `?lite=1|0`; desliga transicoes, animacoes, sombras e blur.
+- `static/theme.css`: tema flat escuro das janelas Java (title bar de 28 px, botoes de 24 px com traco grosso, sem gradiente).
+- Testes do modo leve (12 no total).
+
+### Changed
+- CSS das janelas saiu do `index.html` para `static/theme.css`.
+
 ## [0.1.0-alpha.2] - 2026-11-06
 
 ### Added

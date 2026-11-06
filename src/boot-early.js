@@ -3,10 +3,13 @@ import { initI18n } from './i18n.js';
 import { installGlobalErrorHandlers } from './error-handler.js';
 import { splash } from './splash.js';
 import { createLogger } from './logger.js';
+import { loadOptionalFeatures } from './lazy.js';
+import { initLite } from './lite.js';
 
 const log = createLogger('boot-early');
 
 initI18n();
+initLite();
 installGlobalErrorHandlers();
 splash.step('load.runtime', 5);
 
@@ -22,3 +25,6 @@ try {
 } catch (e) {
   log.warn('Service Worker indisponivel:', e);
 }
+
+// Recursos opcionais (sob demanda): rodam depois do primeiro paint para nao competir com o boot.
+(window.requestIdleCallback || (f => setTimeout(f, 500)))(() => loadOptionalFeatures(location.pathname.replace(/[^/]*$/, '')));

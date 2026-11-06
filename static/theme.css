@@ -1,0 +1,74 @@
+/* ImageL tema flat escuro para as janelas Java (CheerpJ). Tokens espelham docs/ui-mockup.html. */
+:root {
+  --il-bg: #0f1114; --il-surface: #171a1f; --il-surface2: #222830; --il-border: #2c333c;
+  --il-text: #e9edf1; --il-muted: #97a3b0; --il-accent: #5b92ff; --il-danger: #f0616d;
+}
+
+/* Janela: borda de 1px, raio pequeno, sombra discreta (removida no modo leve) */
+div.cjBordered {
+  border: 1px solid var(--il-border) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .35) !important;
+  background: var(--il-surface);
+}
+html[data-lite] div.cjBordered { box-shadow: none !important; }
+
+/* A janela principal do ImageJ fica acima ao passar o mouse */
+#cheerpjDisplay > .cjWindow.cjBordered:first-of-type:hover { z-index: 999 !important; }
+
+/* Barra de titulo flat, 28px, sem gradiente */
+.cjTitleBar {
+  background: var(--il-surface) !important;
+  border-bottom: 1px solid var(--il-border) !important;
+  padding: 0 6px 0 10px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: none !important;
+}
+.cjTitleBarText {
+  color: var(--il-text) !important;
+  font: 600 12px/28px system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  text-shadow: none !important;
+  letter-spacing: 0 !important;
+  flex: 1 !important;
+  cursor: grab !important;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cjTitleBarText:active { cursor: grabbing !important; }
+
+/* Botoes de janela: 24px, icones grossos (traco 2.2) */
+.cjControls {
+  width: 24px !important; height: 24px !important;
+  padding: 4px !important; margin-left: 2px !important;
+  box-sizing: border-box;
+  cursor: pointer !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  flex-shrink: 0 !important;
+}
+.cjControls:hover { background: var(--il-surface2) !important; }
+.cjControls:active { background: var(--il-border) !important; }
+.cjControls line, .cjControls rect {
+  stroke: var(--il-muted) !important;
+  stroke-width: 2.2 !important;
+  fill: none !important;
+  stroke-linecap: round;
+}
+.cjControls:hover line, .cjControls:hover rect { stroke: var(--il-text) !important; }
+.cjControls:first-of-type:hover { background: var(--il-danger) !important; }
+.cjControls:first-of-type:hover line { stroke: #fff !important; }
+
+/* Overlay de drag-and-drop: flat */
+#dropOverlay {
+  position: fixed; inset: 0; z-index: 10000; display: none;
+  align-items: center; justify-content: center; pointer-events: none;
+  background: rgba(15, 17, 20, .86);
+}
+#dropOverlay.active { display: flex; }
+#dropOverlay .drop-message {
+  color: var(--il-text); font: 600 20px system-ui, sans-serif; text-align: center;
+  padding: 2rem 3rem; border: 2px dashed var(--il-accent); border-radius: 12px;
+}

@@ -30,9 +30,14 @@
 <script type="module" src="src/boot-early.js"></script>
 <!-- Tailwind compilado localmente (npm run build:css); substitui cdn.tailwindcss.com -->
 <link rel="stylesheet" href="static/tailwind.css">
+<link rel="stylesheet" href="static/theme.css">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
 <style>
+    /* Modo leve: sem transicoes, animacoes, sombras e blur (maquinas modestas) */
+    html[data-lite] *,html[data-lite] *::before,html[data-lite] *::after{transition:none!important;animation:none!important;backdrop-filter:none!important;text-shadow:none!important}
+    html[data-lite] div.cjBordered{box-shadow:none!important}
+
     /* Splash de carregamento (ImageL) */
     #imagel-splash{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#0f1114;color:#e9edf1;font:14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;transition:opacity .35s}
     #imagel-splash.done{opacity:0;pointer-events:none}
@@ -57,116 +62,6 @@
 
     .cheerpjNC:before {
       content: "" !important;
-    }
-
-    /* Modern window border styling */
-    div.cjBordered {
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                  0 2px 4px -1px rgba(0, 0, 0, 0.06),
-                  0 0 0 1px rgba(59, 130, 246, 0.2) !important;
-      border-radius: 6px !important;
-    }
-
-    /* Bring the main ImageJ window to top when hovering */
-    #cheerpjDisplay > .cjWindow.cjBordered:first-of-type:hover {
-      z-index: 999 !important;
-    }
-
-    /* Enhanced title bar styling */
-    .cjTitleBar {
-      background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
-      border-bottom: 1px solid #1e40af !important;
-      padding: 2px 6px !important;
-      height: 20px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .cjTitleBarText {
-      color: #ffffff !important;
-      font-weight: 600 !important;
-      font-size: 11px !important;
-      letter-spacing: 0.3px !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-      flex: 1 !important;
-      cursor: move !important;
-      line-height: 16px !important;
-    }
-
-    /* Enhanced control buttons */
-    .cjControls {
-      width: 16px !important;
-      height: 16px !important;
-      padding: 2px !important;
-      margin-left: 4px !important;
-      cursor: pointer !important;
-      border-radius: 3px !important;
-      transition: all 0.15s ease !important;
-      background: rgba(255, 255, 255, 0.15) !important;
-      flex-shrink: 0 !important;
-    }
-
-    .cjControls:hover {
-      background: rgba(255, 255, 255, 0.25) !important;
-      transform: scale(1.1) !important;
-    }
-
-    .cjControls:active {
-      background: rgba(255, 255, 255, 0.35) !important;
-      transform: scale(0.95) !important;
-    }
-
-    /* Style the SVG lines and shapes */
-    .cjControls line,
-    .cjControls rect {
-      stroke: #ffffff !important;
-      stroke-width: 1.5 !important;
-      fill: none !important;
-    }
-
-    /* Close button (X) - red hover effect */
-    .cjControls:hover line {
-      stroke: #fef2f2 !important;
-    }
-
-    .cjControls:first-of-type:hover {
-      background: rgba(239, 68, 68, 0.9) !important;
-    }
-
-    /* Maximize button - keep blue */
-    .cjControls:last-of-type:hover {
-      background: rgba(59, 130, 246, 0.5) !important;
-    }
-
-    /* Drag and drop overlay */
-    #dropOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(59, 130, 246, 0.9);
-      z-index: 10000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    #dropOverlay.active {
-      display: flex;
-    }
-
-    .drop-message {
-      color: white;
-      font-size: 2rem;
-      font-weight: bold;
-      text-align: center;
-      padding: 2rem;
-      border: 4px dashed white;
-      border-radius: 1rem;
     }
 
     /* Tooltip styles */
@@ -415,14 +310,7 @@
 <script type="module" src="src/boot.js"></script>
 
 <!-- OME-TIFF / OME-Zarr URL loader. Activated by ?load=<url>. -->
-<script type="module" src="threadhack/viv-loader/ome-loader.js"></script>
-
-<!-- Touch / pinch controller for LazyImagePlus (mobile + trackpad). -->
-<script src="threadhack/viv-loader/touch-controller.js"></script>
-
-<!-- Cellpose integration: adds Extensions → Cellpose… (uses cellpose-web/).
-     Cache-busting query so post-deploy iterations refresh cleanly. -->
-<script src="cellpose-integration.js?v=3"></script>
+<!-- ome-loader, touch-controller e Cellpose agora sao carregados sob demanda (src/lazy.js). -->
 
 <div id="container"></div>
 </body>

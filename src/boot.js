@@ -2,6 +2,7 @@
 // (Extraido verbatim do script inline de index.html; console.* -> logger; imports relativos a src/.)
 import { createLogger } from './logger.js';
 import { splash } from './splash.js';
+import { loadScript } from './lazy.js';
 
 const log = createLogger('boot');
 // Get the directory path, ensuring it ends with /
@@ -261,11 +262,19 @@ window.__menuHandlers.mount = async () => {
 
 window.__menuHandlers['roi-test'] = () => runRoiGeoJsonTest();
 
-window.__menuHandlers['cellpose'] = () => {
-    if (window.cellposeIntegration) {
-        window.cellposeIntegration.show();
-    } else {
-        alert('Cellpose integration not loaded yet. Try again in a moment.');
+window.__menuHandlers['cellpose'] = async () => {
+    try {
+        if (!window.cellposeIntegration) {
+            await loadScript(`${baseUrl}cellpose-integration.js?v=3`);
+        }
+        if (window.cellposeIntegration) {
+            window.cellposeIntegration.show();
+        } else {
+            alert('Cellpose integration not available.');
+        }
+    } catch (e) {
+        log.error('Cellpose:', e);
+        alert('Cellpose integration could not be loaded: ' + e.message);
     }
 };
 
