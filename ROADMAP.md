@@ -216,3 +216,14 @@ Ponte Java↔JS estável (0.2.0), exportação GeoJSON (existente), pool de work
 - **Transparência no Linux** varia por compositor.
 - **IA autônoma**: resultados científicos errados com aparência plausível; por isso verificação visual, logs e protocolo reproduzível são requisitos, não extras.
 - **Build local**: JDK 8+ e Ant são necessários para `prepare.sh` (não presentes em todas as máquinas).
+
+
+## 8. Próximos passos (atualizado em 0.6.0-alpha.8)
+1. **Ensaio de lacuna (scratch):** feito o núcleo (menu ImageL). Falta: correção de viés do filtro de variância (~5 px com raio 3), comparação automática entre vários tempos/imagens (série), ROI manual opcional, exportar CSV, receita na IA.
+2. **Validar no app real:** botões Balde/Dev e flyout ≫; layout compacto em várias larguras; botão "ImageJ clássico".
+3. **Status/progresso do ImageJ** na pílula (hoje só na janela clássica).
+4. **Shell novo como padrão** após validação; `?ui=classic` continua.
+5. **0.3 Desktop:** build Tauri e teste do "Sem fundo" em Windows (click-through, arrastar janelas).
+6. **0.4 Workers** opt-in (`?pool=N`) e lotes de imagens.
+7. **0.6 IA:** provider remoto (opt-in), receitas novas (lacuna, contagem), painel de plano/relatório.
+8. **1.0:** E2E, baseline de performance (aprovação de ferramenta pendente), estabilização.

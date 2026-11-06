@@ -120,6 +120,13 @@ export const TOOLBAR = [
   { group: ['brush', 'Flood Filler Built-in Tool'] },
 ];
 
+/** Menu proprio do ImageL (alem dos menus do ImageJ). Itens com ext:true sao tratados por handlers JS. */
+export const IMAGEL_MENU = {
+  id: 'imagel', en: 'ImageL', pt: 'ImageL',
+  items: [{ cmd: 'Gap distance...', en: 'Gap distance (scratch assay)...', pt: 'Distância entre grupos (scratch)...', ext: true }],
+};
+export const withImageL = ms => [...ms.filter(m => m.id !== 'imagel'), IMAGEL_MENU];
+
 const walk = (items, path, out) => {
   for (const it of items) {
     if (it === '-') continue;

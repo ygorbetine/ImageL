@@ -1,6 +1,7 @@
 // Casca HTML do ImageL (opt-in: ?ui=new ou localStorage imagel.ui=new): topbar com menus, toolbar vertical,
 // statusbar e paleta de comandos. Executa tudo via ImageJBridge. Sem framework; DOM direto.
-import { MENUS, TOOLS, TOOLBAR, flattenCommands, searchCommands } from './menus.js';
+import { GAP_MACRO } from '../ai/gap-assay.js';
+import { MENUS, TOOLS, TOOLBAR, withImageL, flattenCommands, searchCommands } from './menus.js';
 import { createBridge } from './bridge.js';
 import { initDraggable } from './draggable.js';
 import { getLocale, setLocale, onLocaleChange, t } from '../i18n.js';
@@ -47,7 +48,8 @@ export function shellEnabled() {
 
 export function mountShell() {
   const bridge = createBridge();
-  let menus = MENUS;
+  let menus = withImageL(MENUS);
+  window.__menuHandlers = { ...window.__menuHandlers, gap: () => bridge.macro(GAP_MACRO) };
   let commands = flattenCommands(menus);
   const isDesktop = typeof window !== 'undefined' && !!window.__TAURI__;
   document.documentElement.dataset.theme = (() => { try { return localStorage.getItem('imagel.theme') || 'dark'; } catch (_) { return 'dark'; } })();
@@ -302,7 +304,7 @@ export function mountShell() {
   onLocaleChange(refresh);
   // Menus reais do ImageJ (completos, com plugins e Extensions) quando ele estiver pronto; falha -> lista padrao.
   window.addEventListener('imagel:ready', async () => {
-    try { menus = await loadLiveMenus(window.IJClass); commands = flattenCommands(menus); refresh(); }
+    try { menus = withImageL(await loadLiveMenus(window.IJClass)); commands = flattenCommands(menus); refresh(); }
     catch (e) { reportError('Menus do ImageJ indisponiveis, usando lista padrao: ' + (e.message || e), 'menus'); }
   });
 

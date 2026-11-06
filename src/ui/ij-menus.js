@@ -4,7 +4,7 @@
 import { MENUS } from './menus.js';
 
 // Itens do menu Extensions sao tratados por handlers JS (ver boot.js), nao por run("...").
-export const EXT_HANDLERS = { 'Connect to Hypha MCP...': 'mcp', 'Test ROI ↔ GeoJSON': 'roi-test', 'Cellpose…': 'cellpose' };
+export const EXT_HANDLERS = { 'Connect to Hypha MCP...': 'mcp', 'Test ROI ↔ GeoJSON': 'roi-test', 'Cellpose…': 'cellpose', 'Gap distance...': 'gap' };
 
 function ptDictionary() {
   const d = new Map();

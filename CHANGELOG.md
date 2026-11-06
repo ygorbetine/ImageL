@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.8]
+- Menu ImageL > "Distancia entre grupos (scratch)": mede a lacuna entre dois grupos de celulas em N linhas (parametros em dialogo: nº de medicoes, raio, margem, direcao, media anterior, limiar de movimento %), tabela, overlay e relatorio. Validado no app real com imagem sintetica.
+
 ## [0.6.0-alpha.7]
 - Janela Java original do ImageJ oculta no shell novo (continua viva); botao na barra para mostrar o ImageJ classico.
 
