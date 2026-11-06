@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.22]
+- Janelas Java: conteudo pintado pelo Java (Results, Log, dialogos, molduras) passa por filtro SVG com a paleta do tema (branco->superficie, preto->texto, cinzas->superficie2) em vez de inversao simples; botoes estreitos sem borda que corta texto; borda azul sutil na janela sob o mouse.
+
 ## [0.6.0-alpha.21]
 - Acabamento das janelas Java: cantos 10px, sombra em camadas, titulo que esmaece quando a janela nao esta em foco, controles circulares, rolagem em pilula com hover azul, botao OK/Apply/Run em azul, foco visivel e selecao de texto no tema.
 
