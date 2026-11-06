@@ -9,14 +9,17 @@ Dialog.create("ImageL - Gap distance (scratch assay)");
 Dialog.addNumber("Measurements (lines):", 10);
 Dialog.addNumber("Texture radius (px):", 4);
 Dialog.addNumber("Edge margin (%):", 5);
+Dialog.addNumber("Curve smoothing (0 = hug every cell, 10 = very smooth):", 5);
 Dialog.addChoice("Measure along:", newArray("Horizontal (gap is a vertical band)", "Vertical (gap is a horizontal band)"));
 Dialog.addNumber("Previous mean distance (0 = none):", 0);
 Dialog.addNumber("Movement threshold (%):", 10);
 Dialog.show();
-n = round(Dialog.getNumber()); rad = Dialog.getNumber(); mg = Dialog.getNumber();
+n = round(Dialog.getNumber()); rad = Dialog.getNumber(); mg = Dialog.getNumber(); sm = Dialog.getNumber();
 mode = Dialog.getChoice(); prev = Dialog.getNumber(); thr = Dialog.getNumber();
 if (n < 1) n = 1;
 if (mg < 0 || mg > 40) mg = 5;
+if (sm < 0) sm = 0;
+if (sm > 10) sm = 10;
 vert = startsWith(mode, "Vertical");
 orig = getImageID(); title = getTitle();
 w = getWidth(); h = getHeight();
@@ -37,8 +40,8 @@ run("Options...", "iterations=1 count=1 black");
 nl = h; len = w;
 if (vert) { nl = w; len = h; }
 pos0 = newArray(n); d = newArray(n); a1 = newArray(n);
-// Varredura: n linhas de medicao + ~240 linhas de contorno (leve) para desenhar as bordas dos dois grupos.
-ne = 240; if (ne > nl) ne = nl;
+// Varredura: n linhas de medicao + ~320 linhas de contorno (leve) para desenhar as bordas dos dois grupos.
+ne = 320; if (ne > nl) ne = nl;
 es = newArray(ne); ee = newArray(ne); ep = newArray(ne);
 for (k = 0; k < n + ne; k++) {
   if (k < n) pos = round(nl * (mg / 100 + (1 - 2 * mg / 100) * (k + 0.5) / n));
@@ -86,6 +89,60 @@ if (nv > 2) {
     if (bj >= 0) { a1[k] = es[bj]; d[k] = ee[bj] - es[bj]; }
   }
 }
+// Refinamento fino: mascara mais sensivel, buscando a borda REAL (celula mais proxima) a ate R px da borda grossa.
+// Assim o contorno cola nas celulas como o desenho a mao, sem entrar nos vaos entre elas.
+selectImage(orig); run("Duplicate...", "title=ImageL-fine"); run("8-bit");
+run("Variance...", "radius=3"); run("Gaussian Blur...", "sigma=2");
+setAutoThreshold("Li dark"); run("Convert to Mask");
+run("Options...", "iterations=2 count=1 black"); run("Open"); run("Options...", "iterations=1 count=1 black");
+R = maxOf(10, round(0.05 * len));
+for (q = 0; q < n + ne; q++) {
+  if (q < n) { pos = pos0[q]; s0 = a1[q]; e0 = a1[q] + d[q]; if (d[q] <= 0) continue; }
+  else { pos = ep[q - n]; s0 = es[q - n]; e0 = ee[q - n]; if (e0 < 0) continue; }
+  s0 = round(s0); e0 = round(e0); mid = floor((s0 + e0) / 2);
+  lim = maxOf(0, s0 - R); ns = lim;
+  for (x = minOf(minOf(len - 1, s0 + R), mid); x >= lim; x--) {
+    if (vert) v = getPixel(pos, x); else v = getPixel(x, pos);
+    if (v > 127) { ns = x + 1; break; }
+  }
+  lim = minOf(len - 1, e0 + R); nf = lim;
+  for (x = maxOf(maxOf(0, e0 - R), mid + 1); x <= lim; x++) {
+    if (vert) v = getPixel(pos, x); else v = getPixel(x, pos);
+    if (v > 127) { nf = x - 1; break; }
+  }
+  if (nf <= ns) continue;
+  if (q < n) { a1[q] = ns; d[q] = nf - ns; } else { es[q - n] = ns; ee[q - n] = nf; }
+}
+// Fecho morfologico 1D do perfil de cada borda: preenche vaos estreitos entre celulas (como o contorno a mao,
+// que abraca o grupo) e mantem as saliencias das celulas; depois media curta para ficar liso.
+cw = round(sm * ne / 200); av = 1 + round(sm / 3);
+cs_ = newArray(ne); ce_ = newArray(ne); ds_ = newArray(ne); de_ = newArray(ne);
+for (k = 0; k < ne; k++) {
+  ds_[k] = -1; de_[k] = -1;
+  if (ee[k] < 0) continue;
+  mxs = -1; mne = 1e9;
+  for (j = maxOf(0, k - cw); j <= minOf(ne - 1, k + cw); j++) if (ee[j] >= 0) { mxs = maxOf(mxs, es[j]); mne = minOf(mne, ee[j]); }
+  ds_[k] = mxs; de_[k] = mne;
+}
+for (k = 0; k < ne; k++) {
+  cs_[k] = -1; ce_[k] = -1;
+  if (ee[k] < 0) continue;
+  mns = 1e9; mxe = -1;
+  for (j = maxOf(0, k - cw); j <= minOf(ne - 1, k + cw); j++) if (ds_[j] >= 0) { mns = minOf(mns, ds_[j]); mxe = maxOf(mxe, de_[j]); }
+  cs_[k] = mns; ce_[k] = mxe;
+}
+for (k = 0; k < ne; k++) {
+  if (ee[k] < 0) continue;
+  c = 0; sa = 0; sb = 0;
+  for (j = maxOf(0, k - av); j <= minOf(ne - 1, k + av); j++) if (cs_[j] >= 0) { sa += cs_[j]; sb += ce_[j]; c++; }
+  es[k] = sa / c; ee[k] = sb / c;
+}
+for (q = 0; q < n; q++) {
+  bj = -1; bd = 1e9;
+  for (j = 0; j < ne; j++) if (ee[j] >= 0 && abs(ep[j] - pos0[q]) < bd) { bd = abs(ep[j] - pos0[q]); bj = j; }
+  if (bj >= 0) { a1[q] = es[bj]; d[q] = ee[bj] - es[bj]; }
+}
+selectImage("ImageL-fine"); close();
 selectImage("ImageL-gap"); close();
 selectImage(orig);
 tbl = "Gap distances";

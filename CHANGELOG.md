@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.27]
+### Changed
+- Gap distance: borders now hug the cells (fine refinement + 1D closing); new "Curve smoothing" option (0-10).
+
 ## [0.6.0-alpha.26]
 ### Changed
 - Gap distance: draws the two group borders (top/bottom contours, like the manual freehand outline) plus the straight measurement lines; contours are outlier-filtered (loose cells, dust) and smoothed; Li threshold follows sparse border cells.
