@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.28]
+### Added
+- Desktop: pin button in the topbar toggles always-on-top in "No background" mode (default on, persisted); turned off in "With background".
+
 ## [0.6.0-alpha.27]
 ### Changed
 - Gap distance: borders now hug the cells (fine refinement + 1D closing); new "Curve smoothing" option (0-10).

@@ -7,7 +7,7 @@ import { initDraggable } from './draggable.js';
 import { getLocale, setLocale, onLocaleChange, t } from '../i18n.js';
 import { isLite, setLite } from '../lite.js';
 import { reportError } from '../error-handler.js';
-import { initDesktop } from '../desktop.js';
+import { initDesktop, isDesktop as isTauri, readPin } from '../desktop.js';
 import { createAiPanel } from './ai-panel.js';
 import { loadLiveMenus, EXT_HANDLERS } from './ij-menus.js';
 import { initJavaTheme } from './java-theme.js';
@@ -21,6 +21,7 @@ const ICON = {
   search: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/>',
   theme: '<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>',
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  pin: '<path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   grip: '<circle cx="8" cy="7" r="1.6" fill="currentColor"/><circle cx="16" cy="7" r="1.6" fill="currentColor"/><circle cx="8" cy="12" r="1.6" fill="currentColor"/><circle cx="16" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="17" r="1.6" fill="currentColor"/><circle cx="16" cy="17" r="1.6" fill="currentColor"/>',
   bg: '<rect x="3" y="4" width="18" height="16" rx="1.5"/><rect x="8" y="9" width="9" height="7" rx="1"/>',
@@ -132,6 +133,13 @@ export function mountShell() {
   const mOv = el('button', { onclick: () => setOverlay(true) }, `${SVG(ICON.ov, 18)}<span data-m="ov"></span>`);
   seg.append(mBg, mOv);
   const liteBtn = el('button', { class: 'il-ico', onclick: () => { setLite(!isLite()); refresh(); } }, SVG(ICON.bolt, 20));
+  let pinOn = isTauri() ? readPin(localStorage) : false;
+  const pinBtn = el('button', { class: 'il-ico', onclick: () => {
+    pinOn = !pinOn;
+    window.dispatchEvent(new CustomEvent('imagel:pin', { detail: pinOn }));
+    refresh();
+  } }, SVG(ICON.pin, 20));
+  pinBtn.hidden = !isTauri();
   const langBtn = el('button', { class: 'il-lang', onclick: () => setLocale(getLocale() === 'pt' ? 'en' : 'pt') }, `${SVG(ICON.globe, 18)}<b></b>`);
   const themeBtn = el('button', { class: 'il-ico', onclick: () => {
     const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
@@ -162,7 +170,7 @@ export function mountShell() {
   const ai = createAiPanel();
   const aiBtn = el('button', { class: 'il-lang', onclick: () => ai.toggle() }, '<b>IA</b>');
   const spacer = el('div', { class: 'il-spacer' });
-  top.append(logo, menubar, spacer, searchBtn, seg, aiBtn, classicBtn, liteBtn, langBtn, themeBtn);
+  top.append(logo, menubar, spacer, searchBtn, seg, aiBtn, classicBtn, liteBtn, pinBtn, langBtn, themeBtn);
 
   // ---- toolbar --------------------------------------------------------------------------------------------------
   const tools = el('aside', { class: 'il-tools', 'data-drag': '', 'aria-label': 'Tools' });
@@ -308,6 +316,7 @@ export function mountShell() {
     for (const n of [top, tools, status]) for (const k of ['left', 'top', 'right', 'bottom', 'transform']) n.style[k] = '';
     document.body.classList.toggle('ov', on);
     mOv.classList.toggle('on', on);
+    pinBtn.disabled = !on;
     mBg.classList.toggle('on', !on);
     window.dispatchEvent(new CustomEvent('imagel:overlay', { detail: on })); // o shell Tauri liga click-through/transparencia
   }
@@ -324,6 +333,8 @@ export function mountShell() {
     toolBtns.forEach((b, id) => { const tl = toolById.get(id); if (tl) b.setAttribute('aria-label', lab(tl)); });
     liteBtn.title = isLite() ? 'Lite mode: ON' : 'Lite mode: OFF';
     liteBtn.classList.toggle('on', isLite());
+    pinBtn.title = t('pin.title') + (pinOn ? ': ON' : ': OFF'); pinBtn.setAttribute('aria-label', pinBtn.title);
+    pinBtn.classList.toggle('on', pinOn); pinBtn.disabled = !document.body.classList.contains('ov');
     sReady.textContent = bridge.ready() ? t('status.ready') : t('load.runtime');
     sLite.textContent = isLite() ? 'LITE' : '';
     buildMenus();

@@ -35,6 +35,8 @@ body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bot
 .il-ico, .il-lang { display: flex; align-items: center; gap: 5px; height: 36px; min-width: 36px; padding: 0 8px; justify-content: center; border-radius: 6px; }
 .il-ico:hover, .il-lang:hover { background: var(--s-surface2); }
 .il-ico.on { color: var(--s-ok); }
+.il-ico[hidden] { display: none; }
+.il-ico:disabled { opacity: .4; cursor: default; }
 
 .il-tools { position: fixed; z-index: 4000; top: 46px; left: 0; bottom: 26px; width: 56px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; overflow-y: auto; background: var(--s-surface); border-right: 1px solid var(--s-border); }
 .il-tools hr { width: 30px; border: 0; border-top: 1px solid var(--s-border); margin: 4px 0; }

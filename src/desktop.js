@@ -20,6 +20,15 @@ export function normalizeRects(domRects, vw = Infinity, vh = Infinity) {
   return out;
 }
 
+export const PIN_KEY = 'imagel.pin';
+/** Preferencia do pin (padrao: ligado). Pura: recebe o storage. */
+export function readPin(storage) {
+  try { return storage.getItem(PIN_KEY) !== '0'; } catch (_) { return true; }
+}
+export function writePin(storage, on) { try { storage.setItem(PIN_KEY, on ? '1' : '0'); } catch (_) { /* ok */ } }
+/** Always-on-top efetivo: so no "Sem fundo" e conforme a preferencia. */
+export function wantOnTop(overlay, pref) { return !!overlay && !!pref; }
+
 export function isDesktop() {
   return typeof window !== 'undefined' && !!(window.__TAURI__ && window.__TAURI__.core);
 }
@@ -29,6 +38,8 @@ export function initDesktop() {
   const invoke = (cmd, args) => window.__TAURI__.core.invoke(cmd, args).catch(e => log.warn(cmd, e));
   let overlay = false;
   let timer = 0;
+  let pref = readPin(localStorage);
+  const applyTop = () => invoke('set_always_on_top', { on: wantOnTop(overlay, pref) });
 
   const report = () => {
     timer = 0;
@@ -41,8 +52,9 @@ export function initDesktop() {
 
   window.addEventListener('imagel:overlay', e => {
     overlay = !!e.detail;
-    invoke('set_overlay', { on: overlay }).then(() => { if (overlay) report(); });
+    invoke('set_overlay', { on: overlay }).then(() => { applyTop(); if (overlay) report(); });
   });
+  window.addEventListener('imagel:pin', e => { pref = !!e.detail; writePin(localStorage, pref); applyTop(); });
   new MutationObserver(schedule).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
   window.addEventListener('resize', schedule);
   window.addEventListener('pointerup', schedule);
