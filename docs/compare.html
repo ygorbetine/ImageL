@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ImageL — comparação da interface</title>
+<style>
+:root{color-scheme:dark;--bg:#0f1114;--s:#171a1f;--b:#2c333c;--t:#e9edf1;--m:#97a3b0;--a:#5b92ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:14px/1.4 system-ui,sans-serif;display:flex;flex-direction:column;height:100vh}
+header{padding:10px 16px;border-bottom:1px solid var(--b);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:16px;margin:0}small{color:var(--m)}
+main{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--b);min-height:0}
+@media(max-width:800px){main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}
+section{background:var(--bg);display:flex;flex-direction:column;min-height:0}
+section h2{margin:0;padding:8px 12px;font-size:13px;background:var(--s);border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center}
+section h2 span{color:var(--m);font-weight:400}
+.box{flex:1;position:relative;min-height:0}iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+.ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--m);padding:20px}
+button{background:var(--a);color:#fff;border:0;border-radius:8px;padding:8px 16px;font:inherit;cursor:pointer}
+</style></head><body>
+<header><h1>Antes × Depois — interface completa</h1><small>Cada lado carrega o app real (CheerpJ ~25 s e ~300 MB); carregue um de cada vez em PCs fracos.</small></header>
+<main>
+<section><h2>Original <span>?ui=classic</span></h2><div class="box" id="a"><div class="ph"><div><p>Interface original (barra Java, tema claro)</p><button data-src="../index.html?ui=classic&nosw=1">Carregar</button></div></div></div></section>
+<section><h2>ImageL <span>?ui=new</span></h2><div class="box" id="b"><div class="ph"><div><p>Nova interface (flat, escura, PT/EN)</p><button data-src="../index.html?ui=new&nosw=1">Carregar</button></div></div></div></section>
+</main>
+<script>
+document.querySelectorAll('.box button').forEach(b=>b.onclick=()=>{const f=document.createElement('iframe');f.src=b.dataset.src;const box=b.closest('.box');box.textContent='';box.appendChild(f)});
+</script></body></html>
