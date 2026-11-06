@@ -96,3 +96,18 @@ html[data-theme="light"] {
 }
 html[data-theme="light"] div.cjBordered { box-shadow: 0 6px 18px rgba(20, 30, 45, .16) !important; }
 html[data-theme="light"] .cjSubMenu { box-shadow: 0 8px 20px rgba(20, 30, 45, .18) !important; }
+
+/* Componentes AWT sao DIV/INPUT com estilo inline (cinza 237 e texto preto): sobrescrevemos pelos tokens do tema */
+.cjWindow [style*="rgb(237, 237, 237)"], .cjWindow [style*="background: rgb(255, 255, 255)"] { background: var(--il-surface) !important; }
+.cjWindow [style*="color: rgb(0, 0, 0)"] { color: var(--il-text) !important; }
+.cjWindow input[type="button"], .cjWindow input[type="submit"], .cjWindow button {
+  background: var(--il-surface2) !important; color: var(--il-text) !important;
+  border: 1px solid var(--il-border) !important; border-radius: 4px !important; padding: 0 !important; box-sizing: border-box !important; overflow: hidden;
+}
+.cjWindow input[type="button"]:hover, .cjWindow button:hover { background: color-mix(in srgb, var(--il-accent) 24%, var(--il-surface2)) !important; }
+.cjWindow input[type="text"], .cjWindow input[type="number"], .cjWindow input:not([type]), .cjWindow textarea, .cjWindow select {
+  background: var(--il-bg) !important; color: var(--il-text) !important; border: 1px solid var(--il-border) !important; border-radius: 4px !important;
+}
+.cjWindow input[type="checkbox"], .cjWindow input[type="radio"] { accent-color: var(--il-accent); }
+html[data-theme="dark"] .cjWindow { color-scheme: dark; }
+html[data-theme="light"] .cjWindow { color-scheme: light; }

@@ -8,6 +8,15 @@ export function darkTargets(windowTitles, imageTitles) {
   return windowTitles.map(t => !isImage(t));
 }
 
+/** Heuristica de forma: janela de imagem = sem barra de menu e 2 canvas (moldura + imagem quase do mesmo tamanho). */
+export function looksLikeImage(w) {
+  if (w.querySelector('.cjMenuBar')) return false;
+  const c = w.querySelectorAll('canvas');
+  if (c.length < 2) return false;
+  const a = c[0], b = c[1];
+  return b.width >= a.width * 0.85 && b.height >= a.height * 0.5;
+}
+
 export function initJavaTheme(bridge, rootArg = null) {
   // O display do CheerpJ so existe depois do boot: espera por ele.
   const find = () => rootArg || document.getElementById('cheerpjDisplay');
@@ -30,16 +39,20 @@ export function initJavaTheme(bridge, rootArg = null) {
     imgs = String(r || '').split('\n').filter(Boolean);
     known = true;
   };
+  let inflight = null; // no maximo 1 consulta pendente: com Java preso nao empilhamos macros
+  const fetchOnce = () => inflight || (inflight = fetchTitles().finally(() => { inflight = null; }));
   const apply = async () => {
     if (busy) return;
     busy = true;
     try {
-      // espera os titulos por no maximo 400 ms; se o Java estiver preso num dialogo, usa o cache (dialogo novo = escuro)
-      await Promise.race([fetchTitles().catch(() => {}), new Promise(r => setTimeout(r, 400))]);
-      if (!known) return;
+      // Titulos frescos (Java livre) mandam. Se o Java estiver preso (macro/dialogo), a lista pode estar velha:
+      // janelas desconhecidas so escurecem se NAO tiverem forma de imagem, e reavaliamos logo depois.
+      const fresh = await Promise.race([fetchOnce().then(() => true, () => false), new Promise(r => setTimeout(() => r(false), 400))]);
       const wins = [...root.querySelectorAll(':scope > .cjWindow')];
       const titles = wins.map(w => (w.querySelector('.cjTitleBarText')?.textContent || '').trim());
-      const dark = darkTargets(titles, imgs);
+      const byTitle = known ? darkTargets(titles, imgs) : wins.map(() => true);
+      const dark = wins.map((w, i) => (fresh ? byTitle[i] : byTitle[i] && !looksLikeImage(w)));
+      if (!fresh) { clearTimeout(timer); timer = setTimeout(apply, 1500); }
       wins.forEach((w, i) => {
         const frame = w.querySelector('canvas');
         if (dark[i]) { w.dataset.ilDark = '1'; delete frame?.dataset.ilFrame; }

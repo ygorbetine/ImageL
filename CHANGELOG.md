@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.20]
+- Janelas Java: componentes AWT (DIV/INPUT com estilo inline) agora seguem os tokens do tema: paineis, rotulos, botoes, campos, checkbox (B&C, Histograma, dialogos). Sem lista de imagens (Java ocupado) usa heuristica de forma, reavalia depois e nunca empilha consultas.
+
 ## [0.6.0-alpha.19]
 - Tema claro das janelas Java (titulo, menus, rolagem usam os mesmos tokens do shell); janelas so escurecem depois de conhecer os titulos de imagem (nunca inverte uma imagem).
 
