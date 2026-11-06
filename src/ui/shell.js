@@ -278,6 +278,8 @@ export function mountShell() {
 
   // ---- modo "Sem fundo" (desktop) --------------------------------------------------------------------------------
   function setOverlay(on) {
+    // Posicoes arrastadas (inline) valem so no "Sem fundo": ao trocar de modo, volta ao layout padrao.
+    for (const n of [top, tools, status]) for (const k of ['left', 'top', 'right', 'bottom', 'transform']) n.style[k] = '';
     document.body.classList.toggle('ov', on);
     mOv.classList.toggle('on', on);
     mBg.classList.toggle('on', !on);

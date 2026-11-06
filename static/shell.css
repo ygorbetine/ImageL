@@ -149,3 +149,15 @@ body.il-hide-classic [data-il-classic] { opacity: 0 !important; pointer-events: 
 body.il-shell[data-orient="v"] .il-tools, body.ov[data-orient="v"] .il-tools { overflow-x: hidden; }
 body.ov[data-orient="v"] .il-tools { padding: 6px 4px; gap: 2px; width: 60px; }
 body.ov[data-orient="v"] .il-tool { width: 46px; height: 46px; }
+
+/* Fundo "Com fundo": grade leve em dois niveis (32px e 160px), discreta no escuro e no claro */
+body.il-shell:not(.ov) {
+  background-color: var(--s-bg);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--s-text) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--s-text) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--s-text) 3.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--s-text) 3.5%, transparent) 1px, transparent 1px);
+  background-size: 160px 160px, 160px 160px, 32px 32px, 32px 32px;
+  background-position: -1px -1px;
+}

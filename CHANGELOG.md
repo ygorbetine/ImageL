@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.9]
+- Fix: voltar de "Sem fundo" para "Com fundo" mantinha posicoes arrastadas das barras (toolbar deslocada); agora reseta.
+- Fundo "Com fundo" com grade leve em dois niveis; barras de rolagem discretas.
+
 ## [0.6.0-alpha.8]
 - Menu ImageL > "Distancia entre grupos (scratch)": mede a lacuna entre dois grupos de celulas em N linhas (parametros em dialogo: nº de medicoes, raio, margem, direcao, media anterior, limiar de movimento %), tabela, overlay e relatorio. Validado no app real com imagem sintetica.
 
