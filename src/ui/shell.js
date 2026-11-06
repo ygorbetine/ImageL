@@ -7,6 +7,7 @@ import { getLocale, setLocale, onLocaleChange, t } from '../i18n.js';
 import { isLite, setLite } from '../lite.js';
 import { reportError } from '../error-handler.js';
 import { initDesktop } from '../desktop.js';
+import { createAiPanel } from './ai-panel.js';
 
 const SVG = (d, s = 22, w = 2.4) =>
   `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -100,7 +101,9 @@ export function mountShell() {
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem('imagel.theme', next); } catch (_) { /* ok */ }
   } }, SVG(ICON.theme, 20));
-  top.append(logo, menubar, el('div', { class: 'il-spacer' }), searchBtn, seg, liteBtn, langBtn, themeBtn);
+  const ai = createAiPanel();
+  const aiBtn = el('button', { class: 'il-lang', onclick: () => ai.toggle() }, '<b>IA</b>');
+  top.append(logo, menubar, el('div', { class: 'il-spacer' }), searchBtn, seg, aiBtn, liteBtn, langBtn, themeBtn);
 
   // ---- toolbar --------------------------------------------------------------------------------------------------
   const tools = el('aside', { class: 'il-tools', 'data-drag': '', 'aria-label': 'Tools' });
@@ -108,7 +111,7 @@ export function mountShell() {
   const toolBtns = new Map();
   for (const tl of TOOLS) {
     if (tl === '-') { tools.appendChild(el('hr')); continue; }
-    const b = el('button', { class: 'il-tool', 'data-tool': tl.id }, SVG(tl.icon));
+    const b = el('button', { class: 'il-tool', 'data-tool': tl.id, title: lab(tl), 'aria-label': lab(tl) }, SVG(tl.icon));
     b.addEventListener('click', () => {
       bridge.setTool(tl.id).then(() => { toolBtns.forEach(x => x.classList.remove('active')); b.classList.add('active'); }).catch(e => reportError(e, 'tool'));
     });
@@ -175,6 +178,8 @@ export function mountShell() {
     mBg.title = t('mode.bg.title'); mOv.title = t('mode.overlay.title');
     langBtn.querySelector('b').textContent = getLocale().toUpperCase();
     langBtn.title = t('lang.toggle'); themeBtn.title = t('theme.toggle');
+    for (const [b, k] of [[langBtn, 'lang.toggle'], [themeBtn, 'theme.toggle'], [liteBtn, null], [aiBtn, 'panel.ai']]) b.setAttribute('aria-label', k ? t(k) : 'Lite mode');
+    toolBtns.forEach((b, id) => { const tl = TOOLS.find(x => x.id === id); b.title = b.ariaLabel = lab(tl); });
     liteBtn.title = isLite() ? 'Lite mode: ON' : 'Lite mode: OFF';
     liteBtn.classList.toggle('on', isLite());
     sReady.textContent = bridge.ready() ? t('status.ready') : t('load.runtime');

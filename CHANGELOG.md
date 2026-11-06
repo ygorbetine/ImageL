@@ -4,6 +4,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.2] - 2026-11-06
+
+### Added
+- `src/ui/ai-panel.js`: painel "IA" na topbar (pedido em linguagem natural, modo Sugerir/Semi/Autonomo, parar, copiar protocolo); usa as receitas offline.
+- Acessibilidade da casca: `aria-label` nas ferramentas e botoes de icone, foco visivel, respeito a `prefers-reduced-motion`.
+
 ## [0.6.0-alpha.1] - 2026-11-06
 
 ### Added
