@@ -26,6 +26,7 @@ const ICON = {
 };
 
 const lab = o => (getLocale() === 'pt' ? o.pt : o.en);
+const LOGO = '<svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#5b92ff"/><g fill="#fff" fill-opacity=".16" stroke="#fff" stroke-width="3"><circle cx="24" cy="25" r="13"/><circle cx="42" cy="38" r="12"/><circle cx="21" cy="46" r="7"/></g><g fill="#fff"><circle cx="26" cy="23" r="5"/><circle cx="43" cy="37" r="4.5"/><circle cx="21" cy="46" r="2.6"/></g></svg>';
 const el = (tag, attrs = {}, html = '') => {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -122,7 +123,7 @@ export function mountShell() {
 
   // ---- topbar ---------------------------------------------------------------------------------------------------
   const top = el('header', { class: 'il-top', 'data-drag': '' });
-  const logo = el('div', { class: 'il-logo', 'data-handle': '', title: t('drag.hint') }, '<i></i>ImageL');
+  const logo = el('div', { class: 'il-logo', 'data-handle': '', title: t('drag.hint') }, `${LOGO}ImageL`);
   const searchBtn = el('button', { class: 'il-search', onclick: () => openPalette() }, `${SVG(ICON.search, 18)}<span data-s></span><kbd>Ctrl K</kbd>`);
   const seg = el('div', { class: 'il-seg', role: 'group' });
   const mBg = el('button', { class: 'on', onclick: () => setOverlay(false) }, `${SVG(ICON.bg, 18)}<span data-m="bg"></span>`);

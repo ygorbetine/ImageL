@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.11]
+- Logo/icone do ImageL: celulas com nucleos vistas ao microscopio (static/logo.svg), usado no favicon, splash e barra superior.
+
 ## [0.6.0-alpha.10]
 - Visual volta ao do mockup: toolbar vertical por padrao (horizontal so em telas baixas), barra de status em faixa, fundo de pontos, seletor Com/Sem fundo sempre visivel.
 
