@@ -8,26 +8,39 @@ export function darkTargets(windowTitles, imageTitles) {
   return windowTitles.map(t => !isImage(t));
 }
 
-export function initJavaTheme(bridge, root = document.getElementById('cheerpjDisplay')) {
-  if (!root) return () => {};
+export function initJavaTheme(bridge, rootArg = null) {
+  // O display do CheerpJ so existe depois do boot: espera por ele.
+  const find = () => rootArg || document.getElementById('cheerpjDisplay');
+  let root = find();
+  if (!root) {
+    let stop = () => {}; let started = false;
+    const start = () => { if (started || !find()) return; started = true; wait.disconnect(); stop = initJavaTheme(bridge, find()); };
+    const wait = new MutationObserver(start);
+    wait.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('imagel:ready', start, { once: true });
+    return () => { wait.disconnect(); stop(); };
+  }
   let timer = 0;
   let busy = false;
+  let imgs = []; // ultimo conjunto conhecido de titulos de imagem (a macro nao responde enquanto ha dialogo modal)
+  const fetchTitles = async () => {
+    if (!bridge.ready()) return;
+    const r = await bridge.macro('t = getList("image.titles"); s = ""; for (i = 0; i < t.length; i++) s = s + t[i] + "\\n"; return s;');
+    imgs = String(r || '').split('\n').filter(Boolean);
+  };
   const apply = async () => {
     if (busy) return;
     busy = true;
     try {
+      // espera os titulos por no maximo 400 ms; se o Java estiver preso num dialogo, usa o cache (dialogo novo = escuro)
+      await Promise.race([fetchTitles().catch(() => {}), new Promise(r => setTimeout(r, 400))]);
       const wins = [...root.querySelectorAll(':scope > .cjWindow')];
-      if (!wins.length) return;
-      let imgs = [];
-      if (bridge.ready()) {
-        const r = await bridge.macro('t = getList("image.titles"); s = ""; for (i = 0; i < t.length; i++) s = s + t[i] + "\n"; return s;');
-        imgs = String(r || '').split('\n').filter(Boolean);
-      }
       const titles = wins.map(w => (w.querySelector('.cjTitleBarText')?.textContent || '').trim());
       const dark = darkTargets(titles, imgs);
       wins.forEach((w, i) => {
-        // A janela principal "ImageJ" tem menus DOM e so um canvas pequeno: tambem escurece.
-        if (dark[i]) w.dataset.ilDark = '1'; else delete w.dataset.ilDark;
+        const frame = w.querySelector('canvas');
+        if (dark[i]) { w.dataset.ilDark = '1'; delete frame?.dataset.ilFrame; }
+        else { delete w.dataset.ilDark; if (frame) frame.dataset.ilFrame = '1'; } // imagem: so a moldura/linha de info escurece
       });
     } catch (_) { /* tema e cosmetico: nunca propaga erro */ } finally { busy = false; }
   };

@@ -86,3 +86,5 @@ html[data-lite] div.cjBordered { box-shadow: none !important; }
 .cjResizer { opacity: .5; }
 html[data-theme="dark"] .cjWindow[data-il-dark] { background: var(--il-surface) !important; }
 html[data-theme="dark"] .cjWindow[data-il-dark] canvas { filter: invert(.92) hue-rotate(180deg) !important; }
+html[data-theme="dark"] .cjWindow:not([data-il-dark]) canvas[data-il-frame] { filter: invert(.92) hue-rotate(180deg) !important; }
+html[data-theme="dark"] .cjWindow:not([data-il-dark]) { background: var(--il-surface) !important; }

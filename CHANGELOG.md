@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.18]
+- Tema escuro completo nas janelas Java: janelas de imagem escurecem so a moldura/linha de info (a imagem nunca e alterada); Results, Log, dialogos e editores escurecem por inteiro. Funciona mesmo com dialogo modal aberto; display do CheerpJ e esperado ate existir.
+
 ## [0.6.0-alpha.17]
 - Tema escuro nas janelas Java: menus/rolagem/submenus via CSS; Results, Log, dialogos e editores (nao imagens) escurecem por inversao do canvas, marcados por src/ui/java-theme.js.
 
