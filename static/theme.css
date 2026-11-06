@@ -146,3 +146,36 @@ html[data-lite] div.cjBordered { box-shadow: 0 0 0 1px var(--il-border) !importa
 .cjWindow input[type="button"], .cjWindow input[type="submit"] { border: 0 !important; box-shadow: inset 0 0 0 1px var(--il-border); text-align: center; }
 .cjWindow input[type="button"][value="OK"], .cjWindow input[type="button"][value="Apply"], .cjWindow input[type="button"][value="Run"] { box-shadow: none; }
 .cjWindow:hover { border-color: color-mix(in srgb, var(--il-accent) 40%, var(--il-border)) !important; }
+
+/* ---- Dialogo Abrir/Salvar do ImageL (file-browser.js): segue o tema escuro/claro ---- */
+html #hfsDialog, html [id^="hfs"] { color: var(--il-text); }
+html .hfs-backdrop { background: rgba(0, 0, 0, .55); }
+html .hfs-panel { background: var(--il-surface); border: 1px solid var(--il-border); box-shadow: 0 18px 50px rgba(0, 0, 0, .45); }
+html .hfs-titlebar { background: var(--il-surface2); border-bottom: 1px solid var(--il-border); color: var(--il-text); }
+html .hfs-close { color: var(--il-muted); }
+html .hfs-close:hover { background: color-mix(in srgb, var(--il-danger) 22%, transparent); color: var(--il-text); }
+html .hfs-toolbar, html .hfs-filenamerow { background: var(--il-surface); border-color: var(--il-border); }
+html .hfs-up { background: var(--il-surface2); border-color: var(--il-border); color: var(--il-text); }
+html .hfs-up:hover, html .hfs-breadcrumb .hfs-crumb:hover { background: color-mix(in srgb, var(--il-accent) 22%, var(--il-surface2)); color: var(--il-text); }
+html .hfs-breadcrumb, html .hfs-size, html .hfs-date, html .hfs-empty { color: var(--il-muted); }
+html .hfs-breadcrumb .hfs-crumb-sep { color: var(--il-muted); }
+html .hfs-list, html .hfs-empty { background: var(--il-bg); }
+html .hfs-item { border-bottom-color: var(--il-border); color: var(--il-text); }
+html .hfs-item:hover { background: color-mix(in srgb, var(--il-accent) 14%, var(--il-bg)); }
+html .hfs-item[aria-selected="true"] { background: color-mix(in srgb, var(--il-accent) 30%, var(--il-bg)); }
+html .hfs-item[aria-selected="true"]:hover { background: color-mix(in srgb, var(--il-accent) 38%, var(--il-bg)); }
+html .hfs-filename { background: var(--il-bg); color: var(--il-text); border-color: var(--il-border); }
+html .hfs-footer { background: var(--il-surface2); border-top-color: var(--il-border); }
+html .hfs-btn { background: var(--il-surface); color: var(--il-text); border-color: var(--il-border); }
+html .hfs-btn:hover { background: color-mix(in srgb, var(--il-accent) 18%, var(--il-surface)); }
+html .hfs-btn.hfs-primary { background: var(--il-accent); border-color: var(--il-accent); color: #fff; }
+html .hfs-btn.hfs-primary:hover { filter: brightness(1.1); background: var(--il-accent); }
+html .hfs-btn.hfs-primary:disabled { opacity: .45; filter: none; }
+
+/* Campos de texto/numero dos dialogos Java: fundo escuro e texto legivel mesmo com estilos inline do CheerpJ */
+html .cjWindow input[type="text"], html .cjWindow input[type="number"], html .cjWindow input:not([type]), html .cjWindow textarea,
+html .cjWindow input[type="text"][style], html .cjWindow input:not([type])[style] {
+  background: var(--il-bg) !important; background-color: var(--il-bg) !important; color: var(--il-text) !important;
+  -webkit-text-fill-color: var(--il-text) !important; caret-color: var(--il-text); border: 1px solid var(--il-border) !important;
+}
+html .cjWindow input::selection, html .cjWindow textarea::selection { background: color-mix(in srgb, var(--il-accent) 55%, transparent); color: var(--il-text); }

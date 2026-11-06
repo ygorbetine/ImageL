@@ -4,6 +4,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.33]
+### Added
+- Gap distance: **auto orientation** (detects horizontal/vertical band; new default), **batch folder** mode (menu ImageL; Shift+click on the new quick-access button in the top bar) with summary table "Gap batch" and optional annotated PNGs, PT/EN dialog and messages.
+- Quick-access button for Gap distance in the top bar.
+### Fixed
+- Java dialog text fields: dark background and readable text (inline CheerpJ styles overridden).
+- Open/Save file dialog now follows the dark/light theme.
+- i18n audit: toolbar, menus, palette, classic/lite/orientation labels now translated (PT/EN).
+
 ## [0.6.0-alpha.32]
 ### Fixed
 - Desktop "No background": IPC commands now permitted for the local asset origin (always-on-top and click-through work), no window frame/shadow, and the transparent window spans all monitors so bars and windows move anywhere; size/position restored on exit.

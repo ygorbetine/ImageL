@@ -18,7 +18,11 @@
 
   // Pull in the stock CheerpJ loader SYNCHRONOUSLY so cheerpjInit is defined
   // before the app's <script type="module"> block runs.
-  document.write('<script src="https://cjrtnc.leaningtech.com/4.2/loader.js"><\/script>');
+  // ImageL: base do runtime CheerpJ configuravel (build offline: ?cjbase=... ou window.__CJ_BASE definido antes deste script)
+  var CJ_BASE = window.__CJ_BASE || (new URLSearchParams(location.search).get('cjbase')) || 'https://cjrtnc.leaningtech.com/4.2/';
+  if (!/\/$/.test(CJ_BASE)) CJ_BASE += '/';
+  window.__CJ_BASE = CJ_BASE;
+  document.write('<script src="' + CJ_BASE + 'loader.js"><\/script>');
 
   // Inline wrapper — runs synchronously after the stock loader finishes parsing.
   document.write('<script>' + `
@@ -281,8 +285,8 @@
     // Pre-warm cheerpj CDN cache
     try {
       await Promise.all([
-        'https://cjrtnc.leaningtech.com/4.2/cj3.js',
-        'https://cjrtnc.leaningtech.com/4.2/cj3.wasm'
+        window.__CJ_BASE + 'cj3.js',
+        window.__CJ_BASE + 'cj3.wasm'
       ].map(function (u) { return fetch(u, { cache: 'force-cache' }).then(function (r) { return r.arrayBuffer(); }); }));
     } catch (_) {}
 

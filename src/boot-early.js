@@ -38,7 +38,7 @@ try {
     const base = location.pathname.replace(/[^/]*$/, '');
     const css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = base + 'static/shell.css?v=0.6.0-alpha.32';
+    css.href = base + 'static/shell.css?v=0.6.0-alpha.33';
     document.head.appendChild(css);
     window.__shellReady = import('./ui/shell.js').then(m => m.mountShell()).catch(e => log.error('shell:', e));
   }

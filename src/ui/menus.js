@@ -131,7 +131,10 @@ export const TOOLBAR = [
 /** Menu proprio do ImageL (alem dos menus do ImageJ). Itens com ext:true sao tratados por handlers JS. */
 export const IMAGEL_MENU = {
   id: 'imagel', en: 'ImageL', pt: 'ImageL',
-  items: [{ cmd: 'Gap distance...', en: 'Gap distance (scratch assay)...', pt: 'Distância entre grupos (scratch)...', ext: true }],
+  items: [
+    { cmd: 'Gap distance...', en: 'Gap distance (scratch assay)...', pt: 'Distância entre grupos (scratch)...', ext: true },
+    { cmd: 'Gap distance (batch folder)...', en: 'Gap distance - batch folder...', pt: 'Distância entre grupos - pasta em lote...', ext: true },
+  ],
 };
 export const withImageL = ms => [...ms.filter(m => m.id !== 'imagel'), IMAGEL_MENU];
 
