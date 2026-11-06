@@ -320,13 +320,15 @@ export function mountShell() {
     // Cada modo lembra onde as barras e janelas foram deixadas: guarda as posicoes do modo que sai e restaura as do que entra.
     const bars = { top, tools, status };
     const display = document.getElementById('cheerpjDisplay');
+    const barsNow = on ? { top, tools } : bars; // sem fundo: o status fica dentro do painel de topo
     const was = document.body.classList.contains('ov') ? 'ov' : 'bg';
     const now = on ? 'ov' : 'bg';
     if (was !== now) {
       const st = readStore(localStorage); st[was] = snapshot(bars, display); writeStore(localStorage, st);
     }
     for (const n of [top, tools, status]) for (const k of ['left', 'top', 'right', 'bottom', 'transform']) n.style[k] = '';
-    const back = () => restore(readStore(localStorage)[now], bars, display, innerWidth, innerHeight);
+    if (on) top.append(status); else document.body.append(status);
+    const back = () => restore(readStore(localStorage)[now], barsNow, display, innerWidth, innerHeight);
     back(); // posicao salva ANTES de trocar a classe: nunca aparece na posicao padrao
     document.body.classList.toggle('ov', on);
     mOv.classList.toggle('on', on);
@@ -338,7 +340,7 @@ export function mountShell() {
     setTimeout(back, 150); setTimeout(back, 700);
   }
   window.addEventListener('pagehide', () => {
-    const st = readStore(localStorage); st[document.body.classList.contains('ov') ? 'ov' : 'bg'] = snapshot({ top, tools, status }, document.getElementById('cheerpjDisplay')); writeStore(localStorage, st);
+    const st = readStore(localStorage); st[document.body.classList.contains('ov') ? 'ov' : 'bg'] = snapshot({ top, tools, ...(document.body.classList.contains('ov') ? {} : { status }) }, document.getElementById('cheerpjDisplay')); writeStore(localStorage, st);
   });
 
   // ---- textos dependentes de idioma/estado ----------------------------------------------------------------------

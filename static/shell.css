@@ -169,3 +169,6 @@ body.il-shell #cheerpjDisplay::before { display: none !important; }
 .il-pal.at { display: block; padding: 0; background: rgba(0,0,0,.18); }
 .il-pal.at .il-palbox { position: absolute; }
 .il-pal.at[hidden] { display: none; }
+
+/* Sem fundo: a barra de status vive dentro do painel de topo */
+body.ov .il-top .il-status { position: static; transform: none; height: auto; padding: 0 0 0 8px; border: 0; border-radius: 0; box-shadow: none; background: none; width: auto; gap: 12px; flex: none; }
