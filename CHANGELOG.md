@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.6]
+- Layout compacto: toolbar na mesma linha da barra superior (>=1180px), ferramentas agrupadas com flyout (clique de novo ou botao direito), tooltips com nome+atalho, status em pilula flutuante.
+- Fix: `refresh()` quebrava com os botoes de grupo e deixava o menu vazio ao alternar lite/idioma.
+
 ## [0.6.0-alpha.5]
 - Toolbar horizontal por padrao, vertical automatico em tela estreita/alta, botao alterna (duplo clique volta ao auto).
 - Menus que nao cabem na barra vao para a seta "»" (antes ficavam escondidos).

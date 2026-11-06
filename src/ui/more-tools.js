@@ -15,7 +15,7 @@ export function toolLabel(file) {
   return file.replace(/\.(txt|ijm)$/i, '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
 
-export function createMoreTools({ bridge, base = '/', fetchText = u => fetch(u).then(r => (r.ok ? r.text() : '')) }) {
+export function createMoreTools({ bridge, base = '/', fetchText = u => fetch(u).then(r => (r.ok ? r.text() : '')), extras = [] }) {
   const box = document.createElement('div');
   box.className = 'il-more';
   box.hidden = true;
@@ -33,7 +33,14 @@ export function createMoreTools({ bridge, base = '/', fetchText = u => fetch(u).
     box.textContent = '';
     let files = [];
     try { files = parseToolFiles(await fetchText(`${base}lib/ImageJ/macros/index.list`)); } catch (e) { log.warn('index.list', e); }
-    if (!files.length) { box.textContent = '—'; return; }
+    for (const x of extras) {
+      const b = document.createElement('button');
+      b.setAttribute('role', 'menuitem');
+      b.textContent = x.label;
+      b.addEventListener('click', () => { box.hidden = true; x.run(); });
+      box.appendChild(b);
+    }
+    if (!files.length && !extras.length) { box.textContent = '—'; return; }
     for (const f of files) {
       const b = document.createElement('button');
       b.setAttribute('role', 'menuitem');

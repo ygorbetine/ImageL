@@ -1,6 +1,6 @@
 // Casca HTML do ImageL (opt-in: ?ui=new ou localStorage imagel.ui=new): topbar com menus, toolbar vertical,
 // statusbar e paleta de comandos. Executa tudo via ImageJBridge. Sem framework; DOM direto.
-import { MENUS, TOOLS, flattenCommands, searchCommands } from './menus.js';
+import { MENUS, TOOLS, TOOLBAR, flattenCommands, searchCommands } from './menus.js';
 import { createBridge } from './bridge.js';
 import { initDraggable } from './draggable.js';
 import { getLocale, setLocale, onLocaleChange, t } from '../i18n.js';
@@ -10,6 +10,7 @@ import { initDesktop } from '../desktop.js';
 import { createAiPanel } from './ai-panel.js';
 import { loadLiveMenus, EXT_HANDLERS } from './ij-menus.js';
 import { createMoreTools } from './more-tools.js';
+import { createFlyout, createTooltip } from './toolbar-ui.js';
 
 const SVG = (d, s = 22, w = 2.4) =>
   `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -135,27 +136,54 @@ export function mountShell() {
   } }, SVG(ICON.theme, 20));
   const ai = createAiPanel();
   const aiBtn = el('button', { class: 'il-lang', onclick: () => ai.toggle() }, '<b>IA</b>');
-  top.append(logo, menubar, el('div', { class: 'il-spacer' }), searchBtn, seg, aiBtn, liteBtn, langBtn, themeBtn);
+  const spacer = el('div', { class: 'il-spacer' });
+  top.append(logo, menubar, spacer, searchBtn, seg, aiBtn, liteBtn, langBtn, themeBtn);
 
   // ---- toolbar --------------------------------------------------------------------------------------------------
   const tools = el('aside', { class: 'il-tools', 'data-drag': '', 'aria-label': 'Tools' });
   tools.appendChild(el('div', { class: 'il-grip', 'data-handle': '', title: t('drag.hint') }, SVG(ICON.grip, 18)));
   const toolBtns = new Map();
-  for (const tl of TOOLS) {
-    if (tl === '-') { tools.appendChild(el('hr')); continue; }
-    const b = el('button', { class: 'il-tool', 'data-tool': tl.id, title: lab(tl), 'aria-label': lab(tl) }, SVG(tl.icon, 30, 1.8)); // maior (30px) mantendo a espessura renderizada (~2.2px)
-    b.addEventListener('click', () => {
-      bridge.setTool(tl.id).then(() => { toolBtns.forEach(x => x.classList.remove('active')); b.classList.add('active'); }).catch(e => reportError(e, 'tool'));
-    });
-    toolBtns.set(tl.id, b);
+  const toolById = new Map(TOOLS.filter(x => x !== '-').map(x => [x.id, x]));
+  const tip = createTooltip();
+  const fly = createFlyout();
+  const select = (id, btn) => bridge.setTool(id).then(() => {
+    toolBtns.forEach(x => x.classList.remove('active')); btn.classList.add('active');
+  }).catch(e => reportError(e, 'tool'));
+  const tipText = tl => `${lab(tl)}${tl.key ? '  [' + tl.key + ']' : ''}`;
+  for (const entry of TOOLBAR) {
+    if (entry === '-') { tools.appendChild(el('hr')); continue; }
+    if (typeof entry === 'string') {
+      const tl = toolById.get(entry);
+      const b = el('button', { class: 'il-tool', 'data-tool': tl.id, 'aria-label': lab(tl) }, SVG(tl.icon, 30, 1.8));
+      b.addEventListener('click', () => select(tl.id, b));
+      tip.attach(b, () => tipText(tl));
+      toolBtns.set(tl.id, b);
+      tools.appendChild(b);
+      continue;
+    }
+    // grupo: mostra a ultima ferramenta usada; clicar de novo (ou botao direito) abre o flyout com as demais
+    const list = entry.group.map(id => toolById.get(id));
+    let cur = list[0];
+    const b = el('button', { class: 'il-tool il-group', 'aria-haspopup': 'true', 'aria-label': lab(cur) }, SVG(cur.icon, 30, 1.8));
+    const paint = () => { b.innerHTML = SVG(cur.icon, 30, 1.8); b.setAttribute('aria-label', lab(cur)); b.dataset.tool = cur.id; };
+    const openFly = () => fly.open(b, list.map(tl => ({
+      icon: SVG(tl.icon, 22, 1.8), label: tipText(tl),
+      run: () => { cur = tl; paint(); toolBtns.set(entry.group.join('|'), b); select(tl.id, b); },
+    })));
+    b.dataset.tool = cur.id;
+    b.addEventListener('click', ev => { ev.stopPropagation(); if (b.classList.contains('active')) openFly(); else select(cur.id, b); });
+    b.addEventListener('contextmenu', ev => { ev.preventDefault(); openFly(); });
+    tip.attach(b, () => tipText(cur));
+    toolBtns.set(entry.group.join('|'), b);
     tools.appendChild(b);
   }
 
   // ---- more tools (equivale ao » da barra Java) ------------------------------------------------------------------
   const base = location.pathname.replace(/[^/]*$/, '');
-  const more = createMoreTools({ bridge, base });
-  const moreBtn = el('button', { class: 'il-tool il-moretools', title: 'More tools', 'aria-label': 'More tools', onclick: ev => { ev.stopPropagation(); more.toggle(); } },
+  const more = createMoreTools({ bridge, base, extras: [{ label: 'Developer menu', run: () => select('Developer Menu Built-in Tool', moreBtn) }] });
+  const moreBtn = el('button', { class: 'il-tool il-moretools', 'aria-label': 'More tools', onclick: ev => { ev.stopPropagation(); more.toggle(); } },
     SVG('<path d="M6 6l6 6-6 6M13 6l6 6-6 6"/>', 30, 1.8));
+  tip.attach(moreBtn, () => 'More tools');
   tools.appendChild(moreBtn);
   document.addEventListener('click', e => { if (!e.target.closest('.il-more')) more.close(); });
 
@@ -163,14 +191,24 @@ export function mountShell() {
   const ORIENT_KEY = 'imagel.orient';
   const store = { get: () => { try { return localStorage.getItem(ORIENT_KEY); } catch (_) { return null; } }, set: v => { try { localStorage.setItem(ORIENT_KEY, v); } catch (_) {} } };
   const autoOrient = () => (innerWidth < 900 && innerHeight >= 700 ? 'v' : 'h');
-  const applyOrient = () => { document.body.dataset.orient = store.get() || autoOrient(); };
-  const orientBtn = el('button', { class: 'il-tool il-orient', title: 'Horizontal / Vertical', 'aria-label': 'Toolbar orientation', onclick: () => {
+  const applyOrient = () => { document.body.dataset.orient = store.get() || autoOrient(); placeTools(); };
+  // Horizontal (fora do "Sem fundo"): a toolbar entra na mesma linha da barra superior (uma barra so, mais area util).
+  function placeTools() {
+    const inline = document.body.dataset.orient === 'h' && !document.body.classList.contains('ov') && innerWidth >= 1180;
+    tools.classList.toggle('inline', inline);
+    document.body.classList.toggle('il-inline', inline);
+    if (inline) { if (tools.parentNode !== top) top.insertBefore(tools, spacer); } else if (top.isConnected) top.after(tools);
+    fitMenus();
+  }
+  new MutationObserver(placeTools).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  const orientBtn = el('button', { class: 'il-tool il-orient', 'aria-label': 'Toolbar orientation', onclick: () => {
     store.set(document.body.dataset.orient === 'h' ? 'v' : 'h'); applyOrient();
   }, ondblclick: () => { try { localStorage.removeItem(ORIENT_KEY); } catch (_) {} applyOrient(); } },
     SVG('<rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/>', 26, 1.8));
+  tip.attach(orientBtn, () => 'Horizontal / Vertical  (2x click = auto)');
   tools.querySelector(".il-grip").after(orientBtn, el("hr"));
   applyOrient();
-  addEventListener('resize', () => { if (!store.get()) applyOrient(); });
+  addEventListener('resize', () => { if (!store.get()) applyOrient(); else placeTools(); });
 
   // ---- statusbar ------------------------------------------------------------------------------------------------
   const status = el('footer', { class: 'il-status', 'data-drag': '' });
@@ -232,7 +270,7 @@ export function mountShell() {
     langBtn.querySelector('b').textContent = getLocale().toUpperCase();
     langBtn.title = t('lang.toggle'); themeBtn.title = t('theme.toggle');
     for (const [b, k] of [[langBtn, 'lang.toggle'], [themeBtn, 'theme.toggle'], [liteBtn, null], [aiBtn, 'panel.ai']]) b.setAttribute('aria-label', k ? t(k) : 'Lite mode');
-    toolBtns.forEach((b, id) => { const tl = TOOLS.find(x => x.id === id); b.title = b.ariaLabel = lab(tl); });
+    toolBtns.forEach((b, id) => { const tl = toolById.get(id); if (tl) b.setAttribute('aria-label', lab(tl)); });
     liteBtn.title = isLite() ? 'Lite mode: ON' : 'Lite mode: OFF';
     liteBtn.classList.toggle('on', isLite());
     sReady.textContent = bridge.ready() ? t('status.ready') : t('load.runtime');
@@ -254,7 +292,8 @@ export function mountShell() {
   };
   setInterval(memTick, isLite() ? 10000 : 4000);
 
-  document.body.append(top, tools, more.el, status, pal);
+  document.body.append(top, more.el, status, pal);
+  placeTools();
   initDraggable({ enabled: () => document.body.classList.contains('ov') });
   refresh();
   memTick();

@@ -27,3 +27,12 @@ test('bridge aceita nome de ferramenta de macro e recusa injecao', async () => {
   assert.equal(calls[0], 'setTool("Flood Filler Built-in Tool");');
   await assert.rejects(() => b.setTool('x");exit();//'));
 });
+
+import { placeNear } from '../src/ui/toolbar-ui.js';
+test('placeNear mantem o popover dentro da tela', () => {
+  const r = { left: 950, right: 990, top: 40, bottom: 80 };
+  const p = placeNear(r, { w: 200, h: 100 }, 1000, 600, false);
+  assert.equal(p.x, 796);
+  assert.equal(p.y, 86);
+  assert.deepEqual(placeNear({ left: 0, right: 50, top: 10, bottom: 50 }, { w: 100, h: 100 }, 1000, 600, true), { x: 56, y: 10 });
+});

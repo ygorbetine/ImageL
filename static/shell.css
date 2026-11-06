@@ -7,12 +7,12 @@ body.il-shell button { font: inherit; color: inherit; background: none; border: 
 body.il-shell kbd { font: 11px ui-monospace,Consolas,monospace; color: var(--s-muted); margin-left: auto; padding-left: 18px; }
 
 /* A area do CheerpJ ocupa o espaco entre as barras */
-body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bottom: 26px; width: auto; height: auto; }
+body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bottom: 0; width: auto; height: auto; }
 
 .il-top { position: fixed; z-index: 5000; top: 0; left: 0; right: 0; height: 46px; display: flex; align-items: center; gap: 4px; padding: 0 10px; background: var(--s-surface); border-bottom: 1px solid var(--s-border); white-space: nowrap; }
 .il-logo { display: flex; align-items: center; gap: 7px; font-weight: 700; margin-right: 8px; user-select: none; }
 .il-logo i { width: 18px; height: 18px; border-radius: 5px; background: var(--s-accent); display: inline-block; }
-.il-spacer { flex: 1; }
+.il-spacer { flex: 0 0 0; }
 
 .il-mbtn { padding: 6px 10px; border-radius: 6px; }
 .il-mbtn:hover, .il-mwrap.open > .il-mbtn { background: var(--s-surface2); }
@@ -43,7 +43,7 @@ body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bot
 .il-tool.active { background: var(--s-accent); color: #fff; }
 .il-grip { display: none; width: 42px; height: 22px; place-items: center; color: var(--s-muted); cursor: grab; touch-action: none; }
 
-.il-status { position: fixed; z-index: 5000; left: 0; right: 0; bottom: 0; height: 26px; display: flex; align-items: center; gap: 16px; padding: 0 12px; background: var(--s-surface); border-top: 1px solid var(--s-border); color: var(--s-muted); font-size: 12px; }
+.il-status { position: fixed; z-index: 5000; left: 10px; bottom: 10px; height: 28px; display: flex; align-items: center; gap: 14px; padding: 0 14px; background: var(--s-surface); border: 1px solid var(--s-border); border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,.28); color: var(--s-muted); font-size: 12px; }
 .il-ready::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--s-ok); margin-right: 6px; }
 
 .il-pal { position: fixed; inset: 0; z-index: 20000; display: flex; justify-content: center; align-items: flex-start; padding-top: 14vh; background: rgba(0,0,0,.45); }
@@ -121,3 +121,19 @@ body.ov[data-orient="h"] .il-tools { top: 72px; left: 12px; right: auto; height:
 body.ov[data-orient="h"] #container, body.ov[data-orient="v"] #container { top: 0; left: 0; }
 
 .il-overflow > ul { left: auto; right: 0; }
+
+/* Toolbar na mesma linha da barra superior (horizontal, fora do Sem fundo) */
+body.il-inline .il-tools.inline { position: static; width: auto; height: 46px; padding: 0; margin: 0 6px; flex: 0 0 auto; overflow: visible; background: transparent; border: 0; box-shadow: none; z-index: auto; }
+body.il-inline .il-tools.inline .il-tool { width: 40px; height: 40px; }
+body.il-inline .il-tools.inline hr { height: 24px; }
+body.il-shell.il-inline #container, body.il-shell[data-orient="h"].il-inline #container { top: 46px; left: 0; }
+/* indicador de grupo (triangulo no canto) */
+.il-group { position: relative; }
+.il-group::after { content: ""; position: absolute; right: 4px; bottom: 4px; border: 3px solid transparent; border-right-color: currentColor; border-bottom-color: currentColor; opacity: .6; }
+/* tooltip e flyout de grupo */
+.il-tip { position: fixed; z-index: 7000; padding: 4px 8px; font-size: 12px; background: var(--s-surface2); color: var(--s-text); border: 1px solid var(--s-border); border-radius: 6px; pointer-events: none; white-space: nowrap; }
+.il-tip[hidden], .il-fly[hidden] { display: none; }
+.il-fly { position: fixed; z-index: 6500; min-width: 190px; padding: 4px; background: var(--s-surface); border: 1px solid var(--s-border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+.il-fly button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 10px; border-radius: 5px; color: var(--s-text); text-align: left; }
+.il-fly button:hover { background: color-mix(in srgb, var(--s-accent) 22%, transparent); }
+html[data-lite] .il-status, html[data-lite] .il-fly { box-shadow: none; }

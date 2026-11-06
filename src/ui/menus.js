@@ -110,6 +110,16 @@ export const TOOLS = [
   { id: 'arrow', en: 'Arrow', pt: 'Seta', icon: '<path d="M5 19L19 5M10 5h9v9"/>' },
 ];
 
+/** Layout compacto da toolbar: grupos (um botao + flyout), ferramentas soltas e separadores. Dev fica no flyout "More tools". */
+export const TOOLBAR = [
+  { group: ['rectangle', 'oval', 'polygon', 'freehand'] },
+  { group: ['line', 'polyline', 'angle', 'arrow'] },
+  { group: ['point', 'multipoint'] },
+  'wand', 'text', 'zoom', 'hand', 'dropper',
+  '-',
+  { group: ['brush', 'Flood Filler Built-in Tool'] },
+];
+
 const walk = (items, path, out) => {
   for (const it of items) {
     if (it === '-') continue;
