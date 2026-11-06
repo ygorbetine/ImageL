@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.24]
+### Added
+- Image windows: releasing the mouse after resizing a window fits the image zoom to the new window size (user-driven resizes only).
+
 ## [0.6.0-alpha.23]
 ### Added
 - Toolbar: Freehand line, Rounded rectangle, Rotated rectangle, Elliptical and Selection brush (variants in the group flyouts).

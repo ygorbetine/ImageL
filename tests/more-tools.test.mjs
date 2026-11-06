@@ -53,3 +53,11 @@ test('setTool aceita indice numerico (Dev/Balde) e rejeita fora da faixa', async
   assert.equal(calls[0], 'setTool(17);');
   await assert.rejects(() => b.setTool(99));
 });
+
+import { fitZoomPct } from '../src/ui/fit-window.js';
+test('fitZoomPct cabe na area e respeita limites', () => {
+  assert.equal(fitZoomPct(400, 300, 200, 200), 150);
+  assert.equal(fitZoomPct(100, 100, 1000, 1000), 10);
+  assert.equal(fitZoomPct(0, 100, 10, 10), 0);
+  assert.equal(fitZoomPct(1, 1, 1000, 1000), 3.1);
+});
