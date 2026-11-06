@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.25]
+### Changed
+- Horizontal toolbar always sits on its own row below the menu bar (no longer merged into the top bar).
+
 ## [0.6.0-alpha.24]
 ### Added
 - Image windows: releasing the mouse after resizing a window fits the image zoom to the new window size (user-driven resizes only).

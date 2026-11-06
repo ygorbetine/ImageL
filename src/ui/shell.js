@@ -217,9 +217,9 @@ export function mountShell() {
   const store = { get: () => { try { return localStorage.getItem(ORIENT_KEY); } catch (_) { return null; } }, set: v => { try { localStorage.setItem(ORIENT_KEY, v); } catch (_) {} } };
   const autoOrient = () => (innerHeight < 640 && innerWidth >= 900 ? 'h' : 'v'); // vertical (como o mockup); horizontal so em telas baixas
   const applyOrient = () => { document.body.dataset.orient = store.get() || autoOrient(); placeTools(); };
-  // Horizontal (fora do "Sem fundo"): a toolbar entra na mesma linha da barra superior (uma barra so, mais area util).
+  // Horizontal (fora do "Sem fundo"): desativado o modo inline: a toolbar horizontal fica numa linha propria abaixo dos menus.
   function placeTools() {
-    const inline = document.body.dataset.orient === 'h' && !document.body.classList.contains('ov') && innerWidth >= 1180;
+    const inline = document.body.dataset.orient === 'h' && !document.body.classList.contains('ov') && false; // horizontal: sempre abaixo da barra de menus (cabe em monitores menores)
     tools.classList.toggle('inline', inline);
     document.body.classList.toggle('il-inline', inline);
     if (inline) { if (tools.parentNode !== top) top.insertBefore(tools, spacer); } else if (top.isConnected) top.after(tools);
