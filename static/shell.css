@@ -116,8 +116,7 @@ body.il-shell[data-orient="h"] .il-grip { width: 22px; height: 42px; }
 body.il-shell[data-orient="h"] #container { top: 98px; left: 0; }
 body.il-shell[data-orient="h"] .il-more { left: auto; bottom: auto; top: 100px; right: 10px; }
 body.il-shell[data-orient="v"] #container { top: 46px; left: 64px; }
-.il-orient { margin-left: auto; color: var(--s-muted); }
-body.il-shell[data-orient="v"] .il-orient { margin: auto 0 0; }
+.il-orient { color: var(--s-muted); }
 body.ov[data-orient="h"] .il-tools { top: 72px; left: 12px; right: auto; height: 52px; max-width: calc(100vw - 24px); border: 1px solid var(--s-border); }
 body.ov[data-orient="h"] #container, body.ov[data-orient="v"] #container { top: 0; left: 0; }
 

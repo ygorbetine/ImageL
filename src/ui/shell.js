@@ -168,7 +168,7 @@ export function mountShell() {
     store.set(document.body.dataset.orient === 'h' ? 'v' : 'h'); applyOrient();
   }, ondblclick: () => { try { localStorage.removeItem(ORIENT_KEY); } catch (_) {} applyOrient(); } },
     SVG('<rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/>', 26, 1.8));
-  tools.appendChild(orientBtn);
+  tools.querySelector(".il-grip").after(orientBtn, el("hr"));
   applyOrient();
   addEventListener('resize', () => { if (!store.get()) applyOrient(); });
 
