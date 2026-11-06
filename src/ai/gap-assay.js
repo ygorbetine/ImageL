@@ -8,7 +8,7 @@ const L = {
   en: {
     title: 'ImageL - Gap distance (scratch assay)', btitle: 'ImageL - Gap distance (batch folder)',
     lines: 'Measurements (lines):', radius: 'Texture radius (px):', margin: 'Edge margin (%):',
-    smooth: 'Curve smoothing (0 = hug every cell, 10 = very smooth):', along: 'Gap orientation:',
+    hp: 'High-pass filter, px (0 = off; helps faint cells):', smooth: 'Curve smoothing (0 = hug every cell, 10 = very smooth):', along: 'Gap orientation:',
     auto: 'Auto (detect)', hband: 'Vertical band (measure horizontally)', vband: 'Horizontal band (measure vertically)',
     tores: 'Also add each line to the Results table (like Ctrl+M)', prev: 'Previous mean distance (0 = none):',
     thr: 'Movement threshold (%):', save: 'Save annotated PNGs in subfolder ImageL-gap', pick: 'Choose the folder with the images',
@@ -20,7 +20,7 @@ const L = {
   pt: {
     title: 'ImageL - Distância entre grupos (scratch)', btitle: 'ImageL - Distância entre grupos (pasta em lote)',
     lines: 'Medições (linhas):', radius: 'Raio de textura (px):', margin: 'Margem das bordas (%):',
-    smooth: 'Suavização da curva (0 = abraça cada célula, 10 = bem suave):', along: 'Orientação da lacuna:',
+    hp: 'Filtro passa-alta, px (0 = desligado; ajuda células fracas):', smooth: 'Suavização da curva (0 = abraça cada célula, 10 = bem suave):', along: 'Orientação da lacuna:',
     auto: 'Automática (detectar)', hband: 'Faixa vertical (medir na horizontal)', vband: 'Faixa horizontal (medir na vertical)',
     tores: 'Lançar também cada linha na tabela Results (como Ctrl+M)', prev: 'Distância média anterior (0 = nenhuma):',
     thr: 'Limiar de movimento (%):', save: 'Salvar PNGs anotados na subpasta ImageL-gap', pick: 'Escolha a pasta com as imagens',
@@ -35,6 +35,7 @@ const q = s => JSON.stringify(s); // literal de string de macro
 // Nucleo comum: analisa a imagem ativa. orient: 0 auto, 1 faixa vertical (mede na horizontal), 2 faixa horizontal (mede na vertical).
 // Resultados em variaveis globais g*. tbl != "" grava uma linha de tabela por medicao.
 const CORE = String.raw`
+var ghp = 0;
 var gmean, gsd, gmin, gmax, gclosed, gunit, gvert;
 function gapAnalyze(n, rad, mg, sm, orient, draw, toRes, tbl) {
   orig = getImageID(); title = getTitle();
@@ -43,6 +44,7 @@ function gapAnalyze(n, rad, mg, sm, orient, draw, toRes, tbl) {
   if (unit == "pixels" || unit == "pixel") unit = "px";
   run("Duplicate...", "title=ImageL-gap");
   run("8-bit");
+  if (ghp > 0) run("Bandpass Filter...", "filter_large=" + ghp + " filter_small=3 suppress=None tolerance=5 autoscale saturate");
   run("Variance...", "radius=" + rad);
   run("Gaussian Blur...", "sigma=" + (rad * 1.5));
   setAutoThreshold("Li dark");
@@ -123,6 +125,7 @@ function gapAnalyze(n, rad, mg, sm, orient, draw, toRes, tbl) {
   // Refinamento fino: mascara mais sensivel, buscando a borda REAL (celula mais proxima) a ate R px da borda grossa.
   // Assim o contorno cola nas celulas como o desenho a mao, sem entrar nos vaos entre elas.
   selectImage(orig); run("Duplicate...", "title=ImageL-fine"); run("8-bit");
+  if (ghp > 0) run("Bandpass Filter...", "filter_large=" + ghp + " filter_small=3 suppress=None tolerance=5 autoscale saturate");
   run("Variance...", "radius=3"); run("Gaussian Blur...", "sigma=2");
   setAutoThreshold("Li dark"); run("Convert to Mask");
   run("Options...", "iterations=2 count=1 black"); run("Open"); run("Options...", "iterations=1 count=1 black");
@@ -229,10 +232,11 @@ Dialog.addNumber(${q(t.lines)}, 10);
 Dialog.addNumber(${q(t.radius)}, 4);
 Dialog.addNumber(${q(t.margin)}, 5);
 Dialog.addNumber(${q(t.smooth)}, 5);
+Dialog.addNumber(${q(t.hp)}, 40);
 Dialog.addChoice(${q(t.along)}, newArray(${q(t.auto)}, ${q(t.hband)}, ${q(t.vband)}), ${q(t.auto)});
 `;
 const readFields = t => `
-n = round(Dialog.getNumber()); rad = Dialog.getNumber(); mg = Dialog.getNumber(); sm = Dialog.getNumber();
+n = round(Dialog.getNumber()); rad = Dialog.getNumber(); mg = Dialog.getNumber(); sm = Dialog.getNumber(); ghp = Dialog.getNumber();
 mode = Dialog.getChoice(); oi = 0;
 if (mode == ${q(t.hband)}) oi = 1;
 if (mode == ${q(t.vband)}) oi = 2;

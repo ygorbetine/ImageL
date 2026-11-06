@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.43]
+- Gap: filtro passa-alta (FFT Bandpass, padrão 40 px; 0 = desligado) antes da detecção, para pegar células fracas.
+
 ## [0.6.0-alpha.42]
 - Corrigido: dropdown (Choice) dos diálogos Java fechava na hora (CheerpJ devolvia o foco ao textarea oculto).
 - Desktop: arrastar arquivos para a janela volta a abrir a imagem (dragDropEnabled=false no Tauri).
