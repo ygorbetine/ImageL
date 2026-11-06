@@ -84,13 +84,14 @@ body.il-shell :focus-visible { outline: 2px solid var(--s-accent); outline-offse
 @media (prefers-reduced-motion: reduce) { body.il-shell * { transition: none !important; animation: none !important; } }
 
 /* Abas do menu em linha horizontal, dentro da barra (antes empilhavam e vazavam) */
-.il-menu { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 2px; min-width: 0; flex: 0 1 auto; }
+.il-menu { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 2px; min-width: 0; flex: 1 1 0; }
 .il-mwrap { flex: 0 0 auto; }
 .il-mbtn { white-space: nowrap; }
 .il-top { overflow: visible; }
 @media (max-width: 1100px) { .il-search span, .il-search kbd { display: none; } .il-search { min-width: 0; padding: 6px 8px; } .il-seg span { display: none; } }
-@media (max-width: 900px) { .il-menu .il-mwrap:nth-child(n+6) { display: none; } .il-logo { margin-right: 2px; } }
-@media (max-width: 700px) { .il-menu .il-mwrap:nth-child(n+4) { display: none; } .il-seg { display: none; } }
+@media (max-width: 900px) { .il-logo { margin-right: 2px; } }
+@media (max-width: 700px) { .il-seg { display: none; } }
+.il-mwrap[hidden] { display: none; }
 
 /* Icones maiores (30px) com a mesma espessura */
 .il-tools { width: 64px; }
@@ -106,3 +107,18 @@ body.il-shell.ov #container { left: 0; }
 .il-more button { display: block; width: 100%; padding: 7px 10px; text-align: left; border-radius: 5px; color: var(--s-text); }
 .il-more button:hover { background: color-mix(in srgb, var(--s-accent) 22%, transparent); }
 html[data-lite] .il-more { box-shadow: none; }
+
+/* Orientacao da toolbar: horizontal (padrao) ou vertical. body[data-orient] = h | v */
+body.il-shell[data-orient="h"] .il-tools { top: 46px; left: 0; right: 0; bottom: auto; width: auto; height: 52px; flex-direction: row; padding: 0 10px; gap: 3px; overflow: auto hidden; border-right: 0; border-bottom: 1px solid var(--s-border); }
+body.il-shell[data-orient="h"] .il-tools hr { width: 0; height: 28px; border: 0; border-left: 1px solid var(--s-border); margin: 0 4px; }
+body.il-shell[data-orient="h"] .il-tool { width: 42px; height: 42px; }
+body.il-shell[data-orient="h"] .il-grip { width: 22px; height: 42px; }
+body.il-shell[data-orient="h"] #container { top: 98px; left: 0; }
+body.il-shell[data-orient="h"] .il-more { left: auto; bottom: auto; top: 100px; right: 10px; }
+body.il-shell[data-orient="v"] #container { top: 46px; left: 64px; }
+.il-orient { margin-left: auto; color: var(--s-muted); }
+body.il-shell[data-orient="v"] .il-orient { margin: auto 0 0; }
+body.ov[data-orient="h"] .il-tools { top: 72px; left: 12px; right: auto; height: 52px; max-width: calc(100vw - 24px); border: 1px solid var(--s-border); }
+body.ov[data-orient="h"] #container, body.ov[data-orient="v"] #container { top: 0; left: 0; }
+
+.il-overflow > ul { left: auto; right: 0; }

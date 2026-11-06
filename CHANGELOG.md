@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.5]
+- Toolbar horizontal por padrao, vertical automatico em tela estreita/alta, botao alterna (duplo clique volta ao auto).
+- Menus que nao cabem na barra vao para a seta "»" (antes ficavam escondidos).
+
 ## [0.6.0-alpha.4]
 - Toolbar maior (icones 30px, mesma espessura), novo icone de angulo, botoes Balde e Dev, flyout "More tools" (>>) com as ferramentas de macro.
 - Bridge usa Interpreter.runMacroSilent quando disponivel (sem dialogos modais).

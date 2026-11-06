@@ -89,7 +89,32 @@ export function mountShell() {
       wrap.append(btn, renderItems(m.items));
       menubar.appendChild(wrap);
     }
+    ovWrap = el('div', { class: 'il-mwrap il-overflow', hidden: '' });
+    const ob = el('button', { class: 'il-mbtn', 'aria-label': 'More menus', title: 'More menus', 'aria-haspopup': 'true', 'aria-expanded': 'false' }, '»');
+    ob.addEventListener('click', () => (openMenu === ovWrap ? closeMenus() : (closeMenus(), ovWrap.classList.add('open'), openMenu = ovWrap)));
+    ovWrap.appendChild(ob);
+    menubar.appendChild(ovWrap);
+    fitMenus();
   };
+  // Menus que nao cabem na barra vao para "⋯" (nunca somem).
+  let ovWrap = null;
+  const fitMenus = () => {
+    if (!ovWrap) return;
+    const wraps = [...menubar.children].filter(w => w !== ovWrap);
+    wraps.forEach(w => { w.hidden = false; });
+    ovWrap.hidden = true;
+    const limit = menubar.clientWidth;
+    const over = w => w.offsetLeft + w.offsetWidth > limit;
+    let hiddenFrom = wraps.findIndex(over);
+    if (hiddenFrom >= 0) {
+      ovWrap.hidden = false;
+      while (hiddenFrom > 0 && wraps[hiddenFrom - 1].offsetLeft + wraps[hiddenFrom - 1].offsetWidth + ovWrap.offsetWidth > limit) hiddenFrom--;
+      wraps.forEach((w, i) => { w.hidden = i >= hiddenFrom; });
+    }
+    ovWrap.querySelector('ul')?.remove();
+    if (hiddenFrom >= 0) ovWrap.appendChild(renderItems(menus.slice(hiddenFrom).map(m => ({ sub: m, items: m.items }))));
+  };
+  addEventListener('resize', () => fitMenus());
   document.addEventListener('click', e => { if (!e.target.closest('.il-mwrap')) closeMenus(); });
 
   // ---- topbar ---------------------------------------------------------------------------------------------------
@@ -133,6 +158,19 @@ export function mountShell() {
     SVG('<path d="M6 6l6 6-6 6M13 6l6 6-6 6"/>', 30, 1.8));
   tools.appendChild(moreBtn);
   document.addEventListener('click', e => { if (!e.target.closest('.il-more')) more.close(); });
+
+  // ---- orientacao da toolbar: horizontal por padrao; auto-vertical em tela estreita e alta; botao alterna -----------
+  const ORIENT_KEY = 'imagel.orient';
+  const store = { get: () => { try { return localStorage.getItem(ORIENT_KEY); } catch (_) { return null; } }, set: v => { try { localStorage.setItem(ORIENT_KEY, v); } catch (_) {} } };
+  const autoOrient = () => (innerWidth < 900 && innerHeight >= 700 ? 'v' : 'h');
+  const applyOrient = () => { document.body.dataset.orient = store.get() || autoOrient(); };
+  const orientBtn = el('button', { class: 'il-tool il-orient', title: 'Horizontal / Vertical', 'aria-label': 'Toolbar orientation', onclick: () => {
+    store.set(document.body.dataset.orient === 'h' ? 'v' : 'h'); applyOrient();
+  }, ondblclick: () => { try { localStorage.removeItem(ORIENT_KEY); } catch (_) {} applyOrient(); } },
+    SVG('<rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/>', 26, 1.8));
+  tools.appendChild(orientBtn);
+  applyOrient();
+  addEventListener('resize', () => { if (!store.get()) applyOrient(); });
 
   // ---- statusbar ------------------------------------------------------------------------------------------------
   const status = el('footer', { class: 'il-status', 'data-drag': '' });
