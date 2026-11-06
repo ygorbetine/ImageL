@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.26]
+### Changed
+- Gap distance: draws the two group borders (top/bottom contours, like the manual freehand outline) plus the straight measurement lines; contours are outlier-filtered (loose cells, dust) and smoothed; Li threshold follows sparse border cells.
+
 ## [0.6.0-alpha.25]
 ### Changed
 - Horizontal toolbar always sits on its own row below the menu bar (no longer merged into the top bar).
