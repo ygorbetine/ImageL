@@ -118,20 +118,50 @@ impl std::io::Read for Slice {
 
 type AssetCache = Mutex<std::collections::HashMap<String, (Arc<Vec<u8>>, String)>>;
 
-fn handle(app: &tauri::AppHandle, cache: &AssetCache, req: tiny_http::Request) {
+/// true se o asset devolvido e o proprio index.html (fallback do resolver para caminhos inexistentes).
+fn is_spa_fallback(app: &tauri::AppHandle, mime: &str, bytes: &[u8]) -> bool {
+    mime.starts_with("text/html") && app.asset_resolver().get("index.html".to_string()).map_or(false, |i| i.bytes == bytes)
+}
+
+fn handle(app: &tauri::AppHandle, cache: &AssetCache, req: tiny_http::Request, cors: bool) {
     let raw = req.url().split(['?', '#']).next().unwrap_or("/").to_string();
     let mut path = raw.trim_start_matches('/').to_string();
+    // O CDN do CheerpJ usa o status 231 para "isto e um diretorio" (a listagem esta em <dir>/index.list); o CheerpJ depende
+    // disso para enumerar fontes e bibliotecas (sem isso o texto de varias janelas Java nao aparece).
+    if path.starts_with("cheerpj/") && path.ends_with('/') {
+        let has_list = app.asset_resolver().get(format!("{}index.list", path)).map_or(false, |a| !is_spa_fallback(app, &a.mime_type, &a.bytes));
+        let hdr = |k: &str, v: &str| tiny_http::Header::from_bytes(k.as_bytes(), v.as_bytes()).unwrap();
+        let mut r = tiny_http::Response::from_string("").with_status_code(if has_list { 231 } else { 204 });
+        if cors { r = r.with_header(hdr("Access-Control-Allow-Origin", "*")); }
+        let _ = req.respond(r);
+        return;
+    }
     if path.is_empty() || path.ends_with('/') { path.push_str("index.html"); }
     let hit = cache.lock().ok().and_then(|c| c.get(&path).cloned());
     let found = hit.or_else(|| {
         let a = app.asset_resolver().get(path.clone())?;
+        // O resolver do Tauri devolve o index.html para caminhos inexistentes (fallback de SPA): isso entregava HTML no lugar de
+        // fontes/arquivos do CheerpJ. Se nao pediram uma pagina .html e veio HTML, o arquivo nao existe.
+        if !path.ends_with(".html") && is_spa_fallback(app, &a.mime_type, &a.bytes) { return None; }
         let v = (Arc::new(a.bytes), a.mime_type);
         if let Ok(mut c) = cache.lock() { c.insert(path.clone(), v.clone()); }
         Some(v)
     });
     let hdr = |k: &str, v: &str| tiny_http::Header::from_bytes(k.as_bytes(), v.as_bytes()).unwrap();
     let Some((bytes, mime)) = found else {
-        let _ = req.respond(tiny_http::Response::from_string("404").with_status_code(404));
+        // diretorio sem "/" final: o CDN redireciona (301) para a versao com "/"
+        if path.starts_with("cheerpj/") && app.asset_resolver().get(format!("{}/index.list", path)).map_or(false, |a| !is_spa_fallback(app, &a.mime_type, &a.bytes)) {
+            let mut r = tiny_http::Response::from_string("").with_status_code(301).with_header(hdr("Location", &format!("/{}/", path)));
+            if cors { r = r.with_header(hdr("Access-Control-Allow-Origin", "*")); }
+            let _ = req.respond(r);
+            return;
+        }
+        // O CDN do CheerpJ responde 204 (e nao 404) para arquivos que nao existem; um arquivo "vazio" com 200 (ex.: fonte
+        // Lucida de 0 bytes) quebra o desenho de texto no AWT.
+        let code = if path.starts_with("cheerpj/") { 204 } else { 404 };
+        let mut r = tiny_http::Response::from_string(if code == 204 { "" } else { "404" }).with_status_code(code);
+        if cors { r = r.with_header(hdr("Access-Control-Allow-Origin", "*")); }
+        let _ = req.respond(r);
         return;
     };
     let len = bytes.len();
@@ -139,22 +169,33 @@ fn handle(app: &tauri::AppHandle, cache: &AssetCache, req: tiny_http::Request) {
     let (status, s, e) = match range { Some((s, e)) => (206u16, s, e), None => (200u16, 0, len.saturating_sub(1)) };
     let size = if len == 0 { 0 } else { e - s + 1 };
     let mut headers = vec![hdr("Content-Type", &mime), hdr("Accept-Ranges", "bytes"), hdr("Cache-Control", "no-cache")];
+    if cors {
+        headers.push(hdr("Access-Control-Allow-Origin", "*"));
+        headers.push(hdr("Access-Control-Expose-Headers", "content-length,content-range"));
+        headers.push(hdr("Cross-Origin-Resource-Policy", "cross-origin"));
+    }
     if status == 206 { headers.push(hdr("Content-Range", &format!("bytes {}-{}/{}", s, e, len))); }
     let reader = Slice { data: bytes, pos: s, end: s + size };
     let _ = req.respond(tiny_http::Response::new(tiny_http::StatusCode(status), headers, reader, Some(size), None));
 }
 
-fn serve_assets(app: tauri::AppHandle) -> Result<u16, String> {
-    let server = Arc::new(tiny_http::Server::http("127.0.0.1:0").map_err(err)?);
-    let port = server.server_addr().to_ip().map(|a| a.port()).ok_or("sem porta")?;
+/// Dois servidores locais em portas diferentes: o app (origem A) e o runtime CheerpJ embutido (origem B, com CORS).
+/// O CheerpJ online roda em outra origem (cjrtnc.leaningtech.com); manter essa separacao no modo offline evita
+/// diferencas de comportamento (texto em branco nas janelas Java quando tudo vinha da mesma origem).
+fn serve_assets(app: tauri::AppHandle) -> Result<(u16, u16), String> {
     let cache: Arc<AssetCache> = Arc::new(Mutex::new(Default::default()));
-    for _ in 0..8 {
-        let (server, cache, app) = (server.clone(), cache.clone(), app.clone());
-        std::thread::spawn(move || {
-            while let Ok(req) = server.recv() { handle(&app, &cache, req); }
-        });
+    let mut ports = Vec::new();
+    for cors in [false, true] {
+        let server = Arc::new(tiny_http::Server::http("127.0.0.1:0").map_err(err)?);
+        ports.push(server.server_addr().to_ip().map(|a| a.port()).ok_or("sem porta")?);
+        for _ in 0..8 {
+            let (server, cache, app) = (server.clone(), cache.clone(), app.clone());
+            std::thread::spawn(move || {
+                while let Ok(req) = server.recv() { handle(&app, &cache, req, cors); }
+            });
+        }
     }
-    Ok(port)
+    Ok((ports[0], ports[1]))
 }
 
 fn main() {
@@ -165,8 +206,10 @@ fn main() {
             let overlay = app.state::<Arc<Overlay>>().inner().clone();
             let win = app.get_webview_window("main").expect("janela main");
             let _ = win.set_title(&format!("ImageL {}", env!("IMAGEL_VERSION")));
-            let port = serve_assets(app.handle().clone())?;
-            let url: tauri::Url = format!("http://127.0.0.1:{}/index.html?ui=new&nosw=1", port).parse().map_err(err)?;
+            let (port, cj_port) = serve_assets(app.handle().clone())?;
+            let offline = app.asset_resolver().get("cheerpj/4.2/loader.js".to_string()).map_or(false, |a| !is_spa_fallback(app.handle(), &a.mime_type, &a.bytes));
+            let cj = if offline { format!("&cjbase=http://127.0.0.1:{}/cheerpj/4.2/", cj_port) } else { String::new() };
+            let url: tauri::Url = format!("http://127.0.0.1:{}/index.html?ui=new&nosw=1{}", port, cj).parse().map_err(err)?;
             eprintln!("ImageL assets em {}", url);
             win.navigate(url).map_err(err)?;
             std::thread::spawn(move || {

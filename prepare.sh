@@ -53,10 +53,6 @@ else
     exit 1
 fi
 
-# ImageL: MultiLineLabel robusto (FontMetrics do CheerpJ); corrige dialogos de mensagem/erro vazios
-echo "Patching MultiLineLabel..."
-mkdir -p build-mll && javac --release 8 -cp lib/ImageJ/ij.jar -d build-mll imagej-patch/MultiLineLabel.java && (cd build-mll && jar uf ../lib/ImageJ/ij.jar ij/gui/MultiLineLabel.class) && rm -rf build-mll
-
 # Build threadhack parallel-tool.jar against the freshly-built ij.jar
 # (so com.hack.viewer.LazyImagePlus can compile against ImagePlus etc.)
 echo "Building threadhack parallel-tool.jar..."

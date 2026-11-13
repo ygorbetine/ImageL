@@ -65,7 +65,10 @@ public class ParallelClassLoader extends URLClassLoader {
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         // Parent first for JDK, ASM, and our own runtime classes
-        if (name.startsWith("java.") || name.startsWith("sun.") || name.startsWith("jdk.")
+        // ImageL: javax.* (Swing: JList, JScrollPane, RoiManager...) tambem e do JDK. Definir de novo pelo nosso loader criava
+        // classes duplicadas -> ClassCastException ao criar qualquer componente Swing.
+        if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("sun.") || name.startsWith("com.sun.")
+                || name.startsWith("org.w3c.") || name.startsWith("org.xml.") || name.startsWith("com.leaningtech.") || name.startsWith("jdk.")
                 || name.startsWith("org.objectweb.asm.") || RUNTIME_CLASSES.contains(name)) {
             return super.loadClass(name, resolve);
         }

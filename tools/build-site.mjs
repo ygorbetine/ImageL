@@ -26,7 +26,7 @@ if (offline) {
   if (!existsSync('vendor/cheerpj/4.2/loader.js')) { console.error('vendor/cheerpj/4.2 ausente: rode tools/fetch-cheerpj.mjs'); process.exit(1); }
   cpSync('vendor/cheerpj/4.2', `${out}/cheerpj/4.2`, { recursive: true });
   html = html.replace(/<link rel="(preconnect|dns-prefetch)" href="https:\/\/cjrtnc[^>]*>\n/g, '')
-    .replace('<script src="threadhack/runtime/loader.js"></script>', `<script>window.__CJ_BASE = new URL('cheerpj/4.2/', location.href).href;</script>\n<script src="threadhack/runtime/loader.js"></script>`);
+    .replace('<script src="threadhack/runtime/loader.js"></script>', `<script>window.__CJ_BASE = new URLSearchParams(location.search).get('cjbase') || new URL('cheerpj/4.2/', location.href).href;</script>\n<script src="threadhack/runtime/loader.js"></script>`);
   console.log('dist/ OFFLINE: CheerpJ embutido em dist/cheerpj/4.2');
 }
 writeFileSync(`${out}/index.html`, html);

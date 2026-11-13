@@ -89,6 +89,8 @@
   }
 
   var threadHookNatives = {
+    // ImageL: Class.newInstance relanca excecoes do construtor via Unsafe.throwException (nativo ausente no CheerpJ -> UnsatisfiedLinkError que mascarava o erro real)
+    Java_sun_misc_Unsafe_throwException: async function (lib, self, t) { throw t; },
     Java_com_hack_ThreadHook_nativeWorkerAvailable: async function () {
       return pool.length > 0;
     },

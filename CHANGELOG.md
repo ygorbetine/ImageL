@@ -4,6 +4,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.47]
+- Build offline: texto das janelas Java (Results, Log, mensagens, Macro Error) voltou a aparecer. Causa: o servidor local entregava o index.html no lugar de arquivos inexistentes do CheerpJ e faltavam as listas de diretório (status 231) e as fontes.
+- Corrigido: ROI Manager (e qualquer componente Swing) falhava com ClassCastException/UnsatisfiedLinkError: o carregador de classes redefinia javax.*; agora delega ao JDK. Native `Unsafe.throwException` implementado.
+- Revertido o patch do MultiLineLabel da 0.6.0-alpha.46 (diagnóstico errado; não era necessário).
+- Dois servidores locais (app e runtime CheerpJ com CORS), como no modo online.
+
 ## [0.6.0-alpha.46]
 - Corrigido: janelas de mensagem e "Macro Error" do ImageJ apareciam vazias (MultiLineLabel patchado; ver imagej-patch/).
 
