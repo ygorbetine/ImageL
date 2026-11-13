@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.45]
+- Build offline (`--offline`): CheerpJ embutido, sem internet. Instalador NSIS. `tools/build-desktop.mjs` gera os 3 binários com a versão no nome.
+- Removida a telemetria (Google Analytics) do app desktop.
+
 ## [0.6.0-alpha.44]
 - Gap: remove espigões estreitos (célula solta/detrito) dos contornos.
 - Desktop: versão no título da janela e no nome do arquivo (ImageL-<versão>.exe).
