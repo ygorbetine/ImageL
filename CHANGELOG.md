@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.46]
+- Corrigido: janelas de mensagem e "Macro Error" do ImageJ apareciam vazias (MultiLineLabel patchado; ver imagej-patch/).
+
 ## [0.6.0-alpha.45]
 - Build offline (`--offline`): CheerpJ embutido, sem internet. Instalador NSIS. `tools/build-desktop.mjs` gera os 3 binários com a versão no nome.
 - Removida a telemetria (Google Analytics) do app desktop.

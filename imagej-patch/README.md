@@ -110,3 +110,6 @@ To verify the patches work:
 - All suppressed messages are logged to the ImageJ log window for debugging
 - The `suppressErrorDialogs` flag is automatically managed by `runMacroSilent()`
 - Original ImageJ behavior is preserved when not using `runMacroSilent()`
+
+### 3. MultiLineLabel.java (ImageL)
+Substitui o Canvas por um Panel de `Label`s: no CheerpJ o original nao desenhava texto e as janelas de mensagem/"Macro Error" ficavam vazias. Aplicado pelo `prepare.sh` (javac --release 8 + `jar uf`).
