@@ -25,7 +25,7 @@ copyFileSync(exe, `release/ImageL-${v}-offline.exe`);
 if (!process.argv.includes('--skip-installer')) {
   run('cargo tauri build --bundles nsis', 'desktop/src-tauri');
   const dir = 'desktop/src-tauri/target/release/bundle/nsis';
-  const f = existsSync(dir) && readdirSync(dir).find(n => n.endsWith('-setup.exe'));
+  const f = existsSync(dir) && readdirSync(dir).find(n => n.includes('_' + v + '_') && n.endsWith('-setup.exe'));
   if (f) copyFileSync(`${dir}/${f}`, `release/ImageL-${v}-setup.exe`);
 }
 console.log('release/ pronto para', v);
