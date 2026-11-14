@@ -4,6 +4,22 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.54]
+### Corrigido
+- **Comandos com dialogo pelos menus e pela paleta da interface nova** (Gaussian Blur..., Set Scale..., plugins...) nao faziam nada: o caminho de macro silenciosa devolvia "sucesso" sem abrir o dialogo. Sem opcoes, a interface agora chama `IJ.run(comando)`, como o menu original.
+- Chamadas de fundo ao Java (tema das janelas, ajuste de janela, destaque da ferramenta) sao puladas enquanto outro comando esta em andamento; antes podiam colidir com ele ("Java code still running").
+### Adicionado
+- **DeepImageJ executa modelos** (Plugins > DeepImageJ > DeepImageJ Run), localmente, com TensorFlow.js (as imagens nao saem do computador):
+  - ponte Java -> JavaScript em `deepimagej-patch/` e `threadhack/runtime/loader.js`; executor em `src/ai/dij-runner.js`; TensorFlow.js 4.22 embutido em `static/vendor/tfjs/`.
+  - modelo disponivel: *Small Extracellular Vesicle TEM Segmentation (Fully Residual U-Net)* (bioimage.io `naked-microbe`, BSD-3). Os pesos TensorFlow.js originais sairam do ar; foram reconvertidos do arquivo Keras oficial com `tools/keras1-to-tfjs.py` e ficam na branch `models` do repositorio.
+  - blocos maiores que 512 px sao divididos e costurados pelo executor (limite de textura do WebGL).
+### Testes
+- Modelo convertido: 99,85% de concordancia pixel a pixel com o tensor de teste oficial (Node e dentro do app, WebGL).
+- Fluxo completo pelo plugin (pre-processamento, modelo, pos-processamento) na imagem de teste oficial: mascara com IoU 0,973 em relacao a referencia; imagem 1000x1000 em ~15 s.
+### Conhecido
+- A **segunda execucao do DeepImageJ na mesma sessao** termina sem processar ("Error while handling user native"); reiniciar o ImageL entre execucoes. Causa ainda nao identificada.
+- So ha um modelo: os demais do bioimage.io nao tem pesos TensorFlow.js.
+
 ## [0.6.0-alpha.53]
 ### Corrigido
 - **Ferramenta de texto**: Ctrl+D (desenhar) e Ctrl+B (adicionar ao overlay) eram digitados como letras no texto em edicao (no CheerpJ, Ctrl+letra chega ao ImageJ como a propria letra). Com a ferramenta de texto ativa, Ctrl+letra agora executa o comando da tabela de atalhos do ImageJ.

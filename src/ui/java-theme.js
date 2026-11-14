@@ -36,7 +36,7 @@ export function initJavaTheme(bridge, rootArg = null) {
   let imgs = []; // ultimo conjunto conhecido de titulos de imagem (a macro nao responde enquanto ha dialogo modal)
   const fetchTitles = async () => {
     if (!bridge.ready()) return;
-    const r = await bridge.macro('t = getList("image.titles"); s = ""; for (i = 0; i < t.length; i++) s = s + t[i] + "\\n"; return s;');
+    const r = await bridge.macro('t = getList("image.titles"); s = ""; for (i = 0; i < t.length; i++) s = s + t[i] + "\\n"; return s;', { background: true }); // recusada se o ImageJ estiver ocupado
     imgs = String(r || '').split('\n').filter(Boolean);
     known = true;
   };

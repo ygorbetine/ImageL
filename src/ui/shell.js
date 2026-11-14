@@ -55,6 +55,7 @@ export function shellEnabled() {
 export function mountShell() {
   initSelectFix();
   const bridge = createBridge();
+  window.__ilBridge = bridge; // para testes automatizados e depuracao
   let menus = withImageL(MENUS);
   window.__menuHandlers = { ...window.__menuHandlers, gap: () => window.IJClass.runMacro(buildGapMacro(getLocale())), 'gap-batch': () => window.IJClass.runMacro(buildGapBatchMacro(getLocale())) /* macro com Dialog e IDs de imagem: modo normal, nao o batch/silencioso */ };
   let commands = flattenCommands(menus);
@@ -232,7 +233,7 @@ export function mountShell() {
   const groupSet = new Map();
   const syncTool = async () => {
     try {
-      if (!window.lib) return;
+      if (!window.lib || bridge.busy()) return; // outra chamada ao Java em andamento (ver bridge.js)
       const name = String(await (await window.lib.ij.gui.Toolbar).getToolName());
       const tl = toolById.get(name) || [...toolById.values()].find(x => x.id.toLowerCase().startsWith(name.toLowerCase()));
       if (!tl) return;

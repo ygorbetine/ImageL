@@ -158,6 +158,35 @@
 
   // ---- BrowserFilePicker natives (File > Open / Save As) ---------------
   // Delegates to the HTML dialog exposed as window.hfs.* by file-browser.js.
+  // ---- DeepImageJ: ponte para o executor de modelos (src/ai/dij-runner.js) ----
+  // Classe Java: com.leaningtech.client.Global (deepimagej-patch/). Erros de texto voltam com o prefixo "!ERR ".
+  var deepImageJNatives = {
+    Java_com_leaningtech_client_Global_nativeText: async function (lib, func, arg) {
+      try {
+        if (typeof window.__dijRunner !== 'function') throw new Error('model runner not available');
+        var r = await window.__dijRunner();
+        if (func === 'lastError') return String(r.lastError() || '');
+        if (typeof r[func] !== 'function') throw new Error('unsupported call: ' + func);
+        var v = await r[func](arg);
+        return v == null ? '' : String(v);
+      } catch (e) {
+        return '!ERR ' + ((e && e.message) || e);
+      }
+    },
+    Java_com_leaningtech_client_Global_nativePredict: async function (lib, model, data, w, h, c) {
+      try {
+        var r = await window.__dijRunner();
+        var n = w * h * c;
+        // o array Java chega como Float32Array (com eventual cabecalho antes dos dados)
+        var view = data.length === n ? data : data.subarray(data.length - n);
+        return await r.predict(model, view, w, h, c);
+      } catch (e) {
+        console.error('[deepimagej] predict:', e);
+        return new Float32Array(0);
+      }
+    }
+  };
+
   var filePickerNatives = {
     Java_com_hack_io_BrowserFilePicker_showOpenDialog: async function (lib, title, defaultDir) {
       if (!window.hfs) return null;
@@ -275,7 +304,35 @@
     opts = Object.assign({}, opts || {});
     var poolSize = opts.threadhackPool !== undefined ? opts.threadhackPool : DEFAULT_POOL;
     delete opts.threadhackPool;
-    opts.natives = Object.assign({}, threadHookNatives, tileSourceNatives, menuRegistryNatives, filePickerNatives, opts.natives || {});
+    // Enquanto o Java esta parado dentro de um nativo assincrono demorado (dialogo de arquivo, modelo do DeepImageJ),
+    // chamadas JS -> Java falham com "Java code still running" e podem derrubar o proprio nativo ("Error while
+    // handling user native"). window.__cjNativeBusy avisa a interface para nao chamar o Java nesse intervalo.
+    var busyGuard = function (group) {
+      var out = {};
+      Object.keys(group).forEach(function (k) {
+        var fn = group[k];
+        out[k] = async function () {
+          window.__cjNativeBusy = (window.__cjNativeBusy || 0) + 1;
+          try { return await fn.apply(this, arguments); } finally { window.__cjNativeBusy--; }
+        };
+      });
+      return out;
+    };
+    var traced = function (group) { // registra qual nativo falhou (o CheerpJ so diz "Error while handling user native")
+      var out = {};
+      Object.keys(group).forEach(function (k) {
+        var fn = group[k];
+        out[k] = function () {
+          try {
+            var r = fn.apply(this, arguments);
+            if (r && typeof r.then === 'function') return r.catch(function (e) { console.warn('[native] ' + k + ': ' + ((e && e.message) || e)); throw e; });
+            return r;
+          } catch (e) { console.warn('[native] ' + k + ': ' + ((e && e.message) || e)); throw e; }
+        };
+      });
+      return out;
+    };
+    opts.natives = Object.assign({}, traced(threadHookNatives), traced(tileSourceNatives), traced(menuRegistryNatives), traced(busyGuard(filePickerNatives)), traced(busyGuard(deepImageJNatives)), traced(opts.natives || {}));
 
     // Install our classloader as the system classloader so plugin jars
     // loaded by ImageJ's internal PluginClassLoader (and any child

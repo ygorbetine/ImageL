@@ -10,6 +10,7 @@ for (const f of files) if (existsSync(f)) cpSync(f, `${out}/${f}`);
 cpSync('src', `${out}/src`, { recursive: true });
 mkdirSync(`${out}/static`, { recursive: true });
 for (const f of ['tailwind.css', 'theme.css', 'shell.css', 'logo.svg']) cpSync(`static/${f}`, `${out}/static/${f}`);
+if (existsSync('static/vendor')) cpSync('static/vendor', `${out}/static/vendor`, { recursive: true }); // TensorFlow.js (executor do DeepImageJ)
 if (existsSync('lib')) cpSync('lib', `${out}/lib`, { recursive: true });
 mkdirSync(`${out}/threadhack`, { recursive: true });
 cpSync('threadhack/runtime', `${out}/threadhack/runtime`, { recursive: true });

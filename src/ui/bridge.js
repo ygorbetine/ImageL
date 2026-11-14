@@ -19,7 +19,18 @@ export function createBridge(
   },
 ) {
   const ready = () => !!getIJ();
-  async function macro(code) {
+  // O CheerpJ aceita uma chamada JS -> Java por vez. Uma segunda chamada enquanto um comando demorado esta em andamento
+  // falha ("Java code still running") e, se coincidir com um nativo assincrono (dialogo de arquivo, modelo do
+  // DeepImageJ), derruba o proprio comando ("Error while handling user native"). Chamadas de fundo (tema, ajuste de
+  // janela) usam { background: true } e sao recusadas enquanto houver outra em andamento.
+  let inFlight = 0;
+  const busy = () => inFlight > 0 || (typeof window !== 'undefined' && !!window.__cjNativeBusy);
+  async function macro(code, opts) {
+    if (opts && opts.background && busy()) throw new Error('ImageJ ocupado');
+    inFlight++;
+    try { return await macroNow(code); } finally { inFlight--; }
+  }
+  async function macroNow(code) {
     const IJ = getIJ();
     if (!IJ) throw new Error('ImageJ ainda nao carregou');
     const silent = await getSilent();
@@ -34,11 +45,19 @@ export function createBridge(
   }
   return {
     ready,
+    busy,
     macro,
     /** Executa um comando de menu pelo nome original: run("Gaussian Blur...", "sigma=2") */
     async run(cmd, options) {
-      const code = options ? `run("${macroString(cmd)}", "${macroString(options)}");` : `run("${macroString(cmd)}");`;
       log.debug('run', cmd, options || '');
+      const IJ = getIJ();
+      if (!options && IJ && typeof IJ.run === 'function') {
+        // Sem opcoes = clique num item de menu: IJ.run(cmd), como o menu original. O caminho de macro silenciosa nao
+        // abre o dialogo do comando (Gaussian Blur..., Set Scale...): voltava "sucesso" sem fazer nada.
+        inFlight++;
+        try { await IJ.run(cmd); return ''; } finally { inFlight--; }
+      }
+      const code = options ? `run("${macroString(cmd)}", "${macroString(options)}");` : `run("${macroString(cmd)}");`;
       return macro(code);
     },
     /** Nomes aceitos: rectangle, oval, brush, arrow... ou nome de ferramenta de macro ("Flood Filler Built-in Tool"). */

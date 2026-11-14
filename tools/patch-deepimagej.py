@@ -1,5 +1,5 @@
-"""Acrescenta ao jar do DeepImageJ JS a classe com.leaningtech.client.Global (deepimagej-patch/), que troca o
-NoClassDefFoundError por um aviso claro. Uso: python tools/patch-deepimagej.py  (requer JDK 9+ em JAVA_HOME ou no PATH)
+"""Acrescenta ao jar do DeepImageJ JS a classe com.leaningtech.client.Global (deepimagej-patch/), a ponte
+do plugin para o executor de modelos do ImageL (src/ai/dij-runner.js). Uso: python tools/patch-deepimagej.py  (requer JDK 9+ em JAVA_HOME ou no PATH)
 """
 import glob
 import os
@@ -29,7 +29,7 @@ def main():
     jar = jars[0]
     out = tempfile.mkdtemp()
     srcs = [os.path.join(d, f) for d, _, fs in os.walk(SRC) for f in fs if f.endswith(".java")]
-    subprocess.check_call([javac(), "--release", "8", "-nowarn", "-cp", IJ, "-d", out] + srcs)
+    subprocess.check_call([javac(), "--release", "8", "-nowarn", "-cp", IJ + os.pathsep + jar, "-d", out] + srcs)
     new = {}
     for d, _, fs in os.walk(out):
         for f in fs:

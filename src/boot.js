@@ -247,6 +247,8 @@ let IJClass = null;
 // nativeInvokeJSHandler bridge). The "Extensions" menu is installed on
 // ImageJ's menu bar further down in the main boot script.
 window.__menuHandlers = window.__menuHandlers || {};
+// Executor de modelos do DeepImageJ (TensorFlow.js): carregado so quando o plugin chama (ver threadhack/runtime/loader.js).
+window.__dijRunner = () => import('./ai/dij-runner.js').then(m => m.getRunner());
 
 window.__menuHandlers.mount = async () => {
     if (!('showDirectoryPicker' in window)) {

@@ -39,7 +39,7 @@ export function initFitWindow(bridge) {
     const aW = w.offsetWidth - base[0], aH = w.offsetHeight - base[1];
     const t = macroString(title);
     try {
-      await bridge.macro(`W="${t}"; for(i=1;i<=nImages;i++){selectImage(i);t=getTitle();if(W==t||startsWith(W,t+" (")){w=getWidth();h=getHeight();z=minOf(${aW}/w,${aH}/h)*100;if(z<3.1)z=3.1;if(z>3200)z=3200;run("Set... ","zoom="+z+" x="+w/2+" y="+h/2);break;}}`);
+      await bridge.macro(`W="${t}"; for(i=1;i<=nImages;i++){selectImage(i);t=getTitle();if(W==t||startsWith(W,t+" (")){w=getWidth();h=getHeight();z=minOf(${aW}/w,${aH}/h)*100;if(z<3.1)z=3.1;if(z>3200)z=3200;run("Set... ","zoom="+z+" x="+w/2+" y="+h/2);break;}}`, { background: true });
     } catch (_) { /* cosmetico */ }
   }
   addEventListener('pointerdown', () => {

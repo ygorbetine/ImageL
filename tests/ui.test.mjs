@@ -53,3 +53,30 @@ test('bridge sem ImageJ carregado rejeita com mensagem clara', async () => {
   assert.equal(b.ready(), false);
   await assert.rejects(() => b.run('Close'), /ainda nao carregou/);
 });
+
+test('bridge: chamada de fundo e recusada enquanto outra esta em andamento', async () => {
+  const { createBridge } = await import('../src/ui/bridge.js');
+  let release;
+  const gate = new Promise(r => { release = r; });
+  const calls = [];
+  const b = createBridge(() => ({ runMacro: async code => { calls.push(code); if (code.includes('longo')) await gate; return 'ok'; } }), async () => null);
+  assert.equal(b.busy(), false);
+  const long = b.macro('longo');
+  assert.equal(b.busy(), true);
+  await assert.rejects(() => b.macro('fundo', { background: true }), /ocupado/);
+  assert.deepEqual(calls, ['longo']);
+  release();
+  assert.equal(await long, 'ok');
+  assert.equal(b.busy(), false);
+  assert.equal(await b.macro('fundo', { background: true }), 'ok');
+});
+
+test('bridge.run sem opcoes usa IJ.run (abre o dialogo do comando); com opcoes vai por macro', async () => {
+  const { createBridge } = await import('../src/ui/bridge.js');
+  const calls = [];
+  const IJ = { run: async c => { calls.push(['run', c]); }, runMacro: async c => { calls.push(['macro', c]); return ''; } };
+  const b = createBridge(() => IJ, async () => null);
+  await b.run('Gaussian Blur...');
+  await b.run('Gaussian Blur...', 'sigma=2');
+  assert.deepEqual(calls, [['run', 'Gaussian Blur...'], ['macro', 'run("Gaussian Blur...", "sigma=2");']]);
+});
