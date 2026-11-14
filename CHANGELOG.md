@@ -4,6 +4,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.51]
+### Corrigido
+- **Bio-Formats Exporter** (OME-TIFF e demais formatos de escrita) funciona: o `NIOFileHandle` do Bio-Formats usava FileChannel, que falha no CheerpJ ao gravar; foi trocado por uma versao com a mesma API sobre RandomAccessFile (`bioformats-patch/`).
+- **/local com leitura e escrita aleatoria**: arquivos abertos para escrita compartilham um buffer entre descritores, existem assim que sao criados e respeitam `setLength`. O arquivo e salvo fora do app uma unica vez por gravacao.
+### Testes
+- OME-TIFF 16 bits com 5 fatias exportado e reimportado no ImageL com os mesmos valores do ImageJ nativo.
+
 ## [0.6.0-alpha.50]
 ### Adicionado
 - **Mais formatos de imagem**: o Bio-Formats Importer agora funciona (Plugins > Bio-Formats). O TurboJPEG nativo, que o CheerpJ nao carrega, foi trocado por uma versao em Java puro (`bioformats-patch/`, `tools/patch-bioformats.py`).

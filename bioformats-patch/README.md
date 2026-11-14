@@ -9,6 +9,7 @@ Este patch troca so a parte nativa por Java puro, mantendo a API que o Bio-Forma
 | --- | --- |
 | `org.libjpegturbo.turbojpeg.TJ` | constantes de formato de pixel e `getPixelSize` |
 | `org.libjpegturbo.turbojpeg.TJDecompressor` | decodifica JPEG com `javax.imageio` (RGB, BGR, cinza, 4 canais) |
+| `loci.common.NIOFileHandle` | mesma API publica, mas le/grava com `RandomAccessFile` (o FileChannel do CheerpJ falha na escrita posicional) |
 | `org.scijava.nativelib.NativeLibraryUtil` | informa "turbojpeg" como disponivel; outras bibliotecas nativas continuam indisponiveis |
 
 Aplicar (recompila e regrava `lib/ImageJ/plugins/bioformats_package.jar`, removendo tambem as `.dll/.so/.dylib` embutidas):
@@ -21,6 +22,5 @@ O jar ja aplicado fica marcado com `META-INF/imagel-patch.txt`.
 
 Limites conhecidos:
 
-- Testado: Bio-Formats Importer abrindo TIFF em pilha. Nao foi testado com um arquivo `.ndpi` real.
+- Testado: Importer e Exporter com TIFF e OME-TIFF (8 e 16 bits, pilhas), com valores iguais aos do ImageJ nativo. Nao foi testado com um arquivo `.ndpi` real.
 - A decodificacao pode diferir em +-1 nivel por canal em relacao ao libjpeg-turbo (IDCT diferente).
-- Bio-Formats Exporter (OME-TIFF) ainda falha: precisa de leitura/escrita aleatoria, que o `/local` nao oferece.

@@ -627,6 +627,21 @@ function nativeFileReadAsync(fileData, fileOffset, buf, off, len, flags, cb) {
 // Streaming read function for local files (drag-and-drop)
 // This reads from the File object on-demand without loading entire file into memory
 function localFileReadAsync(fileData, fileOffset, buf, off, len, flags, cb) {
+    if (fileData.rw) {
+        // arquivo aberto para escrita em algum descritor: le do buffer compartilhado
+        const e = fileData.rw;
+        localSyncLen(fileData);
+        if (fileOffset >= e.length) return cb(0);
+        if (fileOffset + len > e.length) len = e.length - fileOffset;
+        if (len <= 0) return cb(0);
+        for (let done = 0; done < len;) {
+            const pos = fileOffset + done, ci = Math.floor(pos / (1024 * 1024)), co = pos % (1024 * 1024);
+            const n = Math.min(len - done, 1024 * 1024 - co), c = e.chunks[ci];
+            for (let i = 0; i < n; i++) buf[off + done + i] = c ? c[co + i] : 0;
+            done += n;
+        }
+        return cb(len);
+    }
     if (fileOffset >= fileData.length) {
         return cb(0);
     }
@@ -996,7 +1011,7 @@ function localStatAsync(mp, path, fileRef, cb) {
         fileRef.uid = 0;
         fileRef.gid = 0;
         fileRef.permType = CheerpJFileData.S_IFREG | 0o666;
-        fileRef.fileLength = file.size;
+        fileRef.fileLength = localRW.has(localPath) ? localRW.get(localPath).length : file.size;
         fileRef.lastModified = Math.floor(file.lastModified / 1000);
         return cb();
     }
@@ -1052,6 +1067,39 @@ function localMakeFileData(mp, path, mode, uid, gid, cb) {
         return cb(fileData);
     }
 
+    const mkRW = (entry) => {
+        const fd = new CheerpJFileData(mp, path, entry.length, Math.floor(Math.random() * 1000000),
+            CheerpJFileData.S_IFREG | 0o666, Math.floor(Date.now() / 1000), uid, gid);
+        entry.refs++;
+        fd.rw = entry;
+        fd.rwSeen = entry.length;
+        fd.chunks = entry.chunks;
+        fd.dirty = 0;
+        fd.mount = mp.inodeOps;
+        return fd;
+    };
+    if (mode === "r" && localRW.has(localPath)) {
+        // ja aberto para escrita em outro descritor: le o que foi gravado ate agora
+        return cb(mkRW(localRW.get(localPath)));
+    }
+    if (mode !== "r") {
+        // Escrita ("w" trunca; "r+"/"rw" mantem o conteudo existente)
+        const name = localPath.split('/').pop() || 'file';
+        let entry = localRW.get(localPath);
+        const existing = window.localFS.getFile(localPath);
+        if (!entry) { entry = { chunks: [], length: 0, refs: 0, dirty: 0 }; localRW.set(localPath, entry); }
+        else if (mode === "w") { entry.chunks.length = 0; entry.length = 0; }
+        if (mode === "w" || !existing) {
+            // o arquivo passa a existir (vazio) assim que e criado, como num disco de verdade
+            if (!existing || existing.size > 0) window.localFS.addFile(new File([], name), localPath);
+            return cb(mkRW(entry));
+        }
+        if (entry.refs > 0 || existing.size === 0) return cb(mkRW(entry));
+        const fd = mkRW(entry); // reserva o descritor antes de carregar o conteudo existente
+        existing.arrayBuffer().then(buf => { localRWLoad(entry, new Uint8Array(buf)); fd.length = fd.rwSeen = entry.length; cb(fd); })
+            .catch(err => { console.error('[local] falha ao carregar para escrita:', err); cb(fd); });
+        return;
+    }
     if (mode === "r") {
         // Read mode - get file from local FS
         const file = window.localFS.getFile(localPath);
@@ -1124,6 +1172,10 @@ function localFileWriteAsync(fileData, fileOffset, buf, off, len, cb) {
         return 0; // Return 0 bytes written on error
     }
 
+    // ImageL: buffer compartilhado entre os descritores do mesmo arquivo
+    const shared = fileData.rw;
+    if (shared) { fileData.chunks = shared.chunks; localSyncLen(fileData); }
+
     // Initialize chunks array if not present
     if (!fileData.chunks) {
         fileData.chunks = [];
@@ -1161,77 +1213,104 @@ function localFileWriteAsync(fileData, fileOffset, buf, off, len, cb) {
     }
 
     fileData.dirty = 1; // Mark as modified
+    if (shared) { shared.length = fileData.length; shared.dirty = 1; fileData.rwSeen = fileData.length; }
 
     return cb(bytesWritten);
 }
 
-// Close function for local files - triggers download
+// ---- ImageL: leitura/escrita aleatoria em /local --------------------------------------------------------------------
+// Cada arquivo aberto para escrita tem um buffer compartilhado por todos os descritores (o Bio-Formats Exporter cria o
+// arquivo, fecha, reabre para escrita e le o que ja gravou). Ao fechar, o conteudo vira um File em window.localFS (para
+// Open/Revert) e e salvo fora do app (pasta Downloads no desktop, download no navegador), uma vez por rajada de closes.
+const LOCAL_CHUNK = 1024 * 1024;
+const localRW = new Map(); // caminho relativo -> { chunks, length, refs, dirty }
+const localSaveTimers = new Map();
+
+function localRel(path) { return String(path).replace(/^\/+/, '').replace(/^local\//, ''); }
+
+// Tamanho: o CheerpJ muda fileData.length direto (RandomAccessFile.setLength); se mudou desde a ultima operacao deste
+// descritor, vale para o arquivo todo. Senao, o descritor acompanha o tamanho compartilhado.
+function localSyncLen(fileData) {
+    const e = fileData.rw;
+    if (fileData.length !== fileData.rwSeen) { e.length = fileData.length; e.dirty = 1; } else fileData.length = e.length;
+    fileData.rwSeen = fileData.length;
+}
+
+function localRWBytes(e) {
+    const out = new Uint8Array(e.length);
+    for (let i = 0, off = 0; off < e.length; i++, off += LOCAL_CHUNK) {
+        const c = e.chunks[i];
+        if (c) out.set(c.subarray(0, Math.min(LOCAL_CHUNK, e.length - off)), off);
+    }
+    return out;
+}
+
+function localRWLoad(e, bytes) {
+    e.length = bytes.length;
+    e.chunks.length = 0;
+    for (let off = 0, i = 0; off < bytes.length; off += LOCAL_CHUNK, i++) {
+        const c = new Uint8Array(LOCAL_CHUNK);
+        c.set(bytes.subarray(off, Math.min(off + LOCAL_CHUNK, bytes.length)));
+        e.chunks[i] = c;
+    }
+}
+
+function localSaveOut(file, fileName) {
+    const browserDownload = () => {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+    // ImageL desktop: grava direto na pasta Downloads (o WebView pediria permissao para "baixar varios arquivos").
+    const tok = new URLSearchParams(location.search).get('tok');
+    if (tok && window.__TAURI__) {
+        fetch('/__save?name=' + encodeURIComponent(fileName), { method: 'POST', headers: { 'X-ImageL-Token': tok }, body: file })
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+            .then(p => console.log('Salvo em', p))
+            .catch(e => { console.warn('[local] gravacao direta falhou, usando download:', e); browserDownload(); });
+    } else browserDownload();
+}
+
+function localScheduleSave(rel) {
+    clearTimeout(localSaveTimers.get(rel));
+    localSaveTimers.set(rel, setTimeout(() => {
+        localSaveTimers.delete(rel);
+        if (localRW.has(rel) && localRW.get(rel).dirty) return; // ainda sendo escrito: o proximo close agenda de novo
+        const file = window.localFS && window.localFS.getFile(rel);
+        if (file) localSaveOut(file, rel.split('/').pop() || 'downloaded-file');
+    }, 400));
+}
+
+// Close function for local files - guarda em /local e salva fora do app
 function localFileClose(fileData, cb) {
-    // Check if callback is provided
     if (typeof cb !== 'function') {
         console.error('[localFileClose] ERROR: cb is not a function!', cb);
-        return; // Just return without calling cb
+        return;
     }
-
-    // Only trigger download if the file was written to
-    if (fileData.dirty && fileData.chunks && fileData.chunks.length > 0) {
-
-        // Reconstruct file content from chunks
-        const chunkSize = 1024 * 1024;
-        const totalSize = fileData.length;
-        const fileContent = new Uint8Array(totalSize);
-
-        let offset = 0;
-        for (let i = 0; i < fileData.chunks.length && offset < totalSize; i++) {
-            const chunk = fileData.chunks[i];
-            if (chunk) {
-                const bytesToCopy = Math.min(chunkSize, totalSize - offset);
-                fileContent.set(chunk.subarray(0, bytesToCopy), offset);
-                offset += bytesToCopy;
-            }
+    const e = fileData.rw;
+    if (e) {
+        const rel = localRel(fileData.path);
+        localSyncLen(fileData);
+        e.refs--;
+        if (e.dirty) {
+            e.dirty = 0;
+            try { window.localFS.addFile(new File([localRWBytes(e)], rel.split('/').pop() || 'file'), rel); } catch (err) { console.warn('[localFileClose]', err); }
+            localScheduleSave(rel);
         }
-
-        let keep = null;
-        // Trigger browser download
-        const blob = new Blob([fileContent]);
-        // Extract filename from path (remove /local/ prefix)
-        const fileName = fileData.path.split('/').pop() || 'downloaded-file';
-        const browserDownload = () => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        };
-        // ImageL desktop: grava direto na pasta Downloads (o WebView pediria permissao para "baixar varios arquivos").
-        const tok = new URLSearchParams(location.search).get('tok');
-        if (tok && window.__TAURI__) {
-            fetch('/__save?name=' + encodeURIComponent(fileName), { method: 'POST', headers: { 'X-ImageL-Token': tok }, body: blob })
-                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-                .then(p => console.log('✓ Salvo em', p))
-                .catch(e => { console.warn('[localFileClose] gravacao direta falhou, usando download:', e); browserDownload(); });
-        } else browserDownload();
-
-        console.log(`✓ Downloaded file: ${fileName} (${totalSize} bytes)`);
-
-        // ImageL: o arquivo salvo tambem fica em /local, para poder ser reaberto (Open, Open Recent, Revert) como no ImageJ nativo.
-        try {
-            const rel = String(fileData.path).replace(/^\/+/, '').replace(/^local\//, '');
-            const saved = new File([blob], fileName);
-            if (window.localFS && rel) window.localFS.addFile(saved, rel);
-            keep = saved;
-        } catch (e) { console.warn('[localFileClose] nao guardou em /local:', e); }
-
-        // Clear the file data to free memory
-        fileData.chunks = null;
+        if (e.refs <= 0) {
+            localRW.delete(rel);
+            const f = window.localFS.getFile(rel);
+            fileData.rw = null;
+            fileData.chunks = null;
+            if (f) { fileData.localFile = f; fileData.length = f.size; }
+        }
         fileData.dirty = 0;
-        // O CheerpJ pode reutilizar este registro numa leitura logo em seguida (salvar e reabrir): manter o conteudo legivel.
-        if (keep) { fileData.localFile = keep; fileData.length = totalSize; } else fileData.length = 0;
     }
-
     return cb();
 }
 
