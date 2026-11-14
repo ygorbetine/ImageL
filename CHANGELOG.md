@@ -3,6 +3,8 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento: [SemVer](https://semver.org/lang/pt-BR/) (ver `ROADMAP.md`).
 
 ## [Unreleased]
+
+## [0.6.0-alpha.55]
 ### Problemas conhecidos
 - **NDPI (Hamamatsu)**: com um arquivo real (CMU-1.ndpi, 198 MB) o Bio-Formats abre normalmente no ImageJ nativo (serie de 3200x2384), mas no ImageL leva varios minutos e termina em `ArrayIndexOutOfBoundsException` em `IFD.getIFDValue` ao ler os metadados. Os bytes lidos nos deslocamentos das IFDs conferem com o arquivo; causa ainda nao encontrada.
 ### Corrigido
