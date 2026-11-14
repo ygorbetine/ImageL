@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeRects, isDesktop, readPin, writePin, wantOnTop } from '../src/desktop.js';
+import { normalizeRects, isDesktop, readPin, writePin, wantOnTop, isBrowserAccelerator } from '../src/desktop.js';
 
 const R = (left, top, width, height) => ({ left, top, width, height, right: left + width, bottom: top + height });
 
@@ -21,4 +21,16 @@ test('pin: padrao ligado, persiste, so vale no Sem fundo', () => {
   assert.equal(wantOnTop(true, true), true);
   assert.equal(wantOnTop(false, true), false);
   assert.equal(wantOnTop(true, false), false);
+});
+
+test('atalhos do WebView sao bloqueados; edicao de texto e F12 ficam', () => {
+  const k = (key, m = {}) => isBrowserAccelerator({ key, ...m });
+  for (const f of ['F5', 'F1', 'F3', 'F11']) assert.equal(k(f), true, f);
+  assert.equal(k('F12'), false);
+  for (const c of ['r', 'R', 'f', 'p', 's', 'h', 'o', 'n', 'd', 'i', '+', '-', '0']) assert.equal(k(c, { ctrlKey: true }), true, 'Ctrl+' + c);
+  for (const c of ['c', 'v', 'x', 'a', 'z', 'y']) assert.equal(k(c, { ctrlKey: true }), false, 'Ctrl+' + c);
+  assert.equal(k('ArrowLeft', { altKey: true }), true);
+  assert.equal(k('ArrowLeft', { ctrlKey: true }), false);
+  assert.equal(k('m'), false);
+  assert.equal(k('Control', { ctrlKey: true }), false);
 });

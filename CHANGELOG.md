@@ -4,6 +4,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.52]
+### Corrigido
+- **F5 e Ctrl+R recarregavam o app** (perdendo o trabalho) e outros atalhos eram capturados pelo WebView (Ctrl+F, Ctrl+P, Ctrl+S, Ctrl+H...). No desktop esses atalhos agora vao so para o ImageJ (Ctrl+R = Revert, Ctrl+H = Histogram, Ctrl+Shift+I = Invert).
+- **Sem fundo**: a janela crescia a cada ida e volta (salvava o tamanho externo e restaurava como interno).
+### Testes (rodada 3)
+- Cliques reais nos menus e submenus, paleta, atalhos de teclado, pincel, balde, ROI Manager, janela classica, Sem fundo; plugins ThunderSTORM, MorphoLibJ, ActionBar e Bio-Formats abrem seus dialogos.
+### Conhecido
+- DeepImageJ Run falha: o plugin depende de `com.leaningtech.client.Global` (CheerpJ antigo), inexistente no CheerpJ 4.2.
+
 ## [0.6.0-alpha.51]
 ### Corrigido
 - **Bio-Formats Exporter** (OME-TIFF e demais formatos de escrita) funciona: o `NIOFileHandle` do Bio-Formats usava FileChannel, que falha no CheerpJ ao gravar; foi trocado por uma versao com a mesma API sobre RandomAccessFile (`bioformats-patch/`).

@@ -29,6 +29,22 @@ export function writePin(storage, on) { try { storage.setItem(PIN_KEY, on ? '1' 
 /** Always-on-top efetivo: so no "Sem fundo" e conforme a preferencia. */
 export function wantOnTop(overlay, pref) { return !!overlay && !!pref; }
 
+/**
+ * Atalhos do WebView que nao podem agir no app desktop: F5/Ctrl+R recarregam a pagina (perde todo o trabalho) e Ctrl+F,
+ * Ctrl+P, Ctrl+S, Ctrl+H... abrem telas do navegador no lugar dos comandos do ImageJ (Fill, Properties, Save, Histogram).
+ * Ficam so os de edicao de texto (copiar, colar, recortar, selecionar tudo, desfazer/refazer) e o F12. Funcao pura.
+ */
+export function isBrowserAccelerator(e) {
+  const k = String(e.key || '');
+  if (/^F([1-9]|1[01])$/.test(k)) return true;
+  if (e.altKey && (k === 'ArrowLeft' || k === 'ArrowRight')) return true; // voltar/avancar
+  if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+    if (k.length !== 1) return false; // Ctrl sozinho, setas, Enter...
+    return !'cvxazy'.includes(k.toLowerCase());
+  }
+  return false;
+}
+
 export function isDesktop() {
   return typeof window !== 'undefined' && !!(window.__TAURI__ && window.__TAURI__.core);
 }
@@ -58,6 +74,9 @@ export function initDesktop() {
   new MutationObserver(schedule).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
   window.addEventListener('resize', schedule);
   window.addEventListener('pointerup', schedule);
+
+  // Sem preventDefault o WebView executa o atalho dele; o evento continua seguindo para o ImageJ e para a casca.
+  window.addEventListener('keydown', e => { if (isBrowserAccelerator(e)) e.preventDefault(); }, true);
 
   // Ctrl+Shift+P: fixar a janela no topo (fora do modo "Sem fundo", que ja fixa)
   let pinned = false;

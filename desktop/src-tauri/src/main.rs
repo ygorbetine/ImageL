@@ -43,7 +43,7 @@ fn set_overlay(window: WebviewWindow, state: State<'_, Arc<Overlay>>, on: bool) 
         // "Sem fundo": a janela transparente cobre o monitor inteiro, para barras e janelas irem a qualquer ponto da tela
         let max = window.is_maximized().unwrap_or(false);
         if max { let _ = window.unmaximize(); }
-        if let (Ok(p), Ok(s)) = (window.outer_position(), window.outer_size()) {
+        if let (Ok(p), Ok(s)) = (window.outer_position(), window.inner_size()) {
             if let Ok(mut g) = state.saved.lock() { *g = Some((p, s, max)); }
         }
     }
