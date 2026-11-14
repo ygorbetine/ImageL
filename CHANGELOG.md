@@ -3,6 +3,8 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento: [SemVer](https://semver.org/lang/pt-BR/) (ver `ROADMAP.md`).
 
 ## [Unreleased]
+### Adicionado
+- **Segundo modelo do DeepImageJ**: *Pancreatic Phase Contrast Cell Segmentation (U-Net)* (bioimage.io `discreet-rooster`, BSD-2-Clause), convertido do Keras 2 oficial com o novo `tools/keras2-to-tfjs.py` (pesos na branch `models`, `unet_phc_psc/`). Na imagem de teste oficial: IoU 1,0 do modelo contra a referencia e 0,984 no fluxo completo pelo plugin (pre e pos-processamento).
 
 ## [0.6.0-alpha.55]
 ### Corrigido

@@ -18,6 +18,13 @@ export const MODELS = [
     weights: 'model.json',
     multiple: 16, // 4 poolings: altura e largura multiplas de 16
   },
+  {
+    name: 'Pancreatic Phase Contrast Cell Segmentation (U-Net)',
+    base: 'https://raw.githubusercontent.com/ygorbetine/ImageL/models/unet_phc_psc/',
+    spec: 'model.yaml',
+    weights: 'model.json',
+    multiple: 8, // 3 poolings
+  },
 ];
 
 const TF_URL = new URL('../../static/vendor/tfjs/tf.min.js', import.meta.url).href;
