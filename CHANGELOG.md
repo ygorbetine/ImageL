@@ -4,6 +4,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.48]
+### Corrigido
+- **Abrir (File > Open)**: a lista de arquivos mostrava "undefined" (`localFS.listDirectory` devolve nomes, o navegador esperava objetos). Sem arquivos carregados, Abrir vai direto ao seletor do sistema.
+- **Toolbar antiga (janela "ImageJ")**: o X encerrava o ImageJ de vez e nao dava para reabrir; agora so esconde, e o botao da barra reabre. "Quit" do menu novo nao mata mais o Java.
+- **Menus**: submenus altos (Open Samples, Selection, Lookup Tables...) eram cortados no fim da tela; agora cabem e rolam.
+- **Menus do ImageJ antigo**: dropdowns nao sao mais cortados pela borda da janela.
+### Testes
+- Varredura de 331 comandos dos menus File/Edit/Image/Process/Analyze/Plugins sem erros.
+
 ## [0.6.0-alpha.47]
 - Build offline: texto das janelas Java (Results, Log, mensagens, Macro Error) voltou a aparecer. Causa: o servidor local entregava o index.html no lugar de arquivos inexistentes do CheerpJ e faltavam as listas de diretório (status 231) e as fontes.
 - Corrigido: ROI Manager (e qualquer componente Swing) falhava com ClassCastException/UnsatisfiedLinkError: o carregador de classes redefinia javax.*; agora delega ao JDK. Native `Unsafe.throwException` implementado.

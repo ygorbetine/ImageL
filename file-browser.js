@@ -216,11 +216,13 @@
       return sortEntries(out);
     }
     if (root.kind === "localFS") {
-      const entries = window.localFS.listDirectory(relPath || "");
-      const out = entries.map(e => {
-        if (e.isDirectory) return { name: e.name, kind: "dir" };
-        const f = window.localFS.getFile((relPath ? relPath + "/" : "") + e.name);
-        return { name: e.name, kind: "file", size: f ? f.size : 0, mtime: f ? f.lastModified : 0 };
+      // localFS.listDirectory devolve nomes (string); diretorio = nome sem arquivo correspondente
+      const pre = relPath ? relPath + "/" : "";
+      const out = window.localFS.listDirectory(relPath || "").map(e => {
+        const name = typeof e === "string" ? e : e.name;
+        const f = window.localFS.getFile(pre + name);
+        if (!f) return { name, kind: "dir" };
+        return { name, kind: "file", size: f.size || 0, mtime: f.lastModified || 0 };
       });
       return sortEntries(out);
     }
@@ -318,6 +320,10 @@
 
       wireEvents();
       render();
+      // Abrir sem nenhuma pasta/arquivo carregado: vai direto ao seletor de arquivos do sistema (cancelar mantem o dialogo)
+      if (state.mode === "open" && !state.root) {
+        pickSingleFile().then(p => { if (p && state.resolve) finish(p); }).catch(() => {});
+      }
     });
   }
 

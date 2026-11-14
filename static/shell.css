@@ -19,13 +19,13 @@ body.il-shell #container { position: fixed; top: 46px; left: 56px; right: 0; bot
 .il-mwrap { position: relative; }
 .il-menu ul { list-style: none; margin: 0; padding: 4px; min-width: 220px; background: var(--s-surface); border: 1px solid var(--s-border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
 .il-mwrap > ul { display: none; position: absolute; top: 38px; left: 0; z-index: 5100; }
-.il-mwrap.open > ul { display: block; }
+.il-mwrap.open > ul { display: block; max-height: calc(100vh - 56px); overflow-y: auto; }
 .il-menu li { position: relative; }
 .il-menu li > button, .il-menu li > span[role=menuitem] { display: flex; align-items: center; width: 100%; padding: 6px 10px; border-radius: 5px; text-align: left; cursor: pointer; }
 .il-menu li > button:hover, .il-menu li > span:hover, .il-menu li:hover > span { background: color-mix(in srgb, var(--s-accent) 22%, transparent); }
 .il-menu li.sep { height: 1px; margin: 4px 2px; background: var(--s-border); padding: 0; }
 .il-menu li.has-sub > span i { margin-left: auto; font-style: normal; color: var(--s-muted); }
-.il-menu li.has-sub > ul { display: none; position: absolute; left: calc(100% - 4px); top: -5px; }
+.il-menu li.has-sub > ul { display: none; position: fixed; z-index: 5110; max-height: calc(100vh - 56px); overflow-y: auto; } /* fixed: nao e cortado pelo scroll do pai; posicao ajustada em JS */
 .il-menu li.has-sub:hover > ul { display: block; }
 
 .il-search { display: flex; align-items: center; gap: 8px; min-width: 220px; padding: 6px 10px; border: 1px solid var(--s-border); border-radius: 8px; color: var(--s-muted); background: var(--s-bg); }
@@ -172,3 +172,6 @@ body.il-shell #cheerpjDisplay::before { display: none !important; }
 
 /* Sem fundo: a barra de status vive dentro do painel de topo */
 body.ov .il-top .il-status { position: static; transform: none; height: auto; padding: 0 0 0 8px; border: 0; border-radius: 0; box-shadow: none; background: none; width: auto; gap: 12px; flex: none; }
+
+/* Menus/popups do ImageJ (Java) podem sair da janela: nao cortar na borda da janela da toolbar antiga */
+.cjWindow { overflow: visible !important; }

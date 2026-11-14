@@ -63,6 +63,7 @@ export function mountShell() {
   document.body.classList.add('il-shell');
 
   const run = (cmd, ext) => {
+    if (cmd === 'Quit') { try { window.__TAURI__?.window?.getCurrentWindow?.().close(); } catch (_) {} return null; } // Quit do Java mataria o ImageJ sem fechar a janela
     const h = ext && window.__menuHandlers && window.__menuHandlers[EXT_HANDLERS[cmd]];
     if (h) { try { return Promise.resolve(h()).catch(e => reportError(e, 'ext')); } catch (e) { reportError(e, 'ext'); return null; } }
     return bridge.run(cmd).catch(e => reportError(e, 'menu'));
@@ -72,13 +73,21 @@ export function mountShell() {
   const menubar = el('nav', { class: 'il-menu', role: 'menubar' });
   let openMenu = null;
   const closeMenus = () => { if (openMenu) { openMenu.classList.remove('open'); openMenu.firstChild.setAttribute('aria-expanded', 'false'); openMenu = null; } };
+  const placeSub = (li, sub) => {
+    const pr = li.parentElement.getBoundingClientRect(), lr = li.getBoundingClientRect();
+    const w = sub.offsetWidth, h = Math.min(sub.scrollHeight, innerHeight - 56);
+    sub.style.left = Math.max(4, pr.right + w - 4 > innerWidth ? pr.left - w + 4 : pr.right - 4) + 'px';
+    sub.style.top = Math.max(48, Math.min(lr.top - 5, innerHeight - h - 8)) + 'px';
+  };
   const renderItems = items => {
     const ul = el('ul', { role: 'menu' });
     for (const it of items) {
       if (it === '-') { ul.appendChild(el('li', { class: 'sep', role: 'separator' })); continue; }
       if (it.sub) {
         const li = el('li', { class: 'has-sub', role: 'none' }, `<span role="menuitem" aria-haspopup="true" tabindex="-1">${esc(lab(it.sub))}<i>›</i></span>`);
-        li.appendChild(renderItems(it.items));
+        const sub = renderItems(it.items);
+        li.appendChild(sub);
+        li.addEventListener('mouseenter', () => placeSub(li, sub)); // submenu alto: cabe na tela (com scroll) em vez de ser cortado
         ul.appendChild(li);
       } else {
         const li = el('li', { role: 'none' }, `<button role="menuitem" tabindex="-1">${esc(lab(it))}${it.key ? `<kbd>${esc(it.key)}</kbd>` : ''}</button>`);
@@ -170,6 +179,15 @@ export function mountShell() {
     applyClassic(); classicBtn.classList.toggle('on', classicShown());
   } }, SVG('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/>', 20));
   classicBtn.classList.toggle('on', classicShown());
+  // O X da janela "ImageJ" encerra o ImageJ (Java quit) e nao da para reabrir: o X so esconde a janela (botao da barra reabre).
+  for (const ev of ['pointerdown', 'mousedown', 'mouseup', 'click', 'dblclick']) {
+    document.addEventListener(ev, e => {
+      const ctl = e.target.closest?.('.cjWindow[data-il-classic] .cjControls');
+      if (!ctl || ctl.style.order !== '1') return; // order:1 = botao fechar (order:0 = maximizar)
+      e.stopImmediatePropagation(); e.preventDefault();
+      if (ev === 'click') { try { localStorage.setItem(CLASSIC_KEY, '0'); } catch (_) {} applyClassic(); classicBtn.classList.remove('on'); }
+    }, true);
+  }
   const ai = createAiPanel();
   const aiBtn = el('button', { class: 'il-lang', onclick: () => ai.toggle() }, '<b>IA</b>');
   // Acesso rapido: distancia entre grupos (scratch). Clique = uma imagem; Shift+clique = pasta em lote.
