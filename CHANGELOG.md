@@ -4,15 +4,20 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.53]
+### Corrigido
+- **Ferramenta de texto**: Ctrl+D (desenhar) e Ctrl+B (adicionar ao overlay) eram digitados como letras no texto em edicao (no CheerpJ, Ctrl+letra chega ao ImageJ como a propria letra). Com a ferramenta de texto ativa, Ctrl+letra agora executa o comando da tabela de atalhos do ImageJ.
+- **DeepImageJ Run**: em vez de `NoClassDefFoundError`, explica que o plugin depende do executor de modelos do ImJoy, ausente nesta versao (`deepimagej-patch/`, `tools/patch-deepimagej.py`).
+### Testes
+- TurboJPEG em Java puro validado no caminho do leitor NDPI: JPEG com 600 marcadores de reinicio decodificado em blocos pelo `JPEGTurboServiceImpl`, identico a decodificacao completa (diferenca 0).
+- Ferramenta de texto com digitacao real; `javax.imageio` decodifica JPEG no CheerpJ.
+
 ## [0.6.0-alpha.52]
 ### Corrigido
 - **F5 e Ctrl+R recarregavam o app** (perdendo o trabalho) e outros atalhos eram capturados pelo WebView (Ctrl+F, Ctrl+P, Ctrl+S, Ctrl+H...). No desktop esses atalhos agora vao so para o ImageJ (Ctrl+R = Revert, Ctrl+H = Histogram, Ctrl+Shift+I = Invert).
 - **Sem fundo**: a janela crescia a cada ida e volta (salvava o tamanho externo e restaurava como interno).
 ### Testes (rodada 3)
 - Cliques reais nos menus e submenus, paleta, atalhos de teclado, pincel, balde, ROI Manager, janela classica, Sem fundo; plugins ThunderSTORM, MorphoLibJ, ActionBar e Bio-Formats abrem seus dialogos.
-### Conhecido
-- DeepImageJ Run falha: o plugin depende de `com.leaningtech.client.Global` (CheerpJ antigo), inexistente no CheerpJ 4.2.
-
 ## [0.6.0-alpha.51]
 ### Corrigido
 - **Bio-Formats Exporter** (OME-TIFF e demais formatos de escrita) funciona: o `NIOFileHandle` do Bio-Formats usava FileChannel, que falha no CheerpJ ao gravar; foi trocado por uma versao com a mesma API sobre RandomAccessFile (`bioformats-patch/`).

@@ -242,6 +242,24 @@ export function mountShell() {
     } catch (_) { /* ImageJ ocupado: tenta na proxima */ }
   };
   document.addEventListener('pointerup', e => { if (e.target.closest?.('.cjWindow[data-il-classic]')) setTimeout(syncTool, 150); }, true);
+  // Ferramenta de texto: no CheerpJ, Ctrl+letra chega ao ImageJ como a propria letra, e com um texto em edicao o ImageJ a
+  // digita em vez de executar o atalho (Ctrl+D = desenhar, Ctrl+B = overlay, Ctrl+Z...). Aqui o atalho e resolvido pela
+  // tabela do proprio ImageJ (Menus.getShortcuts) e executado como comando; a tecla nao chega ao texto.
+  document.addEventListener('keydown', e => {
+    if (!e.ctrlKey || e.altKey || e.shiftKey || e.metaKey || !/^[a-z]$/i.test(e.key)) return;
+    if (document.querySelector('.il-tool.active')?.dataset.tool !== 'text') return;
+    if (!e.target.closest?.('#cheerpjDisplay, .cjWindow') && e.target.tagName !== 'TEXTAREA') return;
+    if (e.target.closest?.('.il-pal, .il-ai')) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const code = e.key.toUpperCase().charCodeAt(0);
+    toolQueue = toolQueue.then(async () => {
+      try {
+        const table = await (await window.lib.ij.Menus).getShortcuts();
+        const cmd = await table.get(await (await window.lib.java.lang.Integer).valueOf(code));
+        if (cmd) await bridge.run(String(cmd));
+      } catch (err) { reportError(err, 'atalho'); }
+    });
+  }, true);
   document.addEventListener('keyup', e => { if (!e.ctrlKey && !e.altKey && e.key.length === 1 && e.target.closest?.('#cheerpjDisplay, .cjWindow, textarea')) setTimeout(syncTool, 150); }, true);
   window.addEventListener('imagel:ran', () => syncTool());
   window.addEventListener('imagel:ready', () => setTimeout(syncTool, 500));
