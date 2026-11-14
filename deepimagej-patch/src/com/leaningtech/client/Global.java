@@ -30,7 +30,11 @@ public final class Global {
    * modelo. Depois disso a trava e notificada algumas vezes so para liberar o wait(). initModel nao tem wait (vem do
    * evento de selecao no dialogo) e roda numa thread propria para nao congelar a interface enquanto baixa os pesos.
    */
+  /** Numero da chamada mais recente: notificacoes atrasadas de chamadas antigas nao podem acordar o wait() das novas. */
+  private static volatile int generation;
+
   public static Object jsCall(final String function, final Object... args) {
+    generation++;
     final Thread caller = Thread.currentThread();
     String func = args.length > 1 ? String.valueOf(args[1]) : "";
     if (func.equals("initModel")) {
@@ -61,6 +65,7 @@ public final class Global {
         // no lugar. Sem limpar isso ele seguiria com a imagem fechada (NullPointerException no espelhamento).
         ij.WindowManager.setTempCurrentImage(caller, null);
         ij.WindowManager.setTempCurrentImage(null);
+        settle();
         result = "";
       } else {
         result = nativeText(func, a.length > 3 ? String.valueOf(a[2]) : "");
@@ -78,10 +83,23 @@ public final class Global {
   }
 
   /**
+   * A macro abre/fecha janelas (ex.: B&C, que tem thread propria); no CheerpJ as threads sao cooperativas, entao deixa a
+   * fila de eventos e as outras threads terminarem antes de o plugin continuar. Sem isso a 2a execucao na mesma sessao
+   * terminava logo depois de "Processing patch" (corrida dependente de tempo).
+   */
+  private static void settle() {
+    try {
+      if (!java.awt.EventQueue.isDispatchThread()) java.awt.EventQueue.invokeAndWait(new Runnable() { public void run() {} });
+      Thread.sleep(150);
+    } catch (Throwable e) { /* melhor esforco */ }
+  }
+
+  /**
    * Os promises do plugin chamam lock.notify() sem "synchronized" (funcionava no CheerpJ antigo). Para o notify valer,
    * depois do callback os objetos-trava da classe que criou o promise sao notificados segurando o monitor.
    */
   private static void deliver(Promise p, final Runnable call) {
+    final int gen = generation;
     java.util.List<Object> locks = new java.util.ArrayList<Object>();
     try {
       Class<?> enc = p.getClass().getEnclosingClass();
@@ -112,6 +130,7 @@ public final class Global {
           try {
             for (int i = 0; i < 12; i++) {
               Thread.sleep(30L << Math.min(i, 5));
+              if (gen != generation) return; // o plugin ja fez outra chamada: esta trava nao e mais dele
               synchronized (lock) { lock.notifyAll(); }
             }
           } catch (InterruptedException e) { /* fim */ }

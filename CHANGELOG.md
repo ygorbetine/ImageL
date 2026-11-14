@@ -3,6 +3,8 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento: [SemVer](https://semver.org/lang/pt-BR/) (ver `ROADMAP.md`).
 
 ## [Unreleased]
+### Corrigido
+- DeepImageJ: notificacoes atrasadas de uma chamada antiga do plugin nao acordam mais o `wait()` das chamadas seguintes. A "falha na 2a execucao" investigada era na verdade o `IJ.run` voltando antes de o plugin terminar o pos-processamento (o resultado sai normalmente, IoU 0,973 em 6 execucoes seguidas na mesma sessao).
 
 ## [0.6.0-alpha.54]
 ### Corrigido
