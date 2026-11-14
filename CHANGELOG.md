@@ -4,6 +4,20 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.49]
+Bateria comparativa com o ImageJ nativo (mesmo `ij.jar`, JDK 17).
+### Corrigido
+- **Plugins**: Bio-Formats, MorphoLibJ, ThunderSTORM, ActionBar e DeepImageJ nao apareciam no desktop (o servidor local nao listava pastas com `index.list`). A arvore de menus agora e identica a do ImageJ nativo (620 itens).
+- **Salvar (desktop)**: grava direto na pasta Downloads; o WebView pedia permissao para "baixar varios arquivos" a partir do segundo arquivo. Salvar de novo com o mesmo nome sobrescreve o arquivo criado na sessao.
+- **Salvar e reabrir**: o arquivo salvo fica em `/local` (Open, Revert e salvar por cima funcionam, como no ImageJ).
+### Adicionado
+- **Duplo clique nas ferramentas** abre as opcoes, igual a toolbar do ImageJ (Roi Defaults, Rounded Rect, Selection Brush, Line Width, Arrow, Angle, Point, Wand, Fonts, Color Picker, lupa = zoom original, opcoes das ferramentas de macro).
+- O destaque da ferramenta acompanha o ImageJ (mudanca por macro, atalho ou toolbar antiga).
+### Testes
+- 58 operacoes de imagem e 7 do MorphoLibJ com resultado numerico identico ao nativo; todas as ferramentas testadas com clique e arrasto reais.
+### Conhecido
+- Bio-Formats Importer falha (leitor NDPI exige TurboJPEG nativo, inexistente no CheerpJ).
+
 ## [0.6.0-alpha.48]
 ### Corrigido
 - **Abrir (File > Open)**: a lista de arquivos mostrava "undefined" (`localFS.listDirectory` devolve nomes, o navegador esperava objetos). Sem arquivos carregados, Abrir vai direto ao seletor do sistema.

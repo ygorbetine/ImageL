@@ -1191,27 +1191,45 @@ function localFileClose(fileData, cb) {
             }
         }
 
+        let keep = null;
         // Trigger browser download
         const blob = new Blob([fileContent]);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-
         // Extract filename from path (remove /local/ prefix)
         const fileName = fileData.path.split('/').pop() || 'downloaded-file';
-        a.download = fileName;
-
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const browserDownload = () => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+        // ImageL desktop: grava direto na pasta Downloads (o WebView pediria permissao para "baixar varios arquivos").
+        const tok = new URLSearchParams(location.search).get('tok');
+        if (tok && window.__TAURI__) {
+            fetch('/__save?name=' + encodeURIComponent(fileName), { method: 'POST', headers: { 'X-ImageL-Token': tok }, body: blob })
+                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+                .then(p => console.log('✓ Salvo em', p))
+                .catch(e => { console.warn('[localFileClose] gravacao direta falhou, usando download:', e); browserDownload(); });
+        } else browserDownload();
 
         console.log(`✓ Downloaded file: ${fileName} (${totalSize} bytes)`);
+
+        // ImageL: o arquivo salvo tambem fica em /local, para poder ser reaberto (Open, Open Recent, Revert) como no ImageJ nativo.
+        try {
+            const rel = String(fileData.path).replace(/^\/+/, '').replace(/^local\//, '');
+            const saved = new File([blob], fileName);
+            if (window.localFS && rel) window.localFS.addFile(saved, rel);
+            keep = saved;
+        } catch (e) { console.warn('[localFileClose] nao guardou em /local:', e); }
 
         // Clear the file data to free memory
         fileData.chunks = null;
         fileData.dirty = 0;
-        fileData.length = 0;
+        // O CheerpJ pode reutilizar este registro numa leitura logo em seguida (salvar e reabrir): manter o conteudo legivel.
+        if (keep) { fileData.localFile = keep; fileData.length = totalSize; } else fileData.length = 0;
     }
 
     return cb();
@@ -1576,6 +1594,9 @@ function CheerpJLocalFolder(mp) {
 
 // Add the cache methods that CheerpJFolder has
 CheerpJLocalFolder.prototype.getCached = function(fileName) {
+    // ImageL: sem cache. O registro em cache era reutilizado em qualquer modo, e salvar por cima de um arquivo existente
+    // falhava ("No such file or directory"). Cada abertura cria o registro certo (leitura ou escrita) em makeFileData.
+    return null;
     var c = this.fileCache;
     if(!c.hasOwnProperty(fileName))
         return null;

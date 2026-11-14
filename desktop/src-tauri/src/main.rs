@@ -123,13 +123,83 @@ fn is_spa_fallback(app: &tauri::AppHandle, mime: &str, bytes: &[u8]) -> bool {
     mime.starts_with("text/html") && app.asset_resolver().get("index.html".to_string()).map_or(false, |i| i.bytes == bytes)
 }
 
-fn handle(app: &tauri::AppHandle, cache: &AssetCache, req: tiny_http::Request, cors: bool) {
-    let raw = req.url().split(['?', '#']).next().unwrap_or("/").to_string();
+/// Decodifica %XX (UTF-8) de um parametro de URL.
+fn pct_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' && i + 2 < b.len() {
+            if let Some(v) = std::str::from_utf8(&b[i + 1..(i + 3).min(b.len())]).ok().and_then(|h| u8::from_str_radix(h, 16).ok()) {
+                out.push(v);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
+/// Nome de arquivo seguro (sem caminho nem caracteres invalidos no Windows).
+pub fn safe_name(name: &str) -> String {
+    let last = name.rsplit(['/', '\\']).next().unwrap_or("");
+    let clean: String = last.chars().filter(|c| !c.is_control() && !"<>:\"|?*".contains(*c)).collect();
+    let clean = clean.trim().trim_matches('.').to_string();
+    if clean.is_empty() { "imagel-arquivo".into() } else { clean }
+}
+
+/// Salvar do ImageJ no desktop: grava direto na pasta Downloads (sem o download do WebView, que pede permissao para
+/// "baixar varios arquivos"). Nao sobrescreve: "nome (1).ext", como o navegador faria.
+fn save_download(app: &tauri::AppHandle, name: &str, data: &[u8]) -> Result<String, String> {
+    let dir = app.path().download_dir().map_err(err)?;
+    std::fs::create_dir_all(&dir).map_err(err)?;
+    let name = safe_name(name);
+    let (stem, ext) = match name.rfind('.') { Some(i) if i > 0 => (&name[..i], &name[i..]), _ => (name.as_str(), "") };
+    // Salvar de novo com o mesmo nome sobrescreve o arquivo que ESTA sessao criou (como o ImageJ); arquivos que ja
+    // existiam na pasta nunca sao sobrescritos.
+    static MINE: Mutex<Option<std::collections::HashMap<String, std::path::PathBuf>>> = Mutex::new(None);
+    let mut guard = MINE.lock().map_err(err)?;
+    let mine = guard.get_or_insert_with(Default::default);
+    let path = match mine.get(&name) {
+        Some(p) => p.clone(),
+        None => {
+            let mut path = dir.join(&name);
+            let mut n = 1;
+            while path.exists() {
+                path = dir.join(format!("{} ({}){}", stem, n, ext));
+                n += 1;
+            }
+            path
+        }
+    };
+    std::fs::write(&path, data).map_err(err)?;
+    mine.insert(name.clone(), path.clone());
+    Ok(path.to_string_lossy().into_owned())
+}
+
+fn handle(app: &tauri::AppHandle, cache: &AssetCache, mut req: tiny_http::Request, cors: bool, tok: &str) {
+    let full = req.url().to_string();
+    let raw = full.split(['?', '#']).next().unwrap_or("/").to_string();
+    if raw == "/__save" {
+        // So a propria pagina do app conhece o token (cabecalho proprio: outra origem nao consegue enviar sem preflight).
+        let ok = !cors && *req.method() == tiny_http::Method::Post && req.headers().iter().any(|h| h.field.equiv("X-ImageL-Token") && h.value.as_str() == tok);
+        let name = full.split('?').nth(1).and_then(|q| q.split('&').find_map(|kv| kv.strip_prefix("name="))).map(pct_decode).unwrap_or_default();
+        let res = if ok {
+            let mut data = Vec::new();
+            match std::io::Read::read_to_end(req.as_reader(), &mut data) { Ok(_) => save_download(app, &name, &data), Err(e) => Err(e.to_string()) }
+        } else { Err("nao autorizado".into()) };
+        let (code, body) = match res { Ok(p) => (200, p), Err(e) => (if ok { 500 } else { 403 }, e) };
+        let _ = req.respond(tiny_http::Response::from_string(body).with_status_code(code));
+        return;
+    }
     let mut path = raw.trim_start_matches('/').to_string();
     // O CDN do CheerpJ usa o status 231 para "isto e um diretorio" (a listagem esta em <dir>/index.list); o CheerpJ depende
     // disso para enumerar fontes e bibliotecas (sem isso o texto de varias janelas Java nao aparece).
-    if path.starts_with("cheerpj/") && path.ends_with('/') {
-        let has_list = app.asset_resolver().get(format!("{}index.list", path)).map_or(false, |a| !is_spa_fallback(app, &a.mime_type, &a.bytes));
+    // Vale tambem para as pastas do app (/app/lib/ImageJ/plugins, macros...): sem isso o ImageJ nao enxerga os plugins.
+    let has_list = !path.is_empty() && path.ends_with('/') && app.asset_resolver().get(format!("{}index.list", path)).map_or(false, |a| !is_spa_fallback(app, &a.mime_type, &a.bytes));
+    if path.ends_with('/') && (has_list || path.starts_with("cheerpj/")) {
         let hdr = |k: &str, v: &str| tiny_http::Header::from_bytes(k.as_bytes(), v.as_bytes()).unwrap();
         let mut r = tiny_http::Response::from_string("").with_status_code(if has_list { 231 } else { 204 });
         if cors { r = r.with_header(hdr("Access-Control-Allow-Origin", "*")); }
@@ -150,7 +220,7 @@ fn handle(app: &tauri::AppHandle, cache: &AssetCache, req: tiny_http::Request, c
     let hdr = |k: &str, v: &str| tiny_http::Header::from_bytes(k.as_bytes(), v.as_bytes()).unwrap();
     let Some((bytes, mime)) = found else {
         // diretorio sem "/" final: o CDN redireciona (301) para a versao com "/"
-        if path.starts_with("cheerpj/") && app.asset_resolver().get(format!("{}/index.list", path)).map_or(false, |a| !is_spa_fallback(app, &a.mime_type, &a.bytes)) {
+        if app.asset_resolver().get(format!("{}/index.list", path)).map_or(false, |a| !is_spa_fallback(app, &a.mime_type, &a.bytes)) {
             let mut r = tiny_http::Response::from_string("").with_status_code(301).with_header(hdr("Location", &format!("/{}/", path)));
             if cors { r = r.with_header(hdr("Access-Control-Allow-Origin", "*")); }
             let _ = req.respond(r);
@@ -182,16 +252,16 @@ fn handle(app: &tauri::AppHandle, cache: &AssetCache, req: tiny_http::Request, c
 /// Dois servidores locais em portas diferentes: o app (origem A) e o runtime CheerpJ embutido (origem B, com CORS).
 /// O CheerpJ online roda em outra origem (cjrtnc.leaningtech.com); manter essa separacao no modo offline evita
 /// diferencas de comportamento (texto em branco nas janelas Java quando tudo vinha da mesma origem).
-fn serve_assets(app: tauri::AppHandle) -> Result<(u16, u16), String> {
+fn serve_assets(app: tauri::AppHandle, tok: String) -> Result<(u16, u16), String> {
     let cache: Arc<AssetCache> = Arc::new(Mutex::new(Default::default()));
     let mut ports = Vec::new();
     for cors in [false, true] {
         let server = Arc::new(tiny_http::Server::http("127.0.0.1:0").map_err(err)?);
         ports.push(server.server_addr().to_ip().map(|a| a.port()).ok_or("sem porta")?);
         for _ in 0..8 {
-            let (server, cache, app) = (server.clone(), cache.clone(), app.clone());
+            let (server, cache, app, tok) = (server.clone(), cache.clone(), app.clone(), tok.clone());
             std::thread::spawn(move || {
-                while let Ok(req) = server.recv() { handle(&app, &cache, req, cors); }
+                while let Ok(req) = server.recv() { handle(&app, &cache, req, cors, &tok); }
             });
         }
     }
@@ -206,10 +276,20 @@ fn main() {
             let overlay = app.state::<Arc<Overlay>>().inner().clone();
             let win = app.get_webview_window("main").expect("janela main");
             let _ = win.set_title(&format!("ImageL {}", env!("IMAGEL_VERSION")));
-            let (port, cj_port) = serve_assets(app.handle().clone())?;
+            // token por execucao para o endpoint de salvar (so a pagina do app o recebe)
+            let tok = {
+                use std::hash::{BuildHasher, Hasher};
+                let mut h = std::collections::hash_map::RandomState::new().build_hasher();
+                h.write_u128(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0));
+                let a = h.finish();
+                let mut h2 = std::collections::hash_map::RandomState::new().build_hasher();
+                h2.write_u64(a);
+                format!("{:016x}{:016x}", a, h2.finish())
+            };
+            let (port, cj_port) = serve_assets(app.handle().clone(), tok.clone())?;
             let offline = app.asset_resolver().get("cheerpj/4.2/loader.js".to_string()).map_or(false, |a| !is_spa_fallback(app.handle(), &a.mime_type, &a.bytes));
             let cj = if offline { format!("&cjbase=http://127.0.0.1:{}/cheerpj/4.2/", cj_port) } else { String::new() };
-            let url: tauri::Url = format!("http://127.0.0.1:{}/index.html?ui=new&nosw=1{}", port, cj).parse().map_err(err)?;
+            let url: tauri::Url = format!("http://127.0.0.1:{}/index.html?ui=new&nosw=1&tok={}{}", port, tok, cj).parse().map_err(err)?;
             eprintln!("ImageL assets em {}", url);
             win.navigate(url).map_err(err)?;
             std::thread::spawn(move || {

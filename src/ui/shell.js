@@ -66,7 +66,7 @@ export function mountShell() {
     if (cmd === 'Quit') { try { window.__TAURI__?.window?.getCurrentWindow?.().close(); } catch (_) {} return null; } // Quit do Java mataria o ImageJ sem fechar a janela
     const h = ext && window.__menuHandlers && window.__menuHandlers[EXT_HANDLERS[cmd]];
     if (h) { try { return Promise.resolve(h()).catch(e => reportError(e, 'ext')); } catch (e) { reportError(e, 'ext'); return null; } }
-    return bridge.run(cmd).catch(e => reportError(e, 'menu'));
+    return bridge.run(cmd).catch(e => reportError(e, 'menu')).finally(() => window.dispatchEvent(new Event('imagel:ran')));
   };
 
   // ---- menus ----------------------------------------------------------------------------------------------------
@@ -204,16 +204,54 @@ export function mountShell() {
   const tip = createTooltip();
   tip.attach(gapBtn, () => t('gap.tip'));
   const fly = createFlyout();
-  const select = (id, btn) => bridge.setTool(toolById.get(id)?.ij ?? id).then(() => {
+  // Fila: selecao e opcoes (duplo clique) nunca chamam o Java ao mesmo tempo.
+  let toolQueue = Promise.resolve();
+  const select = (id, btn) => (toolQueue = toolQueue.then(() => bridge.setTool(toolById.get(id)?.ij ?? id)).then(() => {
     toolBtns.forEach(x => x.classList.remove('active')); btn.classList.add('active');
-  }).catch(e => reportError(e, 'tool'));
+  }).catch(e => reportError(e, 'tool')));
   const tipText = tl => `${lab(tl)}${tl.key ? '  [' + tl.key + ']' : ''}`;
+  // Duplo clique = opcoes da ferramenta, exatamente como na toolbar do ImageJ: reenvia um duplo clique a Toolbar Java
+  // (Rounded Rect/Roi Defaults, pincel de selecao, Line Width/Arrow, Angle, Point, Wand, Fonts, Color Picker, lupa = unzoom,
+  // ferramentas de macro = "... Options"). Posicao do botao: 12 ferramentas fixas, depois um vao, depois as de macro (id 15+).
+  const SLOT = { rectangle: 0, roundrect: 0, rotrect: 0, oval: 1, ellipse: 1, brush: 1, polygon: 2, freehand: 3, line: 4, polyline: 4, freeline: 4, arrow: 4, angle: 5, point: 6, multipoint: 6, wand: 7, text: 8, zoom: 9, hand: 10, dropper: 11 };
+  const toolOptions = id => (toolQueue = toolQueue.then(async () => {
+    try {
+      const tl = toolById.get(id);
+      const slot = tl && tl.ij >= 15 ? 12 + (tl.ij - 15) : SLOT[id];
+      if (slot == null || !window.lib) return;
+      const T = await window.lib.ij.gui.Toolbar, tb = await T.getInstance();
+      const bw = Number(await T.getButtonSize()), w = Number(await (await tb.getSize()).width);
+      const x = slot * bw + (bw >> 1) + (slot >= 12 ? Math.max(0, w - 20 * bw) : 0), y = bw >> 1;
+      const ME = await window.lib.java.awt.event.MouseEvent;
+      const mk = kind => new ME(tb, kind, Date.now(), 0, x, y, 1, false);
+      await tb.mousePressed(await mk(501)); await tb.mouseReleased(await mk(502));
+      Promise.resolve(tb.mousePressed(await mk(501))).then(async () => tb.mouseReleased(await mk(502))).then(syncTool).catch(() => {}); // dialogo modal: nao bloquear a UI
+    } catch (e) { reportError(e, 'tool'); }
+  }));
+  // Destaque segue a ferramenta ativa no ImageJ (mudada por macro, atalho de teclado ou pela toolbar antiga).
+  const groupSet = new Map();
+  const syncTool = async () => {
+    try {
+      if (!window.lib) return;
+      const name = String(await (await window.lib.ij.gui.Toolbar).getToolName());
+      const tl = toolById.get(name) || [...toolById.values()].find(x => x.id.toLowerCase().startsWith(name.toLowerCase()));
+      if (!tl) return;
+      groupSet.get(tl.id)?.(tl);
+      const b = [...toolBtns.values()].find(x => x.dataset.tool === tl.id);
+      if (b) { toolBtns.forEach(x => x.classList.remove('active')); b.classList.add('active'); }
+    } catch (_) { /* ImageJ ocupado: tenta na proxima */ }
+  };
+  document.addEventListener('pointerup', e => { if (e.target.closest?.('.cjWindow[data-il-classic]')) setTimeout(syncTool, 150); }, true);
+  document.addEventListener('keyup', e => { if (!e.ctrlKey && !e.altKey && e.key.length === 1 && e.target.closest?.('#cheerpjDisplay, .cjWindow, textarea')) setTimeout(syncTool, 150); }, true);
+  window.addEventListener('imagel:ran', () => syncTool());
+  window.addEventListener('imagel:ready', () => setTimeout(syncTool, 500));
   for (const entry of TOOLBAR) {
     if (entry === '-') { tools.appendChild(el('hr')); continue; }
     if (typeof entry === 'string') {
       const tl = toolById.get(entry);
       const b = el('button', { class: 'il-tool', 'data-tool': tl.id, 'aria-label': lab(tl) }, SVG(tl.icon, 30, 1.8));
       b.addEventListener('click', () => select(tl.id, b));
+      b.addEventListener('dblclick', () => toolOptions(tl.id));
       tip.attach(b, () => tipText(tl));
       toolBtns.set(tl.id, b);
       tools.appendChild(b);
@@ -229,7 +267,15 @@ export function mountShell() {
       run: () => { cur = tl; paint(); toolBtns.set(entry.group.join('|'), b); select(tl.id, b); },
     })));
     b.dataset.tool = cur.id;
-    b.addEventListener('click', ev => { ev.stopPropagation(); if (b.classList.contains('active')) openFly(); else select(cur.id, b); });
+    // clique = seleciona; clicar de novo (sem ser duplo clique) ou botao direito = demais ferramentas; duplo clique = opcoes
+    let lastClick = 0;
+    b.addEventListener('click', ev => {
+      ev.stopPropagation();
+      const now = Date.now(), quick = now - lastClick <= 650; lastClick = now;
+      if (b.classList.contains('active') && !quick) openFly(); else if (!b.classList.contains('active')) select(cur.id, b);
+    });
+    b.addEventListener('dblclick', () => { fly.close(); toolOptions(cur.id); });
+    for (const tl of list) groupSet.set(tl.id, x => { cur = x; paint(); });
     b.addEventListener('contextmenu', ev => { ev.preventDefault(); openFly(); });
     tip.attach(b, () => tipText(cur));
     toolBtns.set(entry.group.join('|'), b);
