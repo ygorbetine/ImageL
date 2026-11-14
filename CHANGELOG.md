@@ -4,6 +4,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [Unreleased]
 
+## [0.6.0-alpha.50]
+### Adicionado
+- **Mais formatos de imagem**: o Bio-Formats Importer agora funciona (Plugins > Bio-Formats). O TurboJPEG nativo, que o CheerpJ nao carrega, foi trocado por uma versao em Java puro (`bioformats-patch/`, `tools/patch-bioformats.py`).
+### Conhecido
+- Bio-Formats Exporter (OME-TIFF) ainda falha: precisa de leitura/escrita aleatoria em `/local`.
+- Leitor NDPI nao testado com arquivo real.
+
 ## [0.6.0-alpha.49]
 Bateria comparativa com o ImageJ nativo (mesmo `ij.jar`, JDK 17).
 ### Corrigido
@@ -15,9 +22,6 @@ Bateria comparativa com o ImageJ nativo (mesmo `ij.jar`, JDK 17).
 - O destaque da ferramenta acompanha o ImageJ (mudanca por macro, atalho ou toolbar antiga).
 ### Testes
 - 58 operacoes de imagem e 7 do MorphoLibJ com resultado numerico identico ao nativo; todas as ferramentas testadas com clique e arrasto reais.
-### Conhecido
-- Bio-Formats Importer falha (leitor NDPI exige TurboJPEG nativo, inexistente no CheerpJ).
-
 ## [0.6.0-alpha.48]
 ### Corrigido
 - **Abrir (File > Open)**: a lista de arquivos mostrava "undefined" (`localFS.listDirectory` devolve nomes, o navegador esperava objetos). Sem arquivos carregados, Abrir vai direto ao seletor do sistema.
