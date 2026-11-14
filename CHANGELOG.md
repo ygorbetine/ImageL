@@ -5,6 +5,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 ## [Unreleased]
 
 ## [0.6.0-alpha.55]
+### Corrigido
+- **NDPI (Hamamatsu) abre no ImageL**: o `IFD.getIFDValue` do Bio-Formats lancava `ArrayIndexOutOfBoundsException` no CheerpJ (reflexao `Array.newInstance/set*` fora do try). A classe foi reescrita sem reflexao (`bioformats-patch/`, a partir do fonte 7.0.1). Conferido com CMU-1.ndpi (198 MB): serie 3 = 3200x2384, media 193,8261, identico ao ImageJ nativo.
+
+## [0.6.0-alpha.55]
 ### Problemas conhecidos
 - **NDPI (Hamamatsu)**: com um arquivo real (CMU-1.ndpi, 198 MB) o Bio-Formats abre normalmente no ImageJ nativo (serie de 3200x2384), mas no ImageL leva varios minutos e termina em `ArrayIndexOutOfBoundsException` em `IFD.getIFDValue` ao ler os metadados. Os bytes lidos nos deslocamentos das IFDs conferem com o arquivo; causa ainda nao encontrada.
 ### Corrigido
