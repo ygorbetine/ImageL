@@ -1,0 +1,77 @@
+format_version: 0.3.0
+name: Pancreatic Phase Contrast Cell Segmentation (U-Net)
+description: U-Net trained to segment phase contrast microscopy images of pancreatic stem cells on a 2D polystyrene substrate (Cell Tracking Challenge PhC-C2DL-PSC).
+date: 2021
+cite:
+  - text: Gomez-de-Mariscal E. et al. DeepImageJ - a user-friendly environment to run deep learning models in ImageJ. Nature Methods (2021)
+    doi: 10.1038/s41592-021-01262-9
+  - text: Ulman V. et al. An objective comparison of cell-tracking algorithms. Nature Methods (2017)
+    doi: 10.1038/nmeth.4473
+  - text: Ronneberger O. et al. U-Net - Convolutional Networks for Biomedical Image Segmentation. MICCAI (2015)
+    doi: 10.1007/978-3-319-24574-4_28
+authors:
+  - Ignacio Arganda-Carreras
+  - DeepImageJ
+documentation: https://bioimage.io/#/?id=discreet-rooster
+covers: []
+tags:
+  - unet
+  - deepimagej
+  - segmentation
+  - phase-contrast
+license: BSD-2-Clause
+language: Java
+framework: Tensorflow
+git_repo: https://github.com/deepimagej/models
+weights:
+  tensorflow_js:
+    name: v1
+    format: layers-model
+    source: model.json
+    sha256: converted-from-4f9f5dd9bbb0eb71eae15928abe24dcbba951c525373f862d19f33ce52d035e4
+inputs:
+  - name: input
+    axes: byxc
+    data_type: float32
+    data_range: [-inf, inf]
+    shape:
+      min: [1, 96, 96, 1]
+      step: [0, 8, 8, 0]
+outputs:
+  - name: output
+    axes: byxc
+    data_type: float32
+    data_range: [0, 1]
+    halo: [0, 47, 47, 0]
+    shape:
+      reference_input: input
+      scale: [1, 1, 1, 1]
+      offset: [0, 0, 0, 0]
+config:
+  deepimagej:
+    pyramidal_model: false
+    allow_tiling: true
+    model_keys:
+      model_tag: tf.saved_model.tag_constants.SERVING
+      signature_definition: tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY
+    test_information:
+      inputs:
+        - name: exampleImage.tiff
+          size: 720 x 576 x 1 x 1
+          pixel_size:
+            x: 1.0 pixel
+            y: 1.0 pixel
+            z: 1.0 pixel
+      outputs:
+        - name: resultImage.tiff
+          type: image
+          size: 720 x 576 x 1 x 1
+      memory_peak: 250 Mb
+      runtime: 1 s
+    prediction:
+      preprocess:
+      -   spec: ij.IJ::runMacroFile
+          kwargs: per_sample_scale_range.ijm
+      postprocess:
+      -   spec: ij.IJ::runMacroFile
+          kwargs: binarize.ijm

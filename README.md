@@ -15,3 +15,17 @@ Authors: Estibaliz Gómez-de-Mariscal, Martin Maška, Anna Kotrbová, Vendula Po
 - `rdf.yaml`, `preprocessing.txt`, `postprocessing.txt`, `postprocessingWatershed.txt`: copied unchanged from the bioimage.io record.
 
 Validation: on the record's `exampleImage.npy`, the converted model matches `resultImage.npy` on 99.85% of pixels after the 0.4 threshold.
+
+## unet_phc_psc
+
+**Pancreatic Phase Contrast Cell Segmentation (U-Net)**
+bioimage.io id `discreet-rooster` (https://bioimage.io/#/?id=discreet-rooster). License: **BSD-2-Clause**.
+Authors: Ignacio Arganda-Carreras and the DeepImageJ team (EPFL, UC3M). Trained on the Cell Tracking Challenge PhC-C2DL-PSC data.
+
+- `model.json` + `group1-shard*.bin`: converted from the published Keras file `keras_model.h5`
+  (sha256 `4f9f5dd9bbb0eb71eae15928abe24dcbba951c525373f862d19f33ce52d035e4`) with `tools/keras2-to-tfjs.py` from the ImageL
+  repository. Weights unchanged (float32); only the container format differs.
+- `model.yaml`: the model description in the older (0.3) block-style format the DeepImageJ JS plugin can parse.
+- `per_sample_scale_range.ijm`, `binarize.ijm`: copied unchanged from the bioimage.io record.
+
+Validation: on the record's `exampleImage.npy` the converted model matches `resultImage.npy` with IoU 1.0 after the 0.5 threshold.
