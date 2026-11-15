@@ -2,11 +2,10 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento: [SemVer](https://semver.org/lang/pt-BR/) (ver `ROADMAP.md`).
 
-## [Unreleased]
+## [0.6.0-alpha.56]
 ### Adicionado
 - **Segundo modelo do DeepImageJ**: *Pancreatic Phase Contrast Cell Segmentation (U-Net)* (bioimage.io `discreet-rooster`, BSD-2-Clause), convertido do Keras 2 oficial com o novo `tools/keras2-to-tfjs.py` (pesos na branch `models`, `unet_phc_psc/`). Na imagem de teste oficial: IoU 1,0 do modelo contra a referencia e 0,984 no fluxo completo pelo plugin (pre e pos-processamento).
 
-## [0.6.0-alpha.55]
 ### Corrigido
 - **NDPI (Hamamatsu) abre no ImageL**: o `IFD.getIFDValue` do Bio-Formats lancava `ArrayIndexOutOfBoundsException` no CheerpJ (reflexao `Array.newInstance/set*` fora do try). A classe foi reescrita sem reflexao (`bioformats-patch/`, a partir do fonte 7.0.1). Conferido com CMU-1.ndpi (198 MB): serie 3 = 3200x2384, media 193,8261, identico ao ImageJ nativo.
 
