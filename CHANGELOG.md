@@ -2,6 +2,10 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento: [SemVer](https://semver.org/lang/pt-BR/) (ver `ROADMAP.md`).
 
+## [0.6.0-alpha.57]
+### Corrigido
+- **File > Open... da janela clássica do ImageJ** mostrava `java.lang.Error: Cannot call invokeAndWait from the event dispatch thread`. O `Executer` do comando "Open..." agora roda em thread própria (os demais comandos seguem na EDT) e o seletor de arquivos abre normalmente.
+
 ## [0.6.0-alpha.56]
 ### Adicionado
 - **Segundo modelo do DeepImageJ**: *Pancreatic Phase Contrast Cell Segmentation (U-Net)* (bioimage.io `discreet-rooster`, BSD-2-Clause), convertido do Keras 2 oficial com o novo `tools/keras2-to-tfjs.py` (pesos na branch `models`, `unet_phc_psc/`). Na imagem de teste oficial: IoU 1,0 do modelo contra a referencia e 0,984 no fluxo completo pelo plugin (pre e pos-processamento).

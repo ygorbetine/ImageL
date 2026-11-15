@@ -116,6 +116,21 @@ public final class ThreadHook {
         return true;
     }
 
+    /**
+     * File > Open... (Opener.openMultiple) chama EventQueue.invokeAndWait, que lanca java.lang.Error quando chamado da
+     * propria EDT. Esse comando precisa de uma thread propria; os demais seguem rodando na EDT como antes.
+     */
+    private static boolean needsOwnThread(Runnable target) {
+        try {
+            Field f = target.getClass().getDeclaredField("command");
+            f.setAccessible(true);
+            Object c = f.get(target);
+            return c != null && "Open...".equals(String.valueOf(c));
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     public static void start(Thread thread) {
         int n = ++startCount;
         Runnable target = getTarget(thread);
@@ -138,7 +153,8 @@ public final class ThreadHook {
         // OpenDialog sees isDispatchThread()=true and shows the JFileChooser
         // inline. Menu commands feel the same to the user.
         if (target != null
-                && "ij.Executer".equals(target.getClass().getName())) {
+                && "ij.Executer".equals(target.getClass().getName())
+                && !needsOwnThread(target)) {
             try {
                 target.run();
             } catch (Throwable t) {
