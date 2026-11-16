@@ -48,6 +48,8 @@ mkdir -p lib/ImageJ
 if [ -f "$BUILD_DIR/ij.jar" ]; then
     echo "Copying built ImageJ jar..."
     cp "$BUILD_DIR/ij.jar" lib/ImageJ/
+    python tools/patch-ijprops.py
+    python tools/patch-printer.py
 else
     echo "Error: ij.jar not found after build"
     exit 1

@@ -2,6 +2,15 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento: [SemVer](https://semver.org/lang/pt-BR/) (ver `ROADMAP.md`).
 
+## [0.6.0-alpha.58]
+### Corrigido
+- **File > Open Samples** (Blobs, Clown, etc.) falhava com "Error loading image": o ImageJ pede `http://imagej.net/images/`, que responde com redirecionamento sem CORS e o navegador bloqueia. `tools/patch-ijprops.py` passa o `IJ_Props.txt` do `ij.jar` para https (verificado: Blobs, Clown, Bat Cochlea Volume, HeLa Cells).
+- **File > Print...** travava a JVM inteira (o `PrinterJob.printDialog` nao existe no CheerpJ). `tools/patch-printer.py` troca o comando por um aviso ("impressao indisponivel").
+### Testado
+- Varredura de ~490 comandos pela janela classica do ImageJ (File, Edit, Image, Process, Analyze, Plugins, Window, Extensions): nenhuma janela de excecao. Benchmark conclui (~106 s); MorphoLibJ responde.
+### Problemas conhecidos
+- **Plugins > Utilities > Monitor Memory...**: com a janela aberta, o Java fica "ocupado" e chamadas do JavaScript ao Java (macros, fechar a janela) deixam de responder.
+
 ## [0.6.0-alpha.57]
 ### Corrigido
 - **File > Open... da janela clássica do ImageJ** mostrava `java.lang.Error: Cannot call invokeAndWait from the event dispatch thread`. O `Executer` do comando "Open..." agora roda em thread própria (os demais comandos seguem na EDT) e o seletor de arquivos abre normalmente.
