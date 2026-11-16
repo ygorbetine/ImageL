@@ -117,15 +117,17 @@ public final class ThreadHook {
     }
 
     /**
-     * File > Open... (Opener.openMultiple) chama EventQueue.invokeAndWait, que lanca java.lang.Error quando chamado da
-     * propria EDT. Esse comando precisa de uma thread propria; os demais seguem rodando na EDT como antes.
+     * File > Open... (Opener.openMultiple) chama EventQueue.invokeAndWait, que lanca java.lang.Error na propria EDT.
+     * Monitor Memory... fica num laco com sleep que, na EDT, congela a JVM. Esses comandos precisam de thread propria;
+     * os demais seguem rodando na EDT como antes.
      */
     private static boolean needsOwnThread(Runnable target) {
         try {
             Field f = target.getClass().getDeclaredField("command");
             f.setAccessible(true);
             Object c = f.get(target);
-            return c != null && "Open...".equals(String.valueOf(c));
+            String s = String.valueOf(c);
+            return c != null && ("Open...".equals(s) || "Monitor Memory...".equals(s));
         } catch (Throwable t) {
             return false;
         }

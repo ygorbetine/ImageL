@@ -2,14 +2,18 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento: [SemVer](https://semver.org/lang/pt-BR/) (ver `ROADMAP.md`).
 
+## [0.6.0-alpha.59]
+### Corrigido
+- **Plugins > Utilities > Monitor Memory...** congelava o Java (macros e o botao de fechar a janela paravam de responder): o comando fica num laco com `sleep` e rodava na EDT. Agora roda em thread propria (como File > Open...); a janela atualiza e fecha normalmente.
+
 ## [0.6.0-alpha.58]
 ### Corrigido
 - **File > Open Samples** (Blobs, Clown, etc.) falhava com "Error loading image": o ImageJ pede `http://imagej.net/images/`, que responde com redirecionamento sem CORS e o navegador bloqueia. `tools/patch-ijprops.py` passa o `IJ_Props.txt` do `ij.jar` para https (verificado: Blobs, Clown, Bat Cochlea Volume, HeLa Cells).
 - **File > Print...** travava a JVM inteira (o `PrinterJob.printDialog` nao existe no CheerpJ). `tools/patch-printer.py` troca o comando por um aviso ("impressao indisponivel").
 ### Testado
 - Varredura de ~490 comandos pela janela classica do ImageJ (File, Edit, Image, Process, Analyze, Plugins, Window, Extensions): nenhuma janela de excecao. Benchmark conclui (~106 s); MorphoLibJ responde.
-### Problemas conhecidos
-- **Plugins > Utilities > Monitor Memory...**: com a janela aberta, o Java fica "ocupado" e chamadas do JavaScript ao Java (macros, fechar a janela) deixam de responder.
+### Problemas conhecidos (resolvido na alpha.59)
+- Monitor Memory deixava o Java ocupado com a janela aberta.
 
 ## [0.6.0-alpha.57]
 ### Corrigido
